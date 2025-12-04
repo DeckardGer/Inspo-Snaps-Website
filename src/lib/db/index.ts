@@ -1,14 +1,12 @@
-import { config } from "dotenv";
-
+import { createServerOnlyFn } from "@tanstack/react-start";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-
-import * as schema from "./schema.ts";
-
-config();
+import { serverEnv } from "@/config/env/server";
+import * as schema from "@/lib/db/schema";
 
 const pool = new Pool({
-	// biome-ignore lint/style/noNonNullAssertion: DATABASE_URL is required
-	connectionString: process.env.DATABASE_URL!,
+	connectionString: serverEnv.DATABASE_URL,
 });
-export const db = drizzle(pool, { schema });
+const getDatabase = createServerOnlyFn(() => drizzle(pool, { schema }));
+
+export const db = getDatabase();
