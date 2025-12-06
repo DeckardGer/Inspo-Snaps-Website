@@ -8,6 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@fontsource-variable/inter':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@hugeicons/core-free-icons':
+        specifier: ^2.0.0
+        version: 2.0.0
+      '@hugeicons/react':
+        specifier: ^1.1.1
+        version: 1.1.1(react@19.2.0)
       '@radix-ui/react-label':
         specifier: ^2.1.8
         version: 2.1.8(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -59,9 +68,6 @@ importers:
       lucide-react:
         specifier: ^0.544.0
         version: 0.544.0(react@19.2.0)
-      next-themes:
-        specifier: ^0.4.6
-        version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       nitro:
         specifier: latest
         version: 3.0.1-alpha.1(drizzle-orm@0.39.3(@types/pg@8.15.6)(kysely@0.28.8)(pg@8.16.3))(lru-cache@11.2.4)(rollup@4.53.3)(vite@7.2.6(@types/node@22.19.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))
@@ -1012,6 +1018,17 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fontsource-variable/inter@5.2.8':
+    resolution: {integrity: sha512-kOfP2D+ykbcX/P3IFnokOhVRNoTozo5/JxhAIVYLpea/UBmCQ/YWPBfWIDuBImXX/15KH+eKh4xpEUyS2sQQGQ==}
+
+  '@hugeicons/core-free-icons@2.0.0':
+    resolution: {integrity: sha512-OSfv5k0iB0yG61dcfK7jcf00AIK8EXyQOgtcNJzSBFvm88n9VOelkxihZHJnNwDUFpO/jZI3vZSVp6i1dmRvJQ==}
+
+  '@hugeicons/react@1.1.1':
+    resolution: {integrity: sha512-BAbFVtx0XZ/yF2poPLFn0N9Ji6ebV/MpI5+WRqooFp3smQDwpL+72m+BBs4KAM5djgWUpg12weyc5SJtTsOwsw==}
+    peerDependencies:
+      react: '>=16.0.0'
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -2502,12 +2519,6 @@ packages:
     resolution: {integrity: sha512-yJBmDJr18xy47dbNVlHcgdPrulSn1nhSE6Ns9vTG+Nx9VPT6iV1MD6aQFp/t52zpf82FhLLTXAXr30NuCnxvwA==}
     engines: {node: ^20.0.0 || >=22.0.0}
 
-  next-themes@0.4.6:
-    resolution: {integrity: sha512-pZvgD5L0IEvX5/9GWyHMf3m8BKiVQwsCMHfoFosXtXBMnaS0ZnIJ9ST4b4NqLVKDEm8QBxoNNGNaBv2JNF6XNA==}
-    peerDependencies:
-      react: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
-      react-dom: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
-
   nf3@0.1.12:
     resolution: {integrity: sha512-qbMXT7RTGh74MYWPeqTIED8nDW70NXOULVHpdWcdZ7IVHVnAsMV9fNugSNnvooipDc1FMOzpis7T9nXJEbJhvQ==}
 
@@ -3760,6 +3771,14 @@ snapshots:
 
   '@esbuild/win32-x64@0.27.0':
     optional: true
+
+  '@fontsource-variable/inter@5.2.8': {}
+
+  '@hugeicons/core-free-icons@2.0.0': {}
+
+  '@hugeicons/react@1.1.1(react@19.2.0)':
+    dependencies:
+      react: 19.2.0
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -5219,11 +5238,6 @@ snapshots:
   nanoid@3.3.11: {}
 
   nanostores@1.1.0: {}
-
-  next-themes@0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
-    dependencies:
-      react: 19.2.0
-      react-dom: 19.2.0(react@19.2.0)
 
   nf3@0.1.12: {}
 
