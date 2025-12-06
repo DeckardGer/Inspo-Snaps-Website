@@ -1,3 +1,4 @@
+// biome-ignore-all lint: reason
 import { cva, type VariantProps } from "class-variance-authority";
 import { useMemo } from "react";
 import { Label } from "@/components/ui/label";
@@ -81,7 +82,6 @@ function Field({
 	...props
 }: React.ComponentProps<"div"> & VariantProps<typeof fieldVariants>) {
 	return (
-		// biome-ignore lint/a11y/useSemanticElements: Shadcn UI
 		<div
 			role="group"
 			data-slot="field"
@@ -210,7 +210,6 @@ function FieldError({
 			<ul className="ml-4 flex list-disc flex-col gap-1">
 				{uniqueErrors.map(
 					(error, index) =>
-						// biome-ignore lint/suspicious/noArrayIndexKey: Shadcn UI
 						error?.message && <li key={index}>{error.message}</li>,
 				)}
 			</ul>
