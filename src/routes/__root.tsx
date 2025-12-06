@@ -7,6 +7,7 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { Toaster } from "@/components/ui/sonner";
 import { type AuthQueryResult, authQueryOptions } from "@/lib/auth/queries";
 import { ThemeProvider } from "@/lib/ThemeProvider";
 import appCss from "@/styles.css?url";
@@ -57,7 +58,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body>
-				<ThemeProvider>{children}</ThemeProvider>
+				<ThemeProvider>
+					{children}
+					<Toaster richColors />
+				</ThemeProvider>
 
 				<TanStackDevtools
 					config={{
