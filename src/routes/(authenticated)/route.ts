@@ -10,7 +10,7 @@ export const Route = createFileRoute("/(authenticated)")({
 		});
 
 		if (!user) {
-			throw redirect({ to: "/login" });
+			throw redirect({ to: "/login-old" });
 		}
 
 		// re-return to update type as non-null for child routes
