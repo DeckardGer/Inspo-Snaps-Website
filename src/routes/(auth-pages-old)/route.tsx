@@ -9,16 +9,16 @@ export const Route = createFileRoute("/(auth-pages-old)")({
 		const user = await context.queryClient.ensureQueryData({
 			...authQueryOptions(),
 			revalidateIfStale: true,
-		})
+		});
 		if (user) {
 			throw redirect({
 				to: REDIRECT_URL,
-			})
+			});
 		}
 
 		return {
 			redirectUrl: REDIRECT_URL,
-		}
+		};
 	},
 });
 
@@ -29,5 +29,5 @@ function RouteComponent() {
 				<Outlet />
 			</div>
 		</div>
-	)
+	);
 }
