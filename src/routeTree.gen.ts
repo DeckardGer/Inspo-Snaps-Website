@@ -13,9 +13,11 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ComponentTestingRouteImport } from './routes/component-testing'
 import { Route as authenticatedRouteRouteImport } from './routes/(authenticated)/route'
 import { Route as authPagesOldRouteRouteImport } from './routes/(auth-pages-old)/route'
+import { Route as authPagesRouteRouteImport } from './routes/(auth-pages)/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as authPagesOldSignupOldRouteImport } from './routes/(auth-pages-old)/signup-old'
 import { Route as authPagesOldLoginOldRouteImport } from './routes/(auth-pages-old)/login-old'
+import { Route as authPagesLoginRouteImport } from './routes/(auth-pages)/login'
 import { Route as authenticatedDashboardRouteRouteImport } from './routes/(authenticated)/dashboard/route'
 import { Route as authenticatedDashboardIndexRouteImport } from './routes/(authenticated)/dashboard/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -38,6 +40,10 @@ const authPagesOldRouteRoute = authPagesOldRouteRouteImport.update({
   id: '/(auth-pages-old)',
   getParentRoute: () => rootRouteImport,
 } as any)
+const authPagesRouteRoute = authPagesRouteRouteImport.update({
+  id: '/(auth-pages)',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -52,6 +58,11 @@ const authPagesOldLoginOldRoute = authPagesOldLoginOldRouteImport.update({
   id: '/login-old',
   path: '/login-old',
   getParentRoute: () => authPagesOldRouteRoute,
+} as any)
+const authPagesLoginRoute = authPagesLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => authPagesRouteRoute,
 } as any)
 const authenticatedDashboardRouteRoute =
   authenticatedDashboardRouteRouteImport.update({
@@ -75,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/component-testing': typeof ComponentTestingRoute
   '/dashboard': typeof authenticatedDashboardRouteRouteWithChildren
+  '/login': typeof authPagesLoginRoute
   '/login-old': typeof authPagesOldLoginOldRoute
   '/signup-old': typeof authPagesOldSignupOldRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -84,6 +96,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/component-testing': typeof ComponentTestingRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
+  '/login': typeof authPagesLoginRoute
   '/login-old': typeof authPagesOldLoginOldRoute
   '/signup-old': typeof authPagesOldSignupOldRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -91,11 +104,13 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/(auth-pages)': typeof authPagesRouteRouteWithChildren
   '/(auth-pages-old)': typeof authPagesOldRouteRouteWithChildren
   '/(authenticated)': typeof authenticatedRouteRouteWithChildren
   '/component-testing': typeof ComponentTestingRoute
   '/dashboard': typeof DashboardRoute
   '/(authenticated)/dashboard': typeof authenticatedDashboardRouteRouteWithChildren
+  '/(auth-pages)/login': typeof authPagesLoginRoute
   '/(auth-pages-old)/login-old': typeof authPagesOldLoginOldRoute
   '/(auth-pages-old)/signup-old': typeof authPagesOldSignupOldRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -107,6 +122,7 @@ export interface FileRouteTypes {
     | '/'
     | '/component-testing'
     | '/dashboard'
+    | '/login'
     | '/login-old'
     | '/signup-old'
     | '/api/auth/$'
@@ -116,17 +132,20 @@ export interface FileRouteTypes {
     | '/'
     | '/component-testing'
     | '/dashboard'
+    | '/login'
     | '/login-old'
     | '/signup-old'
     | '/api/auth/$'
   id:
     | '__root__'
     | '/'
+    | '/(auth-pages)'
     | '/(auth-pages-old)'
     | '/(authenticated)'
     | '/component-testing'
     | '/dashboard'
     | '/(authenticated)/dashboard'
+    | '/(auth-pages)/login'
     | '/(auth-pages-old)/login-old'
     | '/(auth-pages-old)/signup-old'
     | '/api/auth/$'
@@ -135,6 +154,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  authPagesRouteRoute: typeof authPagesRouteRouteWithChildren
   authPagesOldRouteRoute: typeof authPagesOldRouteRouteWithChildren
   authenticatedRouteRoute: typeof authenticatedRouteRouteWithChildren
   ComponentTestingRoute: typeof ComponentTestingRoute
@@ -172,6 +192,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authPagesOldRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(auth-pages)': {
+      id: '/(auth-pages)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof authPagesRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -192,6 +219,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/login-old'
       preLoaderRoute: typeof authPagesOldLoginOldRouteImport
       parentRoute: typeof authPagesOldRouteRoute
+    }
+    '/(auth-pages)/login': {
+      id: '/(auth-pages)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof authPagesLoginRouteImport
+      parentRoute: typeof authPagesRouteRoute
     }
     '/(authenticated)/dashboard': {
       id: '/(authenticated)/dashboard'
@@ -216,6 +250,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface authPagesRouteRouteChildren {
+  authPagesLoginRoute: typeof authPagesLoginRoute
+}
+
+const authPagesRouteRouteChildren: authPagesRouteRouteChildren = {
+  authPagesLoginRoute: authPagesLoginRoute,
+}
+
+const authPagesRouteRouteWithChildren = authPagesRouteRoute._addFileChildren(
+  authPagesRouteRouteChildren,
+)
 
 interface authPagesOldRouteRouteChildren {
   authPagesOldLoginOldRoute: typeof authPagesOldLoginOldRoute
@@ -258,6 +304,7 @@ const authenticatedRouteRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  authPagesRouteRoute: authPagesRouteRouteWithChildren,
   authPagesOldRouteRoute: authPagesOldRouteRouteWithChildren,
   authenticatedRouteRoute: authenticatedRouteRouteWithChildren,
   ComponentTestingRoute: ComponentTestingRoute,
