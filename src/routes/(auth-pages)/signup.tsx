@@ -87,13 +87,14 @@ function RouteComponent() {
 	});
 
 	return (
-		<div className="flex min-h-screen p-2">
-			<div className="w-full lg:w-2/5 py-4 px-8 flex flex-col justify-between">
-				<div className="flex justify-between">
+		<div className="flex h-screen p-2">
+			<div className="w-full lg:w-2/5 flex flex-col">
+				<div className="flex justify-between py-4 px-8">
 					<div>InspoSnaps Icon</div>
 				</div>
-				<div className="flex items-center justify-center">
-					<div className="flex flex-col items-center max-w-100 w-full">
+				<div className="flex-1 overflow-y-auto px-8">
+					<div className="flex items-center justify-center min-h-full py-8">
+						<div className="flex flex-col items-center max-w-100 w-full">
 						<div className="flex justify-center items-center p-4 rounded-full bg-linear-to-t from-bg-primary to-bg-tertiary">
 							<div className="flex items-center justify-center bg-bg-primary rounded-full p-4 border border-border-primary">
 								<HugeiconsIcon
@@ -321,13 +322,14 @@ function RouteComponent() {
 								</FieldDescription>
 							</Field>
 						</form>
+						</div>
 					</div>
 				</div>
-				<div className="text-sm text-text-tertiary">
+				<div className="text-sm text-text-tertiary py-4 px-8">
 					&copy; 2025 InspoSnaps.com
 				</div>
 			</div>
-			<div className="hidden lg:flex justify-center items-center w-3/5 bg-bg-tertiary rounded-2xl">
+			<div className="hidden lg:flex flex-1 justify-center items-center bg-bg-tertiary rounded-2xl">
 				<div className="flex justify-center items-center w-200 h-160 bg-bg-quaternary">
 					Social Proof
 				</div>
