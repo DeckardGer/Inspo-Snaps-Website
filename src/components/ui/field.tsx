@@ -190,9 +190,11 @@ function FieldError({
 	className,
 	children,
 	errors,
+	showAll = false,
 	...props
 }: React.ComponentProps<"div"> & {
 	errors?: Array<{ message?: string } | undefined>;
+	showAll?: boolean;
 }) {
 	const content = useMemo(() => {
 		if (children) {
@@ -201,6 +203,11 @@ function FieldError({
 
 		if (!errors?.length) {
 			return null;
+		}
+
+		// Show only the first error if showAll is false
+		if (!showAll) {
+			return errors[0]?.message;
 		}
 
 		const uniqueErrors = [
@@ -219,7 +226,7 @@ function FieldError({
 				)}
 			</ul>
 		);
-	}, [children, errors]);
+	}, [children, errors, showAll]);
 
 	if (!content) {
 		return null;

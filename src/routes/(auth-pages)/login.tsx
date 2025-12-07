@@ -7,13 +7,14 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useForm } from "@tanstack/react-form";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
 	Field,
+	FieldDescription,
 	FieldError,
 	FieldGroup,
 	FieldLabel,
@@ -65,10 +66,9 @@ function RouteComponent() {
 
 	return (
 		<div className="flex min-h-screen p-2">
-			<div className="w-2/5 py-4 px-8 flex flex-col justify-between">
+			<div className="w-full lg:w-2/5 py-4 px-8 flex flex-col justify-between">
 				<div className="flex justify-between">
-					<div>Icon</div>
-					<div>Right</div>
+					<div>InspoSnaps Icon</div>
 				</div>
 				<div className="flex items-center justify-center">
 					<div className="flex flex-col items-center max-w-100 w-full">
@@ -87,7 +87,7 @@ function RouteComponent() {
 								Enter your details to login.
 							</span>
 						</div>
-						<div className="flex gap-3 w-full mt-8">
+						<div className="flex gap-3 w-full mt-6">
 							<Button variant="outline" className="flex-1">
 								<Google />
 								Login with Google
@@ -99,9 +99,9 @@ function RouteComponent() {
 								e.preventDefault();
 								form.handleSubmit();
 							}}
-							className="w-full mt-8"
+							className="w-full mt-6"
 						>
-							<FieldGroup>
+							<FieldGroup className="gap-4">
 								<FieldSeparator className="text-text-quaternary">
 									OR
 								</FieldSeparator>
@@ -199,10 +199,13 @@ function RouteComponent() {
 									}}
 								/>
 							</FieldGroup>
-							<Field orientation="horizontal" className="mt-6">
+							<Field className="mt-6">
 								<Button type="submit" form="login-form" className="w-full">
 									Login
 								</Button>
+								<FieldDescription className="text-center">
+									Don&apos;t have an account? <Link to="/signup">Sign up</Link>
+								</FieldDescription>
 							</Field>
 						</form>
 					</div>
@@ -211,7 +214,7 @@ function RouteComponent() {
 					&copy; 2025 InspoSnaps.com
 				</div>
 			</div>
-			<div className="flex justify-center items-center w-3/5 bg-bg-tertiary rounded-2xl">
+			<div className="hidden lg:flex justify-center items-center w-3/5 bg-bg-tertiary rounded-2xl">
 				<div className="flex justify-center items-center w-200 h-160 bg-bg-quaternary">
 					Social Proof
 				</div>

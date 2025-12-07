@@ -17,6 +17,7 @@ import { Route as authPagesRouteRouteImport } from './routes/(auth-pages)/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as authPagesOldSignupOldRouteImport } from './routes/(auth-pages-old)/signup-old'
 import { Route as authPagesOldLoginOldRouteImport } from './routes/(auth-pages-old)/login-old'
+import { Route as authPagesSignupRouteImport } from './routes/(auth-pages)/signup'
 import { Route as authPagesLoginRouteImport } from './routes/(auth-pages)/login'
 import { Route as authenticatedDashboardRouteRouteImport } from './routes/(authenticated)/dashboard/route'
 import { Route as authenticatedDashboardIndexRouteImport } from './routes/(authenticated)/dashboard/index'
@@ -59,6 +60,11 @@ const authPagesOldLoginOldRoute = authPagesOldLoginOldRouteImport.update({
   path: '/login-old',
   getParentRoute: () => authPagesOldRouteRoute,
 } as any)
+const authPagesSignupRoute = authPagesSignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => authPagesRouteRoute,
+} as any)
 const authPagesLoginRoute = authPagesLoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/component-testing': typeof ComponentTestingRoute
   '/dashboard': typeof authenticatedDashboardRouteRouteWithChildren
   '/login': typeof authPagesLoginRoute
+  '/signup': typeof authPagesSignupRoute
   '/login-old': typeof authPagesOldLoginOldRoute
   '/signup-old': typeof authPagesOldSignupOldRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/component-testing': typeof ComponentTestingRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
   '/login': typeof authPagesLoginRoute
+  '/signup': typeof authPagesSignupRoute
   '/login-old': typeof authPagesOldLoginOldRoute
   '/signup-old': typeof authPagesOldSignupOldRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/(authenticated)/dashboard': typeof authenticatedDashboardRouteRouteWithChildren
   '/(auth-pages)/login': typeof authPagesLoginRoute
+  '/(auth-pages)/signup': typeof authPagesSignupRoute
   '/(auth-pages-old)/login-old': typeof authPagesOldLoginOldRoute
   '/(auth-pages-old)/signup-old': typeof authPagesOldSignupOldRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/component-testing'
     | '/dashboard'
     | '/login'
+    | '/signup'
     | '/login-old'
     | '/signup-old'
     | '/api/auth/$'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/component-testing'
     | '/dashboard'
     | '/login'
+    | '/signup'
     | '/login-old'
     | '/signup-old'
     | '/api/auth/$'
@@ -146,6 +157,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/(authenticated)/dashboard'
     | '/(auth-pages)/login'
+    | '/(auth-pages)/signup'
     | '/(auth-pages-old)/login-old'
     | '/(auth-pages-old)/signup-old'
     | '/api/auth/$'
@@ -220,6 +232,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authPagesOldLoginOldRouteImport
       parentRoute: typeof authPagesOldRouteRoute
     }
+    '/(auth-pages)/signup': {
+      id: '/(auth-pages)/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof authPagesSignupRouteImport
+      parentRoute: typeof authPagesRouteRoute
+    }
     '/(auth-pages)/login': {
       id: '/(auth-pages)/login'
       path: '/login'
@@ -253,10 +272,12 @@ declare module '@tanstack/react-router' {
 
 interface authPagesRouteRouteChildren {
   authPagesLoginRoute: typeof authPagesLoginRoute
+  authPagesSignupRoute: typeof authPagesSignupRoute
 }
 
 const authPagesRouteRouteChildren: authPagesRouteRouteChildren = {
   authPagesLoginRoute: authPagesLoginRoute,
+  authPagesSignupRoute: authPagesSignupRoute,
 }
 
 const authPagesRouteRouteWithChildren = authPagesRouteRoute._addFileChildren(

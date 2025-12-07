@@ -486,7 +486,13 @@ body {
   * {
     @apply border-border-primary outline-focus-ring ring-offset-bg-primary;
   }
+  
   body {
     @apply bg-bg-primary text-text-primary;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
   }
 }
