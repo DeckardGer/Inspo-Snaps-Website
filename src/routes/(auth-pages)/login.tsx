@@ -1,14 +1,68 @@
-import { UserIcon } from "@hugeicons/core-free-icons";
+import {
+	Mail01Icon,
+	SquareLock02Icon,
+	UserIcon,
+	ViewIcon,
+	ViewOffSlashIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useForm } from "@tanstack/react-form";
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import {
+	Field,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+	FieldSeparator,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { Google } from "@/components/ui/svgs/google";
 
 export const Route = createFileRoute("/(auth-pages)/login")({
 	component: RouteComponent,
 });
 
+const loginFormSchema = z.object({
+	email: z
+		.string()
+		.min(1, "Email is required.")
+		.regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Please enter a valid email address."),
+	password: z.string().min(1, "Password is required."),
+});
+
 function RouteComponent() {
+	const [showPassword, setShowPassword] = useState(false);
+
+	const form = useForm({
+		defaultValues: {
+			email: "",
+			password: "",
+		},
+		validators: {
+			onSubmit: loginFormSchema,
+		},
+		onSubmit: async ({ value }) => {
+			toast("You submitted the following values:", {
+				description: (
+					<pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
+						<code>{JSON.stringify(value, null, 2)}</code>
+					</pre>
+				),
+				position: "bottom-right",
+				classNames: {
+					content: "flex flex-col gap-2",
+				},
+				style: {
+					"--border-radius": "calc(var(--radius)  + 4px)",
+				} as React.CSSProperties,
+			});
+		},
+	});
+
 	return (
 		<div className="flex min-h-screen p-2">
 			<div className="w-2/5 py-4 px-8 flex flex-col justify-between">
@@ -39,6 +93,118 @@ function RouteComponent() {
 								Login with Google
 							</Button>
 						</div>
+						<form
+							id="login-form"
+							onSubmit={(e) => {
+								e.preventDefault();
+								form.handleSubmit();
+							}}
+							className="w-full mt-8"
+						>
+							<FieldGroup>
+								<FieldSeparator className="text-text-quaternary">
+									OR
+								</FieldSeparator>
+								<form.Field
+									name="email"
+									children={(field) => {
+										const isInvalid =
+											field.state.meta.isTouched && !field.state.meta.isValid;
+										return (
+											<Field data-invalid={isInvalid}>
+												<FieldLabel htmlFor={field.name} required>
+													Email
+												</FieldLabel>
+												<div className="relative">
+													<HugeiconsIcon
+														icon={Mail01Icon}
+														size={18}
+														strokeWidth={2}
+														className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
+													/>
+													<Input
+														id={field.name}
+														name={field.name}
+														value={field.state.value}
+														onBlur={field.handleBlur}
+														onChange={(e) => field.handleChange(e.target.value)}
+														aria-invalid={isInvalid}
+														autoComplete="on"
+														className="pl-10"
+													/>
+												</div>
+												{isInvalid && (
+													<FieldError errors={field.state.meta.errors} />
+												)}
+											</Field>
+										);
+									}}
+								/>
+								<form.Field
+									name="password"
+									children={(field) => {
+										const isInvalid =
+											field.state.meta.isTouched && !field.state.meta.isValid;
+										return (
+											<Field data-invalid={isInvalid}>
+												<div className="flex items-center justify-between w-full">
+													<FieldLabel htmlFor={field.name} required>
+														Password
+													</FieldLabel>
+													<Button
+														variant="link"
+														className="p-0 h-auto leading-snug"
+													>
+														Forgot Password?
+													</Button>
+												</div>
+												<div className="relative">
+													<HugeiconsIcon
+														icon={SquareLock02Icon}
+														size={18}
+														strokeWidth={2}
+														className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
+													/>
+													<Input
+														id={field.name}
+														name={field.name}
+														value={field.state.value}
+														onBlur={field.handleBlur}
+														onChange={(e) => field.handleChange(e.target.value)}
+														aria-invalid={isInvalid}
+														autoComplete="on"
+														type={showPassword ? "text" : "password"}
+														className="pl-10 pr-10"
+													/>
+													<button
+														type="button"
+														onClick={() => setShowPassword(!showPassword)}
+														className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-secondary transition-colors"
+														aria-label={
+															showPassword ? "Hide password" : "Show password"
+														}
+													>
+														<HugeiconsIcon
+															icon={showPassword ? ViewIcon : ViewOffSlashIcon}
+															size={18}
+															strokeWidth={2}
+														/>
+													</button>
+												</div>
+												{isInvalid && (
+													<FieldError errors={field.state.meta.errors} />
+												)}
+											</Field>
+										);
+									}}
+								/>
+							</FieldGroup>
+							<Field orientation="horizontal" className="mt-6">
+								<Button type="submit" form="login-form" className="w-full">
+									Login
+								</Button>
+							</Field>
+						</form>
 					</div>
 				</div>
 				<div className="text-sm text-text-tertiary">

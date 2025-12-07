@@ -1,4 +1,4 @@
-// biome-ignore-all lint: reason
+// biome-ignore-all lint: ShacCN UI
 import { cva, type VariantProps } from "class-variance-authority";
 import { useMemo } from "react";
 import { Label } from "@/components/ui/label";
@@ -53,7 +53,7 @@ function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 const fieldVariants = cva(
-	"group/field flex w-full gap-3 data-[invalid=true]:text-text-error-primary",
+	"group/field flex w-full gap-2 data-[invalid=true]:text-text-error-primary",
 	{
 		variants: {
 			orientation: {
@@ -107,8 +107,10 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
 
 function FieldLabel({
 	className,
+	required,
+	children,
 	...props
-}: React.ComponentProps<typeof Label>) {
+}: React.ComponentProps<typeof Label> & { required?: boolean }) {
 	return (
 		<Label
 			data-slot="field-label"
@@ -119,7 +121,10 @@ function FieldLabel({
 				className,
 			)}
 			{...props}
-		/>
+		>
+			{children}
+			{required && <span className="text-text-brand-secondary -ml-1.5">*</span>}
+		</Label>
 	);
 }
 
@@ -163,7 +168,7 @@ function FieldSeparator({
 			data-slot="field-separator"
 			data-content={!!children}
 			className={cn(
-				"relative -my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2",
+				"relative -my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2 text-border-primary ",
 				className,
 			)}
 			{...props}
@@ -171,7 +176,7 @@ function FieldSeparator({
 			<Separator className="absolute inset-0 top-1/2" />
 			{children && (
 				<span
-					className="bg-border-secondary text-border-secondary relative mx-auto block w-fit px-2"
+					className="bg-bg-primary relative mx-auto block w-fit px-2"
 					data-slot="field-separator-content"
 				>
 					{children}
