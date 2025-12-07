@@ -10,7 +10,7 @@ const buttonVariants = cva(
 		variants: {
 			variant: {
 				default:
-					"bg-bg-brand-solid text-text-white hover:bg-bg-brand-solid_hover",
+					"bg-bg-brand-solid text-text-white hover:bg-bg-brand-solid_hover relative before:absolute before:inset-0 before:rounded-[calc(0.375rem-1px)] before:bg-gradient-to-b before:from-white/15 before:via-white/5 before:to-black/5 before:pointer-events-none",
 				destructive:
 					"bg-bg-error-solid text-text-white hover:bg-bg-error-solid_hover focus-visible:ring-focus-ring-error",
 				outline:
