@@ -12,6 +12,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { SocialSignInButton } from "@/components/SocialSignInButton";
 import { Button } from "@/components/ui/button";
 import {
 	Field,
@@ -107,10 +108,11 @@ function RouteComponent() {
 								</span>
 							</div>
 							<div className="flex gap-3 w-full mt-4">
-								<Button variant="outline" className="flex-1">
-									<Google />
-									Login with Google
-								</Button>
+								<SocialSignInButton
+									provider="google"
+									logo={<Google />}
+									callbackURL={redirectUrl}
+								/>
 							</div>
 							<form
 								id="login-form"

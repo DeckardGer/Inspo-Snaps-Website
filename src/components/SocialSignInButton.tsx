@@ -3,14 +3,14 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import authClient from "@/lib/auth/auth-client";
 
-interface SocialLoginButtonProps {
+interface SocialSignInButtonProps {
 	provider: string;
-	icon: React.ReactNode;
+	logo: React.ReactNode;
 	disabled?: boolean;
 	callbackURL: string;
 }
 
-export function SignInSocialButton(props: SocialLoginButtonProps) {
+export function SocialSignInButton(props: SocialSignInButtonProps) {
 	const providerLabel =
 		props.provider === "github"
 			? "GitHub"
@@ -37,12 +37,11 @@ export function SignInSocialButton(props: SocialLoginButtonProps) {
 	return (
 		<Button
 			variant="outline"
-			className="w-full"
-			type="button"
+			className="flex-1"
 			disabled={mutation.isSuccess || mutation.isPending || props.disabled}
 			onClick={() => mutation.mutate()}
 		>
-			{props.icon}
+			{props.logo}
 			Login with {providerLabel}
 		</Button>
 	);

@@ -32,6 +32,13 @@ const getAuthConfig = createServerOnlyFn(() =>
 			enabled: true,
 		},
 
+		socialProviders: {
+			google: {
+				clientId: serverEnv.GOOGLE_CLIENT_ID,
+				clientSecret: serverEnv.GOOGLE_CLIENT_SECRET,
+			},
+		},
+
 		experimental: {
 			// https://www.better-auth.com/docs/adapters/drizzle#joins-experimental
 			joins: true,
