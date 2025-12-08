@@ -23,6 +23,11 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Google } from "@/components/ui/svgs/google";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const Route = createFileRoute("/(auth-pages)/signup")({
 	component: RouteComponent,
@@ -51,19 +56,16 @@ const signupFormSchema = z.object({
 			/[^a-zA-Z0-9]/,
 			"Password must contain at least one special character.",
 		),
-	confirmPassword: z.string().min(1, "Confirm Password is required."),
 });
 
 function RouteComponent() {
 	const [showPassword, setShowPassword] = useState(false);
-	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 	const form = useForm({
 		defaultValues: {
 			username: "",
 			email: "",
 			password: "",
-			confirmPassword: "",
 		},
 		validators: {
 			onSubmit: signupFormSchema,
@@ -93,13 +95,13 @@ function RouteComponent() {
 					<div>InspoSnaps Icon</div>
 				</div>
 				<div className="flex-1 overflow-y-auto px-8">
-					<div className="flex items-center justify-center min-h-full py-8">
+					<div className="flex items-center justify-center min-h-full">
 						<div className="flex flex-col items-center max-w-100 w-full">
 							<div className="flex justify-center items-center p-4 rounded-full bg-linear-to-t from-bg-primary to-bg-tertiary">
 								<div className="flex items-center justify-center bg-bg-primary rounded-full p-4 border border-border-primary">
 									<HugeiconsIcon
 										icon={UserIcon}
-										size={36}
+										size={32}
 										className="text-fg-secondary"
 									/>
 								</div>
@@ -110,10 +112,10 @@ function RouteComponent() {
 									Enter your details to signup.
 								</span>
 							</div>
-							<div className="flex gap-3 w-full mt-6">
+							<div className="flex gap-3 w-full mt-4">
 								<Button variant="outline" className="flex-1">
 									<Google />
-									Login with Google
+									Signup with Google
 								</Button>
 							</div>
 							<form
@@ -232,85 +234,31 @@ function RouteComponent() {
 															type={showPassword ? "text" : "password"}
 															className="pl-10 pr-10"
 														/>
-														<button
-															type="button"
-															onClick={() => setShowPassword(!showPassword)}
-															className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-secondary transition-colors"
-															aria-label={
-																showPassword ? "Hide password" : "Show password"
-															}
-														>
-															<HugeiconsIcon
-																icon={
-																	showPassword ? ViewIcon : ViewOffSlashIcon
-																}
-																size={18}
-																strokeWidth={2}
-															/>
-														</button>
-													</div>
-													{isInvalid && (
-														<FieldError
-															errors={field.state.meta.errors}
-															showAll
-														/>
-													)}
-												</Field>
-											);
-										}}
-									/>
-									<form.Field
-										name="confirmPassword"
-										children={(field) => {
-											const isInvalid =
-												field.state.meta.isTouched && !field.state.meta.isValid;
-											return (
-												<Field data-invalid={isInvalid}>
-													<FieldLabel htmlFor={field.name} required>
-														Confirm Password
-													</FieldLabel>
-													<div className="relative">
-														<HugeiconsIcon
-															icon={SquareLock02Icon}
-															size={18}
-															strokeWidth={2}
-															className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
-														/>
-														<Input
-															id={field.name}
-															name={field.name}
-															value={field.state.value}
-															onBlur={field.handleBlur}
-															onChange={(e) =>
-																field.handleChange(e.target.value)
-															}
-															aria-invalid={isInvalid}
-															autoComplete="on"
-															type={showConfirmPassword ? "text" : "password"}
-															className="pl-10 pr-10"
-														/>
-														<button
-															type="button"
-															onClick={() =>
-																setShowConfirmPassword(!showConfirmPassword)
-															}
-															className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-secondary transition-colors"
-															aria-label={
-																showConfirmPassword
-																	? "Hide password"
-																	: "Show password"
-															}
-														>
-															<HugeiconsIcon
-																icon={
-																	showConfirmPassword
-																		? ViewIcon
-																		: ViewOffSlashIcon
-																}
-																size={18}
-																strokeWidth={2}
-															/>
-														</button>
+														<Tooltip>
+															<TooltipTrigger asChild>
+																<Button
+																	onClick={() => setShowPassword(!showPassword)}
+																	variant="link"
+																	size="icon"
+																	className="absolute right-[2px] top-1/2 -translate-y-1/2"
+																>
+																	<HugeiconsIcon
+																		icon={
+																			showPassword ? ViewIcon : ViewOffSlashIcon
+																		}
+																		size={18}
+																		strokeWidth={2}
+																	/>
+																</Button>
+															</TooltipTrigger>
+															<TooltipContent>
+																<p>
+																	{showPassword
+																		? "Hide password"
+																		: "Show password"}
+																</p>
+															</TooltipContent>
+														</Tooltip>
 													</div>
 													{isInvalid && (
 														<FieldError
@@ -339,7 +287,7 @@ function RouteComponent() {
 					&copy; 2025 InspoSnaps.com
 				</div>
 			</div>
-			<div className="hidden lg:flex flex-1 justify-center items-center bg-bg-tertiary rounded-2xl">
+			<div className="hidden lg:flex lg:w-3/5 flex-1 justify-center items-center bg-bg-tertiary rounded-2xl">
 				<div className="flex justify-center items-center w-200 h-160 bg-bg-quaternary">
 					Social Proof
 				</div>
