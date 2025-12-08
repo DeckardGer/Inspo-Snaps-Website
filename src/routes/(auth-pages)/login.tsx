@@ -7,6 +7,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useForm } from "@tanstack/react-form";
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -27,6 +28,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import authClient from "@/lib/auth/auth-client";
 
 export const Route = createFileRoute("/(auth-pages)/login")({
 	component: RouteComponent,
@@ -41,7 +43,29 @@ const loginFormSchema = z.object({
 });
 
 function RouteComponent() {
+	const { redirectUrl } = Route.useRouteContext();
 	const [showPassword, setShowPassword] = useState(false);
+
+	const { mutate: emailLoginMutate, isPending } = useMutation({
+		mutationFn: async (data: { email: string; password: string }) =>
+			await authClient.signIn.email(
+				{
+					...data,
+					callbackURL: redirectUrl,
+				},
+				{
+					onError: ({ error }) => {
+						toast.error(error.message || "An error occurred while signing in.");
+					},
+					// better-auth seems to trigger a hard navigation on login,
+					// so we don't have to revalidate & navigate ourselves
+					// onSuccess: () => {
+					//   queryClient.removeQueries({ queryKey: authQueryOptions().queryKey });
+					//   navigate({ to: redirectUrl });
+					// },
+				},
+			),
+	});
 
 	const form = useForm({
 		defaultValues: {
@@ -52,20 +76,9 @@ function RouteComponent() {
 			onSubmit: loginFormSchema,
 		},
 		onSubmit: async ({ value }) => {
-			toast("You submitted the following values:", {
-				description: (
-					<pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-						<code>{JSON.stringify(value, null, 2)}</code>
-					</pre>
-				),
-				position: "bottom-right",
-				classNames: {
-					content: "flex flex-col gap-2",
-				},
-				style: {
-					"--border-radius": "calc(var(--radius)  + 4px)",
-				} as React.CSSProperties,
-			});
+			if (isPending) return;
+
+			emailLoginMutate({ email: value.email, password: value.password });
 		},
 	});
 

@@ -8,7 +8,8 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useForm } from "@tanstack/react-form";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -28,6 +29,8 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import authClient from "@/lib/auth/auth-client";
+import { authQueryOptions } from "@/lib/auth/queries";
 
 export const Route = createFileRoute("/(auth-pages)/signup")({
 	component: RouteComponent,
@@ -59,7 +62,36 @@ const signupFormSchema = z.object({
 });
 
 function RouteComponent() {
+	const navigate = useNavigate();
+	const { queryClient, redirectUrl } = Route.useRouteContext();
 	const [showPassword, setShowPassword] = useState(false);
+
+	const { mutate: signupMutate, isPending } = useMutation({
+		mutationFn: async (data: {
+			username: string;
+			email: string;
+			password: string;
+		}) => {
+			await authClient.signUp.email(
+				{
+					...data,
+					name: data.username,
+					callbackURL: redirectUrl,
+				},
+				{
+					onError: ({ error }) => {
+						toast.error(error.message || "An error occurred while signing up.");
+					},
+					onSuccess: () => {
+						queryClient.removeQueries({
+							queryKey: authQueryOptions().queryKey,
+						});
+						navigate({ to: redirectUrl });
+					},
+				},
+			);
+		},
+	});
 
 	const form = useForm({
 		defaultValues: {
@@ -71,19 +103,12 @@ function RouteComponent() {
 			onSubmit: signupFormSchema,
 		},
 		onSubmit: async ({ value }) => {
-			toast("You submitted the following values:", {
-				description: (
-					<pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-						<code>{JSON.stringify(value, null, 2)}</code>
-					</pre>
-				),
-				position: "bottom-right",
-				classNames: {
-					content: "flex flex-col gap-2",
-				},
-				style: {
-					"--border-radius": "calc(var(--radius)  + 4px)",
-				} as React.CSSProperties,
+			if (isPending) return;
+
+			signupMutate({
+				username: value.username,
+				email: value.email,
+				password: value.password,
 			});
 		},
 	});
