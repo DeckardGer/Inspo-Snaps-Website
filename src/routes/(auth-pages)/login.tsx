@@ -11,7 +11,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import * as z from "zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
 	Field,
@@ -150,7 +150,7 @@ function RouteComponent() {
 																field.handleChange(e.target.value)
 															}
 															aria-invalid={isInvalid}
-															autoComplete="on"
+															autoComplete="email"
 															className="pl-10"
 														/>
 													</div>
@@ -195,7 +195,7 @@ function RouteComponent() {
 																field.handleChange(e.target.value)
 															}
 															aria-invalid={isInvalid}
-															autoComplete="on"
+															autoComplete="current-password"
 															type={showPassword ? "text" : "password"}
 															className="pl-10 pr-10"
 														/>

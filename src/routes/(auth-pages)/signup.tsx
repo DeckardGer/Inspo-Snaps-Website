@@ -1,7 +1,9 @@
 import {
 	AtIcon,
+	Loading03Icon,
 	Mail01Icon,
 	SquareLock02Icon,
+	Tick02Icon,
 	UserIcon,
 	ViewIcon,
 	ViewOffSlashIcon,
@@ -12,7 +14,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import * as z from "zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
 	Field,
@@ -30,7 +32,20 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import authClient from "@/lib/auth/auth-client";
+import { checkUsernameAvailability } from "@/lib/auth/functions";
 import { authQueryOptions } from "@/lib/auth/queries";
+
+// Helper to transform TanStack Form errors to FieldError format
+function transformFormErrors(
+	errors: Array<string | { message?: string } | undefined> | undefined,
+): Array<{ message?: string } | undefined> | undefined {
+	return errors?.map((error) => {
+		if (typeof error === "string") {
+			return { message: error };
+		}
+		return error;
+	});
+}
 
 export const Route = createFileRoute("/(auth-pages)/signup")({
 	component: RouteComponent,
@@ -40,10 +55,10 @@ const signupFormSchema = z.object({
 	username: z
 		.string()
 		.min(3, "Username must be at least 3 characters.")
-		.max(20, "Username must be at most 20 characters.")
+		.max(30, "Username must be at most 30 characters.")
 		.regex(
-			/^[a-zA-Z0-9._-]+$/,
-			"Username can only contain letters, numbers, periods, underscores, and hyphens.",
+			/^[a-zA-Z0-9._]+$/,
+			"Username can only contain alphanumeric characters, underscores, and dots.",
 		),
 	email: z
 		.string()
@@ -157,9 +172,49 @@ function RouteComponent() {
 									</FieldSeparator>
 									<form.Field
 										name="username"
+										validators={{
+											onChangeAsyncDebounceMs: 500,
+											onChangeAsync: async ({ value }) => {
+												// Empty value is valid (no error)
+												if (!value) {
+													return undefined;
+												}
+
+												try {
+													const result = await checkUsernameAvailability({
+														data: { username: value },
+													});
+
+													// Backend validates format and checks availability
+													if (!result.valid) {
+														return result.message;
+													}
+
+													return undefined;
+												} catch (error) {
+													// Network or other errors
+													console.error("Username check error:", error);
+													return "Unable to verify username. Please try again.";
+												}
+											},
+										}}
 										children={(field) => {
-											const isInvalid =
-												field.state.meta.isTouched && !field.state.meta.isValid;
+											const hasValue = field.state.value.length > 0;
+											const isValidating = field.state.meta.isValidating;
+											const hasErrors =
+												field.state.meta.errors &&
+												field.state.meta.errors.length > 0;
+											const isInvalid = hasValue && hasErrors && !isValidating;
+											const isAvailable =
+												hasValue &&
+												!hasErrors &&
+												!isValidating &&
+												field.state.meta.isTouched;
+
+											const transformedErrors = transformFormErrors(
+												field.state.meta.errors,
+											);
+
 											return (
 												<Field data-invalid={isInvalid}>
 													<FieldLabel htmlFor={field.name} required>
@@ -181,12 +236,29 @@ function RouteComponent() {
 																field.handleChange(e.target.value)
 															}
 															aria-invalid={isInvalid}
-															autoComplete="on"
-															className="pl-10"
+															autoComplete="username"
+															spellCheck={false}
+															className="pl-10 pr-10"
 														/>
+														{isValidating && (
+															<HugeiconsIcon
+																icon={Loading03Icon}
+																size={18}
+																strokeWidth={2}
+																className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary animate-spin"
+															/>
+														)}
+														{isAvailable && (
+															<HugeiconsIcon
+																icon={Tick02Icon}
+																size={18}
+																strokeWidth={2}
+																className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600"
+															/>
+														)}
 													</div>
 													{isInvalid && (
-														<FieldError errors={field.state.meta.errors} />
+														<FieldError errors={transformedErrors} />
 													)}
 												</Field>
 											);
@@ -218,7 +290,7 @@ function RouteComponent() {
 																field.handleChange(e.target.value)
 															}
 															aria-invalid={isInvalid}
-															autoComplete="on"
+															autoComplete="email"
 															className="pl-10"
 														/>
 													</div>
@@ -255,7 +327,7 @@ function RouteComponent() {
 																field.handleChange(e.target.value)
 															}
 															aria-invalid={isInvalid}
-															autoComplete="on"
+															autoComplete="new-password"
 															type={showPassword ? "text" : "password"}
 															className="pl-10 pr-10"
 														/>
