@@ -1,4 +1,4 @@
-// biome-ignore-all lint: ShacCN UI
+// biome-ignore-all lint: ShadCN UI
 import { cva, type VariantProps } from "class-variance-authority";
 import { useMemo } from "react";
 import { Label } from "@/components/ui/label";

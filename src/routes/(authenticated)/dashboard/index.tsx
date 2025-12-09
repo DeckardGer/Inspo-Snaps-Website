@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { SignOutButton } from "@/components/sign-out-button";
 
 export const Route = createFileRoute("/(authenticated)/dashboard/")({
 	component: DashboardIndex,
@@ -20,7 +19,6 @@ function DashboardIndex() {
 					{JSON.stringify(user, null, 2)}
 				</pre>
 			</div>
-			<SignOutButton />
 		</div>
 	);
 }

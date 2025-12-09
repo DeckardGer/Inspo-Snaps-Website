@@ -109,7 +109,6 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
 	return (
 		<ThemeContext value={{ userTheme, appTheme, setTheme }}>
-			{/** biome-ignore lint/correctness/noChildrenProp: Required prop */}
 			<ScriptOnce children={themeScript} />
 
 			{children}

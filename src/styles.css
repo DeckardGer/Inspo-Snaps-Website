@@ -284,7 +284,7 @@ body {
   --bg-active: var(--gray-800);
   --bg-disabled: var(--gray-800);
   --bg-disabled_subtle: var(--gray-900);
-  --bg-overlay: var(--gray-800);
+  --bg-overlay: var(--gray-900);
   --bg-brand-primary: var(--brand-500);
   --bg-brand-primary_alt: var(--gray-800);
   --bg-brand-secondary: var(--brand-600);
@@ -486,7 +486,7 @@ body {
   * {
     @apply border-border-primary outline-focus-ring ring-offset-bg-primary;
   }
-  
+
   body {
     @apply bg-bg-primary text-text-primary;
   }
