@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/(authenticated)/dashboard")({
+export const Route = createFileRoute("/(authenticated-old)/dashboard")({
 	component: DashboardLayout,
 });
 
@@ -27,5 +27,5 @@ function DashboardLayout() {
 
 			<Outlet />
 		</div>
-	);
+	)
 }
