@@ -85,7 +85,7 @@ function RouteComponent() {
 
 	return (
 		<div className="flex h-screen p-2">
-			<div className="w-full lg:w-2/5 max-w-200 flex flex-col">
+			<div className="w-full lg:w-2/5 lg:max-w-200 flex flex-col">
 				<div className="flex justify-between py-4 px-8">
 					<div>InspoSnaps Icon</div>
 				</div>
@@ -252,11 +252,7 @@ function RouteComponent() {
 					&copy; 2025 InspoSnaps.com
 				</div>
 			</div>
-			<div className="hidden lg:flex lg:w-3/5 flex-1 justify-center items-center bg-bg-tertiary rounded-2xl">
-				<div className="flex justify-center items-center w-200 h-160 bg-bg-quaternary">
-					Social Proof
-				</div>
-			</div>
+			<div className="hidden lg:flex lg:w-3/5 flex-1 justify-center items-center bg-bg-secondary rounded-2xl"></div>
 		</div>
 	);
 }
