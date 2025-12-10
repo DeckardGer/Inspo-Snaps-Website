@@ -1,7 +1,9 @@
 // biome-ignore-all lint: ShadCN UI
+
+import { SidebarLeftIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { PanelLeftIcon } from "lucide-react";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +29,7 @@ const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
-const SIDEBAR_WIDTH_ICON = "3rem";
+const SIDEBAR_WIDTH_ICON = "3.5rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
 type SidebarContextProps = {
@@ -137,7 +139,7 @@ function SidebarProvider({
 						} as React.CSSProperties
 					}
 					className={cn(
-						"group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full",
+						"group/sidebar-wrapper has-data-[variant=inset]:bg-bg-primary_alt flex min-h-svh w-full",
 						className,
 					)}
 					{...props}
@@ -168,7 +170,7 @@ function Sidebar({
 			<div
 				data-slot="sidebar"
 				className={cn(
-					"bg-sidebar text-text-secondary flex h-full w-(--sidebar-width) flex-col",
+					"bg-bg-primary_alt text-text-secondary flex h-full w-(--sidebar-width) flex-col",
 					className,
 				)}
 				{...props}
@@ -185,7 +187,7 @@ function Sidebar({
 					data-sidebar="sidebar"
 					data-slot="sidebar"
 					data-mobile="true"
-					className="bg-sidebar text-text-secondary w-(--sidebar-width) p-0 [&>button]:hidden"
+					className="bg-bg-primary_alt text-text-secondary w-(--sidebar-width) p-0 [&>button]:hidden"
 					style={
 						{
 							"--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -242,7 +244,7 @@ function Sidebar({
 				<div
 					data-sidebar="sidebar"
 					data-slot="sidebar-inner"
-					className="bg-sidebar group-data-[variant=floating]:border-border-secondary flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
+					className="bg-bg-primary_alt group-data-[variant=floating]:border-border-secondary flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
 				>
 					{children}
 				</div>
@@ -271,7 +273,7 @@ function SidebarTrigger({
 			}}
 			{...props}
 		>
-			<PanelLeftIcon />
+			<HugeiconsIcon icon={SidebarLeftIcon} />
 			<span className="sr-only">Toggle Sidebar</span>
 		</Button>
 	);
@@ -292,7 +294,7 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
 				"hover:after:bg-border-secondary absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex",
 				"in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize",
 				"[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize",
-				"hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full",
+				"hover:group-data-[collapsible=offcanvas]:bg-bg-primary_alt group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full",
 				"[[data-side=left][data-collapsible=offcanvas]_&]:-right-2",
 				"[[data-side=right][data-collapsible=offcanvas]_&]:-left-2",
 				className,
@@ -335,7 +337,7 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
 		<div
 			data-slot="sidebar-header"
 			data-sidebar="header"
-			className={cn("flex flex-col gap-2 p-2", className)}
+			className={cn("flex flex-col gap-2 p-3", className)}
 			{...props}
 		/>
 	);
@@ -346,7 +348,7 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
 		<div
 			data-slot="sidebar-footer"
 			data-sidebar="footer"
-			className={cn("flex flex-col gap-2 p-2", className)}
+			className={cn("flex flex-col gap-2 p-3", className)}
 			{...props}
 		/>
 	);
@@ -385,7 +387,7 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
 		<div
 			data-slot="sidebar-group"
 			data-sidebar="group"
-			className={cn("relative flex w-full min-w-0 flex-col p-2", className)}
+			className={cn("relative flex w-full min-w-0 flex-col p-3", className)}
 			{...props}
 		/>
 	);
@@ -454,7 +456,7 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
 		<ul
 			data-slot="sidebar-menu"
 			data-sidebar="menu"
-			className={cn("flex w-full min-w-0 flex-col gap-1", className)}
+			className={cn("flex w-full min-w-0 flex-col gap-1.5", className)}
 			{...props}
 		/>
 	);

@@ -10,16 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as authenticatedOldRouteRouteImport } from './routes/(authenticated-old)/route'
+import { Route as authenticatedRouteRouteImport } from './routes/(authenticated)/route'
 import { Route as authPagesRouteRouteImport } from './routes/(auth-pages)/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as authPagesSignupRouteImport } from './routes/(auth-pages)/signup'
 import { Route as authPagesLoginRouteImport } from './routes/(auth-pages)/login'
 import { Route as authenticatedOldDashboardRouteRouteImport } from './routes/(authenticated-old)/dashboard/route'
 import { Route as authenticatedOldDashboardIndexRouteImport } from './routes/(authenticated-old)/dashboard/index'
+import { Route as authenticatedDashboardIndexRouteImport } from './routes/(authenticated)/dashboard/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const authenticatedOldRouteRoute = authenticatedOldRouteRouteImport.update({
   id: '/(authenticated-old)',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authenticatedRouteRoute = authenticatedRouteRouteImport.update({
+  id: '/(authenticated)',
   getParentRoute: () => rootRouteImport,
 } as any)
 const authPagesRouteRoute = authPagesRouteRouteImport.update({
@@ -53,6 +59,12 @@ const authenticatedOldDashboardIndexRoute =
     path: '/',
     getParentRoute: () => authenticatedOldDashboardRouteRoute,
   } as any)
+const authenticatedDashboardIndexRoute =
+  authenticatedDashboardIndexRouteImport.update({
+    id: '/dashboard/',
+    path: '/dashboard/',
+    getParentRoute: () => authenticatedRouteRoute,
+  } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -61,7 +73,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof authenticatedOldDashboardRouteRouteWithChildren
+  '/dashboard': typeof authenticatedDashboardIndexRoute
   '/login': typeof authPagesLoginRoute
   '/signup': typeof authPagesSignupRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -78,11 +90,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/(auth-pages)': typeof authPagesRouteRouteWithChildren
+  '/(authenticated)': typeof authenticatedRouteRouteWithChildren
   '/(authenticated-old)': typeof authenticatedOldRouteRouteWithChildren
   '/(authenticated-old)/dashboard': typeof authenticatedOldDashboardRouteRouteWithChildren
   '/(auth-pages)/login': typeof authPagesLoginRoute
   '/(auth-pages)/signup': typeof authPagesSignupRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/(authenticated)/dashboard/': typeof authenticatedDashboardIndexRoute
   '/(authenticated-old)/dashboard/': typeof authenticatedOldDashboardIndexRoute
 }
 export interface FileRouteTypes {
@@ -100,17 +114,20 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/(auth-pages)'
+    | '/(authenticated)'
     | '/(authenticated-old)'
     | '/(authenticated-old)/dashboard'
     | '/(auth-pages)/login'
     | '/(auth-pages)/signup'
     | '/api/auth/$'
+    | '/(authenticated)/dashboard/'
     | '/(authenticated-old)/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   authPagesRouteRoute: typeof authPagesRouteRouteWithChildren
+  authenticatedRouteRoute: typeof authenticatedRouteRouteWithChildren
   authenticatedOldRouteRoute: typeof authenticatedOldRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -122,6 +139,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof authenticatedOldRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(authenticated)': {
+      id: '/(authenticated)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof authenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth-pages)': {
@@ -166,6 +190,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authenticatedOldDashboardIndexRouteImport
       parentRoute: typeof authenticatedOldDashboardRouteRoute
     }
+    '/(authenticated)/dashboard/': {
+      id: '/(authenticated)/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof authenticatedDashboardIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -189,6 +220,17 @@ const authPagesRouteRouteChildren: authPagesRouteRouteChildren = {
 const authPagesRouteRouteWithChildren = authPagesRouteRoute._addFileChildren(
   authPagesRouteRouteChildren,
 )
+
+interface authenticatedRouteRouteChildren {
+  authenticatedDashboardIndexRoute: typeof authenticatedDashboardIndexRoute
+}
+
+const authenticatedRouteRouteChildren: authenticatedRouteRouteChildren = {
+  authenticatedDashboardIndexRoute: authenticatedDashboardIndexRoute,
+}
+
+const authenticatedRouteRouteWithChildren =
+  authenticatedRouteRoute._addFileChildren(authenticatedRouteRouteChildren)
 
 interface authenticatedOldDashboardRouteRouteChildren {
   authenticatedOldDashboardIndexRoute: typeof authenticatedOldDashboardIndexRoute
@@ -221,6 +263,7 @@ const authenticatedOldRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   authPagesRouteRoute: authPagesRouteRouteWithChildren,
+  authenticatedRouteRoute: authenticatedRouteRouteWithChildren,
   authenticatedOldRouteRoute: authenticatedOldRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
