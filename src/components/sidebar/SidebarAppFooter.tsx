@@ -6,6 +6,8 @@ import {
 	UserAccountIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "@tanstack/react-router";
 import { UserAvatar } from "@/components/UserAvatar";
 import {
 	DropdownMenu,
@@ -22,7 +24,9 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import authClient from "@/lib/auth/auth-client";
 import type { AuthQueryResult } from "@/lib/auth/queries";
+import { authQueryOptions } from "@/lib/auth/queries";
 import { cn } from "@/lib/utils";
 
 export function SidebarAppFooter({
@@ -30,6 +34,8 @@ export function SidebarAppFooter({
 }: {
 	user: NonNullable<AuthQueryResult>;
 }) {
+	const queryClient = useQueryClient();
+	const router = useRouter();
 	const { isMobile, state } = useSidebar();
 
 	return (
@@ -95,7 +101,23 @@ export function SidebarAppFooter({
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem>
+						<DropdownMenuItem
+							variant="destructive"
+							onClick={async () => {
+								await authClient.signOut({
+									fetchOptions: {
+										onResponse: async () => {
+											// manually set to null to avoid unnecessary refetching
+											queryClient.setQueryData(
+												authQueryOptions().queryKey,
+												null,
+											);
+											await router.invalidate();
+										},
+									},
+								});
+							}}
+						>
 							<HugeiconsIcon icon={Logout05Icon} />
 							Log out
 						</DropdownMenuItem>

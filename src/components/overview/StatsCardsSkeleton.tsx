@@ -20,8 +20,6 @@ export function StatsCardsSkeleton() {
 							</div>
 
 							<Skeleton className="h-[42px] w-[42px]" />
-							{/* <div className="rounded-md border bg-card p-2"> */}
-							{/* </div> */}
 						</div>
 					</CardContent>
 				</Card>

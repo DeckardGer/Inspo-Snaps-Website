@@ -15,7 +15,7 @@ export function NavBar({ breadrumbs }: NavBarProps) {
 	const { state } = useSidebar();
 
 	return (
-		<header className="flex justify-between items-center h-15 shrink-0 border-b px-4 sticky top-0 bg-bg-primary">
+		<header className="flex justify-between items-center h-15 shrink-0 border-b px-4 sticky top-0 bg-bg-primary z-1">
 			<div className="flex items-center gap-2">
 				{state === "collapsed" && (
 					<>

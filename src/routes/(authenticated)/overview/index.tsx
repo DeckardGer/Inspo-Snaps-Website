@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
-import { StatsCards } from "@/components/dashboard/StatsCards";
-import { StatsCardsSkeleton } from "@/components/dashboard/StatsCardsSkeleton";
+import { ImageGallery } from "@/components/gallery/ImageGallery";
 import { NavBar } from "@/components/navbar/NavBar";
+import { StatsCards } from "@/components/overview/StatsCards";
+import { StatsCardsSkeleton } from "@/components/overview/StatsCardsSkeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { overviewStatsQueryOptions } from "@/lib/stats/queries";
 
@@ -39,8 +40,18 @@ function RouteComponent() {
 							<TabsTrigger value="shared">Shared</TabsTrigger>
 							<TabsTrigger value="team">Teams</TabsTrigger>
 						</TabsList>
-						<TabsContent value="all">1</TabsContent>
-						<TabsContent value="shared">2</TabsContent>
+						<TabsContent value="all" className="mt-6">
+							<ImageGallery />
+						</TabsContent>
+						<TabsContent value="favourites" className="mt-6">
+							<ImageGallery />
+						</TabsContent>
+						<TabsContent value="shared" className="mt-6">
+							<ImageGallery />
+						</TabsContent>
+						<TabsContent value="team" className="mt-6">
+							<ImageGallery />
+						</TabsContent>
 					</Tabs>
 				</div>
 			</div>

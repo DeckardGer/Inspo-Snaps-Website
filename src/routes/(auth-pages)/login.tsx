@@ -206,8 +206,7 @@ function RouteComponent() {
 																<Button
 																	onClick={() => setShowPassword(!showPassword)}
 																	variant="link"
-																	size="icon"
-																	className="absolute right-[2px] top-1/2 -translate-y-1/2"
+																	className="absolute right-[8px] top-1/2 -translate-y-1/2 size-6"
 																>
 																	<HugeiconsIcon
 																		icon={

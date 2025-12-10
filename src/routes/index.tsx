@@ -62,7 +62,7 @@ function UserAction() {
 		<div className="flex flex-col items-center gap-2">
 			<p>Welcome back, {user.name}!</p>
 			<Button type="button" asChild className="mb-2 w-fit" size="lg">
-				<Link to="/dashboard">Go to Dashboard</Link>
+				<Link to="/overview">Go to Dashboard</Link>
 			</Button>
 			<div className="text-center text-xs sm:text-sm">
 				Session user:
