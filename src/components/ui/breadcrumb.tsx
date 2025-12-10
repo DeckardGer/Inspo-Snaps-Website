@@ -45,7 +45,7 @@ function BreadcrumbLink({
 		<Comp
 			data-slot="breadcrumb-link"
 			className={cn(
-				"hover:text-text-tertiary_hover transition-colors",
+				"hover:text-text-secondary_hover transition-colors",
 				className,
 			)}
 			{...props}
@@ -60,7 +60,7 @@ function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
 			role="link"
 			aria-disabled="true"
 			aria-current="page"
-			className={cn("text-text-tertiary_hover font-normal", className)}
+			className={cn("text-text-secondary_hover font-normal", className)}
 			{...props}
 		/>
 	);

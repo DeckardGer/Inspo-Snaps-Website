@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { NavBar } from "@/components/navbar/NavBar";
 
-export const Route = createFileRoute("/(authenticated)/shared/")({
+export const Route = createFileRoute("/(authenticated)/shared-folders/")({
 	component: RouteComponent,
 });
 
@@ -11,8 +11,8 @@ function RouteComponent() {
 			<NavBar
 				breadrumbs={[
 					{
-						name: "Shared",
-						link: "/shared",
+						name: "Shared Folders",
+						link: "/shared-folders",
 					},
 				]}
 			/>

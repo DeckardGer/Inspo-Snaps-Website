@@ -1,10 +1,12 @@
 import {
-	DashboardSquare02Icon,
+	DashboardSquare01Icon,
 	Folder01Icon,
-	ShareKnowledgeIcon,
+	Home07Icon,
+	Share08Icon,
+	UserGroupIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import {
 	SidebarGroup,
 	SidebarGroupContent,
@@ -15,40 +17,53 @@ import {
 
 const items = [
 	{
-		name: "Overview",
+		name: "Home",
 		url: "/dashboard",
-		icon: DashboardSquare02Icon,
-		isActive: true,
+		icon: Home07Icon,
 	},
 	{
-		name: "My Folders",
+		name: "All files",
+		url: "/all-files",
+		icon: DashboardSquare01Icon,
+	},
+	{
+		name: "My folders",
 		url: "/my-folders",
 		icon: Folder01Icon,
-		isActive: false,
 	},
 	{
-		name: "Shared",
-		url: "/shared",
-		icon: ShareKnowledgeIcon,
-		isActive: false,
+		name: "Shared folders",
+		url: "/shared-folders",
+		icon: Share08Icon,
+	},
+	{
+		name: "Team folders",
+		url: "/team-folders",
+		icon: UserGroupIcon,
 	},
 ];
 
 export function NavMain() {
+	const location = useLocation();
+
 	return (
 		<SidebarGroup>
 			<SidebarGroupContent>
 				<SidebarMenu>
-					{items.map((item) => (
-						<SidebarMenuItem key={item.name}>
-							<SidebarMenuButton asChild isActive={item.isActive}>
-								<Link to={item.url}>
-									<HugeiconsIcon icon={item.icon} />
-									<span>{item.name}</span>
-								</Link>
-							</SidebarMenuButton>
-						</SidebarMenuItem>
-					))}
+					{items.map((item) => {
+						const isActive = location.pathname === item.url;
+
+						return (
+							<SidebarMenuItem key={item.name}>
+								<SidebarMenuButton asChild isActive={isActive}>
+									<Link to={item.url}>
+										<HugeiconsIcon icon={item.icon} />
+										<span>{item.name}</span>
+									</Link>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+						);
+					})}
 				</SidebarMenu>
 			</SidebarGroupContent>
 		</SidebarGroup>

@@ -10,6 +10,7 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
 
 export interface BreadcrumbItemPath {
 	name: string;
@@ -26,7 +27,7 @@ export function HeaderBreadcrumbs({ items }: HeaderBreadcrumbsProps) {
 			<BreadcrumbList>
 				{/* Home icon - always first */}
 				<BreadcrumbItem>
-					<BreadcrumbLink asChild>
+					<Button variant="ghost" size="icon" className="h-7 w-7" asChild>
 						<Link to="/dashboard">
 							<HugeiconsIcon
 								icon={Home07Icon}
@@ -34,7 +35,7 @@ export function HeaderBreadcrumbs({ items }: HeaderBreadcrumbsProps) {
 								className="h-4 w-4"
 							/>
 						</Link>
-					</BreadcrumbLink>
+					</Button>
 				</BreadcrumbItem>
 
 				{/* Render breadcrumb items */}

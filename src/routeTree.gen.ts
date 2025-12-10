@@ -14,10 +14,12 @@ import { Route as authPagesRouteRouteImport } from './routes/(auth-pages)/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as authPagesSignupRouteImport } from './routes/(auth-pages)/signup'
 import { Route as authPagesLoginRouteImport } from './routes/(auth-pages)/login'
-import { Route as authenticatedSharedIndexRouteImport } from './routes/(authenticated)/shared/index'
+import { Route as authenticatedTeamFoldersIndexRouteImport } from './routes/(authenticated)/team-folders/index'
+import { Route as authenticatedSharedFoldersIndexRouteImport } from './routes/(authenticated)/shared-folders/index'
 import { Route as authenticatedSettingsIndexRouteImport } from './routes/(authenticated)/settings/index'
 import { Route as authenticatedMyFoldersIndexRouteImport } from './routes/(authenticated)/my-folders/index'
 import { Route as authenticatedDashboardIndexRouteImport } from './routes/(authenticated)/dashboard/index'
+import { Route as authenticatedAllFilesIndexRouteImport } from './routes/(authenticated)/all-files/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const authenticatedRouteRoute = authenticatedRouteRouteImport.update({
@@ -43,10 +45,16 @@ const authPagesLoginRoute = authPagesLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => authPagesRouteRoute,
 } as any)
-const authenticatedSharedIndexRoute =
-  authenticatedSharedIndexRouteImport.update({
-    id: '/shared/',
-    path: '/shared/',
+const authenticatedTeamFoldersIndexRoute =
+  authenticatedTeamFoldersIndexRouteImport.update({
+    id: '/team-folders/',
+    path: '/team-folders/',
+    getParentRoute: () => authenticatedRouteRoute,
+  } as any)
+const authenticatedSharedFoldersIndexRoute =
+  authenticatedSharedFoldersIndexRouteImport.update({
+    id: '/shared-folders/',
+    path: '/shared-folders/',
     getParentRoute: () => authenticatedRouteRoute,
   } as any)
 const authenticatedSettingsIndexRoute =
@@ -67,6 +75,12 @@ const authenticatedDashboardIndexRoute =
     path: '/dashboard/',
     getParentRoute: () => authenticatedRouteRoute,
   } as any)
+const authenticatedAllFilesIndexRoute =
+  authenticatedAllFilesIndexRouteImport.update({
+    id: '/all-files/',
+    path: '/all-files/',
+    getParentRoute: () => authenticatedRouteRoute,
+  } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -78,20 +92,24 @@ export interface FileRoutesByFullPath {
   '/login': typeof authPagesLoginRoute
   '/signup': typeof authPagesSignupRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/all-files': typeof authenticatedAllFilesIndexRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
   '/my-folders': typeof authenticatedMyFoldersIndexRoute
   '/settings': typeof authenticatedSettingsIndexRoute
-  '/shared': typeof authenticatedSharedIndexRoute
+  '/shared-folders': typeof authenticatedSharedFoldersIndexRoute
+  '/team-folders': typeof authenticatedTeamFoldersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof authPagesLoginRoute
   '/signup': typeof authPagesSignupRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/all-files': typeof authenticatedAllFilesIndexRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
   '/my-folders': typeof authenticatedMyFoldersIndexRoute
   '/settings': typeof authenticatedSettingsIndexRoute
-  '/shared': typeof authenticatedSharedIndexRoute
+  '/shared-folders': typeof authenticatedSharedFoldersIndexRoute
+  '/team-folders': typeof authenticatedTeamFoldersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -101,10 +119,12 @@ export interface FileRoutesById {
   '/(auth-pages)/login': typeof authPagesLoginRoute
   '/(auth-pages)/signup': typeof authPagesSignupRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/(authenticated)/all-files/': typeof authenticatedAllFilesIndexRoute
   '/(authenticated)/dashboard/': typeof authenticatedDashboardIndexRoute
   '/(authenticated)/my-folders/': typeof authenticatedMyFoldersIndexRoute
   '/(authenticated)/settings/': typeof authenticatedSettingsIndexRoute
-  '/(authenticated)/shared/': typeof authenticatedSharedIndexRoute
+  '/(authenticated)/shared-folders/': typeof authenticatedSharedFoldersIndexRoute
+  '/(authenticated)/team-folders/': typeof authenticatedTeamFoldersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -113,20 +133,24 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/api/auth/$'
+    | '/all-files'
     | '/dashboard'
     | '/my-folders'
     | '/settings'
-    | '/shared'
+    | '/shared-folders'
+    | '/team-folders'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/signup'
     | '/api/auth/$'
+    | '/all-files'
     | '/dashboard'
     | '/my-folders'
     | '/settings'
-    | '/shared'
+    | '/shared-folders'
+    | '/team-folders'
   id:
     | '__root__'
     | '/'
@@ -135,10 +159,12 @@ export interface FileRouteTypes {
     | '/(auth-pages)/login'
     | '/(auth-pages)/signup'
     | '/api/auth/$'
+    | '/(authenticated)/all-files/'
     | '/(authenticated)/dashboard/'
     | '/(authenticated)/my-folders/'
     | '/(authenticated)/settings/'
-    | '/(authenticated)/shared/'
+    | '/(authenticated)/shared-folders/'
+    | '/(authenticated)/team-folders/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -185,11 +211,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authPagesLoginRouteImport
       parentRoute: typeof authPagesRouteRoute
     }
-    '/(authenticated)/shared/': {
-      id: '/(authenticated)/shared/'
-      path: '/shared'
-      fullPath: '/shared'
-      preLoaderRoute: typeof authenticatedSharedIndexRouteImport
+    '/(authenticated)/team-folders/': {
+      id: '/(authenticated)/team-folders/'
+      path: '/team-folders'
+      fullPath: '/team-folders'
+      preLoaderRoute: typeof authenticatedTeamFoldersIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/shared-folders/': {
+      id: '/(authenticated)/shared-folders/'
+      path: '/shared-folders'
+      fullPath: '/shared-folders'
+      preLoaderRoute: typeof authenticatedSharedFoldersIndexRouteImport
       parentRoute: typeof authenticatedRouteRoute
     }
     '/(authenticated)/settings/': {
@@ -211,6 +244,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof authenticatedDashboardIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/all-files/': {
+      id: '/(authenticated)/all-files/'
+      path: '/all-files'
+      fullPath: '/all-files'
+      preLoaderRoute: typeof authenticatedAllFilesIndexRouteImport
       parentRoute: typeof authenticatedRouteRoute
     }
     '/api/auth/$': {
@@ -238,17 +278,21 @@ const authPagesRouteRouteWithChildren = authPagesRouteRoute._addFileChildren(
 )
 
 interface authenticatedRouteRouteChildren {
+  authenticatedAllFilesIndexRoute: typeof authenticatedAllFilesIndexRoute
   authenticatedDashboardIndexRoute: typeof authenticatedDashboardIndexRoute
   authenticatedMyFoldersIndexRoute: typeof authenticatedMyFoldersIndexRoute
   authenticatedSettingsIndexRoute: typeof authenticatedSettingsIndexRoute
-  authenticatedSharedIndexRoute: typeof authenticatedSharedIndexRoute
+  authenticatedSharedFoldersIndexRoute: typeof authenticatedSharedFoldersIndexRoute
+  authenticatedTeamFoldersIndexRoute: typeof authenticatedTeamFoldersIndexRoute
 }
 
 const authenticatedRouteRouteChildren: authenticatedRouteRouteChildren = {
+  authenticatedAllFilesIndexRoute: authenticatedAllFilesIndexRoute,
   authenticatedDashboardIndexRoute: authenticatedDashboardIndexRoute,
   authenticatedMyFoldersIndexRoute: authenticatedMyFoldersIndexRoute,
   authenticatedSettingsIndexRoute: authenticatedSettingsIndexRoute,
-  authenticatedSharedIndexRoute: authenticatedSharedIndexRoute,
+  authenticatedSharedFoldersIndexRoute: authenticatedSharedFoldersIndexRoute,
+  authenticatedTeamFoldersIndexRoute: authenticatedTeamFoldersIndexRoute,
 }
 
 const authenticatedRouteRouteWithChildren =

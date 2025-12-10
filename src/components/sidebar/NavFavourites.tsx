@@ -4,7 +4,7 @@ import {
 	FolderFavouriteIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -34,6 +34,7 @@ export function NavFavourites({
 	favourites: FavouriteFolder[];
 }) {
 	const { state } = useSidebar();
+	const location = useLocation();
 
 	return (
 		<SidebarGroup>
@@ -82,18 +83,22 @@ export function NavFavourites({
 								<CollapsibleContent>
 									<div className="max-h-50 overflow-y-auto overflow-x-hidden">
 										<SidebarMenuSub className="mr-0">
-											{favourites.map((item) => (
-												<SidebarMenuSubItem
-													key={item.id}
-													className="max-w-[196px]"
-												>
-													<SidebarMenuSubButton asChild>
-														<Link to={item.url} className="h-8">
-															<span>{item.name}</span>
-														</Link>
-													</SidebarMenuSubButton>
-												</SidebarMenuSubItem>
-											))}
+											{favourites.map((item) => {
+												const isActive = location.pathname === item.url;
+
+												return (
+													<SidebarMenuSubItem
+														key={item.id}
+														className="max-w-[196px]"
+													>
+														<SidebarMenuSubButton asChild isActive={isActive}>
+															<Link to={item.url} className="h-8">
+																<span>{item.name}</span>
+															</Link>
+														</SidebarMenuSubButton>
+													</SidebarMenuSubItem>
+												);
+											})}
 										</SidebarMenuSub>
 									</div>
 								</CollapsibleContent>
