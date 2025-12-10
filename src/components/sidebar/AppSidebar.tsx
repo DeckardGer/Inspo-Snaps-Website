@@ -1,3 +1,8 @@
+import {
+	ArrowDown01Icon,
+	FolderFavouriteIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type * as React from "react";
 import { Suspense } from "react";
@@ -10,7 +15,10 @@ import {
 	Sidebar,
 	SidebarContent,
 	SidebarFooter,
+	SidebarGroup,
 	SidebarHeader,
+	SidebarMenu,
+	SidebarMenuButton,
 	SidebarRail,
 } from "@/components/ui/sidebar";
 import type { AuthQueryResult } from "@/lib/auth/queries";
@@ -21,7 +29,17 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 }
 
 function FavouritesFallback() {
-	return null; // Could add a skeleton loader here
+	return (
+		<SidebarGroup>
+			<SidebarMenu>
+				<SidebarMenuButton>
+					<HugeiconsIcon icon={FolderFavouriteIcon} />
+					Favourites
+					<HugeiconsIcon icon={ArrowDown01Icon} className="ml-auto" />
+				</SidebarMenuButton>
+			</SidebarMenu>
+		</SidebarGroup>
+	);
 }
 
 function FavouritesContent() {
