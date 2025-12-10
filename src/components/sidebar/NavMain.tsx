@@ -1,4 +1,9 @@
-import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
+import {
+	DashboardSquare02Icon,
+	Folder01Icon,
+	ShareKnowledgeIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Link } from "@tanstack/react-router";
 import {
 	SidebarGroup,
@@ -8,16 +13,28 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-export function NavMain({
-	items,
-}: {
-	items: {
-		name: string;
-		url: string;
-		icon: IconSvgElement;
-		isActive: boolean;
-	}[];
-}) {
+const items = [
+	{
+		name: "Overview",
+		url: "/dashboard",
+		icon: DashboardSquare02Icon,
+		isActive: true,
+	},
+	{
+		name: "My Folders",
+		url: "/my-folders",
+		icon: Folder01Icon,
+		isActive: false,
+	},
+	{
+		name: "Shared",
+		url: "/shared",
+		icon: ShareKnowledgeIcon,
+		isActive: false,
+	},
+];
+
+export function NavMain() {
 	return (
 		<SidebarGroup>
 			<SidebarGroupContent>

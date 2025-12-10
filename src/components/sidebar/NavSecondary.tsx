@@ -13,7 +13,7 @@ import {
 export function NavSecondary({
 	...props
 }: React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
-	const { state, setOpenMobile, isMobile } = useSidebar();
+	const { setOpenMobile, isMobile } = useSidebar();
 
 	const handleLinkClick = () => {
 		if (isMobile) setOpenMobile(false);

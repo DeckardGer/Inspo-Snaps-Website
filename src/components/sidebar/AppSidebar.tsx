@@ -1,8 +1,3 @@
-import {
-	DashboardSquare02Icon,
-	Folder01Icon,
-	ShareKnowledgeIcon,
-} from "@hugeicons/core-free-icons";
 import type * as React from "react";
 import { NavFavourites } from "@/components/sidebar/NavFavourites";
 import { NavMain } from "@/components/sidebar/NavMain";
@@ -18,26 +13,6 @@ import {
 } from "@/components/ui/sidebar";
 
 // This is sample data.
-const data = [
-	{
-		name: "Overview",
-		url: "/dashboard",
-		icon: DashboardSquare02Icon,
-		isActive: true,
-	},
-	{
-		name: "My Folders",
-		url: "/my-folders",
-		icon: Folder01Icon,
-		isActive: false,
-	},
-	{
-		name: "Shared",
-		url: "/shared",
-		icon: ShareKnowledgeIcon,
-		isActive: false,
-	},
-];
 
 const favourites = [
 	{
@@ -99,7 +74,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<SidebarAppHeader />
 			</SidebarHeader>
 			<SidebarContent>
-				<NavMain items={data} />
+				<NavMain />
 				<NavFavourites favourites={favourites} />
 				<NavSecondary className="mt-auto" />
 			</SidebarContent>
