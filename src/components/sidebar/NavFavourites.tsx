@@ -26,15 +26,12 @@ import {
 	SidebarMenuSubItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import type { FavouriteFolder } from "@/lib/folders/functions";
 
 export function NavFavourites({
 	favourites,
 }: {
-	favourites: {
-		name: string;
-		url: string;
-		emoji: string;
-	}[];
+	favourites: FavouriteFolder[];
 }) {
 	const { state } = useSidebar();
 
@@ -56,7 +53,7 @@ export function NavFavourites({
 							className="min-w-[200px] max-h-[400px] overflow-y-auto"
 						>
 							{favourites.map((item) => (
-								<DropdownMenuItem key={item.name} asChild>
+								<DropdownMenuItem key={item.id} asChild>
 									<Link to={item.url} className="cursor-pointer">
 										<span>{item.name}</span>
 									</Link>
@@ -87,7 +84,7 @@ export function NavFavourites({
 										<SidebarMenuSub className="mr-0">
 											{favourites.map((item) => (
 												<SidebarMenuSubItem
-													key={item.name}
+													key={item.id}
 													className="max-w-[196px]"
 												>
 													<SidebarMenuSubButton asChild>

@@ -1,5 +1,8 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { AppSidebar } from "@/components/sidebar/AppSidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { authQueryOptions } from "@/lib/auth/queries";
+import { favouriteFoldersQueryOptions } from "@/lib/folders/queries";
 
 export const Route = createFileRoute("/(authenticated)")({
 	component: RouteComponent,
@@ -13,15 +16,23 @@ export const Route = createFileRoute("/(authenticated)")({
 			throw redirect({ to: "/login" });
 		}
 
+		// Prefetch favourite folders without blocking (deferred)
+		context.queryClient.prefetchQuery(favouriteFoldersQueryOptions());
+
 		// re-return to update type as non-null for child routes
 		return { user };
 	},
 });
 
 function RouteComponent() {
+	const { user } = Route.useRouteContext();
+
 	return (
-		<div>
-			<Outlet />
-		</div>
+		<SidebarProvider>
+			<AppSidebar user={user} />
+			<SidebarInset>
+				<Outlet />
+			</SidebarInset>
+		</SidebarProvider>
 	);
 }

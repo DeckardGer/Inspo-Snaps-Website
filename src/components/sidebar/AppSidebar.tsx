@@ -1,4 +1,6 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import type * as React from "react";
+import { Suspense } from "react";
 import { NavFavourites } from "@/components/sidebar/NavFavourites";
 import { NavMain } from "@/components/sidebar/NavMain";
 import { NavSecondary } from "@/components/sidebar/NavSecondary";
@@ -11,63 +13,24 @@ import {
 	SidebarHeader,
 	SidebarRail,
 } from "@/components/ui/sidebar";
+import type { AuthQueryResult } from "@/lib/auth/queries";
+import { favouriteFoldersQueryOptions } from "@/lib/folders/queries";
 
-// This is sample data.
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+	user: NonNullable<AuthQueryResult>;
+}
 
-const favourites = [
-	{
-		name: "Project Management & Task Tracking",
-		url: "#",
-		emoji: "📊",
-	},
-	{
-		name: "Family Recipe Collection & Meal Planning",
-		url: "#",
-		emoji: "🍳",
-	},
-	{
-		name: "Fitness Tracker & Workout Routines",
-		url: "#",
-		emoji: "💪",
-	},
-	{
-		name: "Book Notes & Reading List",
-		url: "#",
-		emoji: "📚",
-	},
-	{
-		name: "Sustainable Gardening Tips & Plant Care",
-		url: "#",
-		emoji: "🌱",
-	},
-	{
-		name: "Language Learning Progress & Resources",
-		url: "#",
-		emoji: "🗣️",
-	},
-	{
-		name: "Home Renovation Ideas & Budget Tracker",
-		url: "#",
-		emoji: "🏠",
-	},
-	{
-		name: "Personal Finance & Investment Portfolio",
-		url: "#",
-		emoji: "💰",
-	},
-	{
-		name: "Movie & TV Show Watchlist with Reviews",
-		url: "#",
-		emoji: "🎬",
-	},
-	{
-		name: "Daily Habit Tracker & Goal Setting",
-		url: "#",
-		emoji: "✅",
-	},
-];
+function FavouritesFallback() {
+	return null; // Could add a skeleton loader here
+}
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+function FavouritesContent() {
+	const { data: folders } = useSuspenseQuery(favouriteFoldersQueryOptions());
+
+	return <NavFavourites favourites={folders} />;
+}
+
+export function AppSidebar({ user, ...props }: AppSidebarProps) {
 	return (
 		<Sidebar {...props} collapsible="icon">
 			<SidebarHeader className="flex-row items-center pr-0">
@@ -75,17 +38,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			</SidebarHeader>
 			<SidebarContent>
 				<NavMain />
-				<NavFavourites favourites={favourites} />
+				<Suspense fallback={<FavouritesFallback />}>
+					<FavouritesContent />
+				</Suspense>
 				<NavSecondary className="mt-auto" />
 			</SidebarContent>
 			<SidebarFooter>
-				<SidebarAppFooter
-					user={{
-						name: "shadcn",
-						email: "m@example.com",
-						avatar: "/avatars/shadcn.jpg",
-					}}
-				/>
+				<SidebarAppFooter user={user} />
 			</SidebarFooter>
 			<SidebarRail />
 		</Sidebar>
