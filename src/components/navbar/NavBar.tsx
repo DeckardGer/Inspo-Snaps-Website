@@ -2,6 +2,7 @@ import { LinkSquare02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { BreadcrumbItemPath } from "@/components/navbar/HeaderBreadcrumbs";
 import { HeaderBreadcrumbs } from "@/components/navbar/HeaderBreadcrumbs";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
@@ -28,10 +29,13 @@ export function NavBar({ breadrumbs }: NavBarProps) {
 
 				<HeaderBreadcrumbs items={breadrumbs} />
 			</div>
-			<Button>
-				<HugeiconsIcon icon={LinkSquare02Icon} strokeWidth={2} />
-				Download
-			</Button>
+			<div className="flex items-center gap-2">
+				<ThemeToggle />
+				<Button>
+					<HugeiconsIcon icon={LinkSquare02Icon} strokeWidth={2} />
+					Download
+				</Button>
+			</div>
 		</header>
 	);
 }

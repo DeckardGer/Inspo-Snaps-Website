@@ -1,7 +1,6 @@
 import {
 	DashboardSquare01Icon,
 	Folder01Icon,
-	Home07Icon,
 	Share08Icon,
 	UserGroupIcon,
 } from "@hugeicons/core-free-icons";
@@ -17,13 +16,8 @@ import {
 
 const items = [
 	{
-		name: "Home",
-		url: "/dashboard",
-		icon: Home07Icon,
-	},
-	{
-		name: "All files",
-		url: "/all-files",
+		name: "Overview",
+		url: "/overview",
 		icon: DashboardSquare01Icon,
 	},
 	{

@@ -82,15 +82,12 @@ export function NavFavourites({
 							{favourites.length ? (
 								<CollapsibleContent>
 									<div className="max-h-50 overflow-y-auto overflow-x-hidden">
-										<SidebarMenuSub className="mr-0">
+										<SidebarMenuSub className="mr-0 pr-0">
 											{favourites.map((item) => {
 												const isActive = location.pathname === item.url;
 
 												return (
-													<SidebarMenuSubItem
-														key={item.id}
-														className="max-w-[196px]"
-													>
+													<SidebarMenuSubItem key={item.id}>
 														<SidebarMenuSubButton asChild isActive={isActive}>
 															<Link to={item.url} className="h-8">
 																<span>{item.name}</span>

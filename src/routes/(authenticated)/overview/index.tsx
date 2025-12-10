@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { NavBar } from "@/components/navbar/NavBar";
 
-export const Route = createFileRoute("/(authenticated)/dashboard/")({
+export const Route = createFileRoute("/(authenticated)/overview/")({
 	component: RouteComponent,
 });
 
@@ -11,8 +11,8 @@ function RouteComponent() {
 			<NavBar
 				breadrumbs={[
 					{
-						name: "Dashboard",
-						link: "/dashboard",
+						name: "Overview",
+						link: "/overview",
 					},
 				]}
 			/>

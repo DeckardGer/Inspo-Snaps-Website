@@ -28,7 +28,7 @@ export function HeaderBreadcrumbs({ items }: HeaderBreadcrumbsProps) {
 				{/* Home icon - always first */}
 				<BreadcrumbItem>
 					<Button variant="ghost" size="icon" className="h-7 w-7" asChild>
-						<Link to="/dashboard">
+						<Link to="/overview">
 							<HugeiconsIcon
 								icon={Home07Icon}
 								strokeWidth={2}
