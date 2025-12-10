@@ -47,7 +47,7 @@ export function SidebarAppFooter({
 								size="sm"
 							/>
 							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-medium">{user.name}</span>
+								<span className="truncate font-medium">@{user.username}</span>
 								<span className="truncate text-xs text-text-tertiary">
 									{user.email}
 								</span>
@@ -69,7 +69,7 @@ export function SidebarAppFooter({
 									size="sm"
 								/>
 								<div className="grid flex-1 text-left text-sm leading-tight">
-									<span className="truncate font-medium">{user.name}</span>
+									<span className="truncate font-medium">@{user.username}</span>
 									<span className="truncate text-xs text-text-tertiary">
 										{user.email}
 									</span>
