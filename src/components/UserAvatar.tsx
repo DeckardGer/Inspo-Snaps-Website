@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { generateUserGradient } from "@/lib/utils";
 
@@ -15,16 +16,21 @@ const sizeClasses = {
 	xl: "h-20 w-20 text-lg",
 };
 
-export function UserAvatar({
+export const UserAvatar = memo(function UserAvatar({
 	username,
 	imageUrl,
 	className = "",
 	size = "md",
 }: UserAvatarProps) {
-	const gradient = generateUserGradient(username);
+	const gradient = useMemo(() => generateUserGradient(username), [username]);
+
+	const avatarClassName = useMemo(
+		() => `${sizeClasses[size]} ${className}`,
+		[size, className],
+	);
 
 	return (
-		<Avatar className={`${sizeClasses[size]} ${className}`}>
+		<Avatar className={avatarClassName}>
 			{imageUrl && <AvatarImage src={imageUrl} alt={username} />}
 			<AvatarFallback
 				style={{
@@ -33,4 +39,4 @@ export function UserAvatar({
 			/>
 		</Avatar>
 	);
-}
+});
