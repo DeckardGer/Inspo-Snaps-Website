@@ -1,68 +1,325 @@
 import { createServerFn } from "@tanstack/react-start";
+import { and, eq, inArray, isNull } from "drizzle-orm";
+import { z } from "zod";
+import { authMiddleware } from "@/lib/auth/middleware";
+import { db } from "@/lib/db";
+import { folder, folderImage, image } from "@/lib/db/schema";
+import { deleteStorageObjects } from "@/lib/storage/functions";
 
+// Temporary type for backwards compatibility
 export type FavouriteFolder = {
 	id: string;
 	name: string;
 	url: string;
 };
 
-export const getFavouriteFolders = createServerFn({ method: "GET" }).handler(
-	async () => {
-		// TODO: Replace with actual database query
-		// Mock data for now
-		await new Promise((resolve) => setTimeout(resolve, 100)); // Simulate network delay
+const CreateFolderInput = z.object({
+	name: z.string().min(1).max(255),
+	color: z
+		.enum([
+			"slate",
+			"red",
+			"orange",
+			"amber",
+			"yellow",
+			"lime",
+			"green",
+			"emerald",
+			"teal",
+			"cyan",
+			"sky",
+			"blue",
+			"indigo",
+			"violet",
+			"purple",
+			"fuchsia",
+			"pink",
+			"rose",
+		])
+		.nullable()
+		.optional(),
+	emoji: z.string().max(10).nullable().optional(),
+	parentId: z.uuid().nullable().optional(),
+});
 
-		return [
-			{
-				id: "1",
-				name: "Project Management & Task Tracking",
-				url: "/folders/project-management",
+const UpdateFolderInput = z.object({
+	id: z.uuid(),
+	name: z.string().min(1).max(255).optional(),
+	color: z
+		.enum([
+			"slate",
+			"red",
+			"orange",
+			"amber",
+			"yellow",
+			"lime",
+			"green",
+			"emerald",
+			"teal",
+			"cyan",
+			"sky",
+			"blue",
+			"indigo",
+			"violet",
+			"purple",
+			"fuchsia",
+			"pink",
+			"rose",
+		])
+		.nullable()
+		.optional(),
+	emoji: z.string().max(10).nullable().optional(),
+});
+
+const MoveFolderInput = z.object({
+	id: z.uuid(),
+	newParentId: z.uuid().nullable(),
+});
+
+const GetFoldersInput = z
+	.object({
+		parentId: z.uuid().nullable().optional(),
+	})
+	.optional();
+
+const FolderIdInput = z.object({
+	id: z.uuid(),
+});
+
+export const createFolder = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(CreateFolderInput)
+	.handler(async ({ data, context }) => {
+		if (data.parentId) {
+			const parent = await db.query.folder.findFirst({
+				where: and(
+					eq(folder.id, data.parentId),
+					eq(folder.userId, context.user.id),
+				),
+			});
+
+			if (!parent) throw new Error("Parent folder not found or access denied");
+		}
+
+		const newFolder = await db
+			.insert(folder)
+			.values({
+				id: crypto.randomUUID(),
+				name: data.name,
+				color: data.color ?? null,
+				emoji: data.emoji ?? null,
+				parentId: data.parentId ?? null,
+				userId: context.user.id,
+			})
+			.returning();
+
+		return newFolder[0];
+	});
+
+export const getFolders = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.inputValidator(GetFoldersInput)
+	.handler(async ({ data, context }) => {
+		const parentCondition = data?.parentId
+			? eq(folder.parentId, data.parentId)
+			: isNull(folder.parentId);
+
+		return db.query.folder.findMany({
+			where: and(eq(folder.userId, context.user.id), parentCondition),
+			orderBy: (folder, { asc }) => [asc(folder.name)],
+			with: {
+				children: {
+					columns: {
+						id: true,
+						name: true,
+					},
+				},
 			},
-			{
-				id: "2",
-				name: "Family Recipe Collection & Meal Planning",
-				url: "/folders/family-recipes",
+		});
+	});
+
+export const getFolder = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.inputValidator(FolderIdInput)
+	.handler(async ({ data, context }) => {
+		const result = await db.query.folder.findFirst({
+			where: and(eq(folder.id, data.id), eq(folder.userId, context.user.id)),
+			with: {
+				children: true,
+				parent: true,
 			},
-			{
-				id: "3",
-				name: "Fitness Tracker & Workout Routines",
-				url: "/folders/fitness",
-			},
-			{
-				id: "4",
-				name: "Book Notes & Reading List",
-				url: "/folders/books",
-			},
-			{
-				id: "5",
-				name: "Sustainable Gardening Tips & Plant Care",
-				url: "/folders/gardening",
-			},
-			{
-				id: "6",
-				name: "Language Learning Progress & Resources",
-				url: "/folders/language-learning",
-			},
-			{
-				id: "7",
-				name: "Home Renovation Ideas & Budget Tracker",
-				url: "/folders/home-renovation",
-			},
-			{
-				id: "8",
-				name: "Personal Finance & Investment Portfolio",
-				url: "/folders/finance",
-			},
-			{
-				id: "9",
-				name: "Movie & TV Show Watchlist with Reviews",
-				url: "/folders/movies",
-			},
-			{
-				id: "10",
-				name: "Daily Habit Tracker & Goal Setting",
-				url: "/folders/habits",
-			},
-		] satisfies FavouriteFolder[];
-	},
-);
+		});
+
+		if (!result) throw new Error("Folder not found");
+
+		return result;
+	});
+
+export const updateFolder = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(UpdateFolderInput)
+	.handler(async ({ data, context }) => {
+		const { id, ...updates } = data;
+
+		const result = await db
+			.update(folder)
+			.set(updates)
+			.where(and(eq(folder.id, id), eq(folder.userId, context.user.id)))
+			.returning();
+
+		if (result.length === 0)
+			throw new Error("Folder not found or access denied");
+
+		return result[0];
+	});
+
+export const moveFolder = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(MoveFolderInput)
+	.handler(async ({ data, context }) => {
+		const existingFolder = await db.query.folder.findFirst({
+			where: and(eq(folder.id, data.id), eq(folder.userId, context.user.id)),
+		});
+
+		if (!existingFolder) throw new Error("Folder not found");
+
+		if (data.newParentId) {
+			const ancestors = await getAncestorIds(data.newParentId, context.user.id);
+			if (ancestors.includes(data.id)) {
+				throw new Error("Cannot move folder into its own descendant");
+			}
+
+			const parent = await db.query.folder.findFirst({
+				where: and(
+					eq(folder.id, data.newParentId),
+					eq(folder.userId, context.user.id),
+				),
+			});
+
+			if (!parent) throw new Error("Target folder not found");
+		}
+
+		const result = await db
+			.update(folder)
+			.set({ parentId: data.newParentId })
+			.where(eq(folder.id, data.id))
+			.returning();
+
+		return result[0];
+	});
+
+export const deleteFolder = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(FolderIdInput)
+	.handler(async ({ data, context }) => {
+		const allFolderIds = await getDescendantIds(data.id, context.user.id);
+		allFolderIds.push(data.id);
+
+		const affectedImages = await db.query.folderImage.findMany({
+			where: inArray(folderImage.folderId, allFolderIds),
+			columns: { imageId: true },
+		});
+		const imageIds = [...new Set(affectedImages.map((fi) => fi.imageId))];
+
+		await db
+			.delete(folder)
+			.where(and(eq(folder.id, data.id), eq(folder.userId, context.user.id)));
+
+		if (imageIds.length > 0) {
+			const remainingLinks = await db.query.folderImage.findMany({
+				where: inArray(folderImage.imageId, imageIds),
+				columns: { imageId: true },
+			});
+
+			const stillLinkedIds = new Set(remainingLinks.map((r) => r.imageId));
+			const orphanedIds = imageIds.filter((id) => !stillLinkedIds.has(id));
+
+			if (orphanedIds.length > 0) {
+				const orphanedImages = await db.query.image.findMany({
+					where: inArray(image.id, orphanedIds),
+					columns: { id: true, storageKey: true },
+				});
+
+				await db.delete(image).where(inArray(image.id, orphanedIds));
+
+				await deleteStorageObjects(orphanedImages.map((i) => i.storageKey));
+			}
+		}
+
+		return { success: true };
+	});
+
+async function getAncestorIds(
+	folderId: string,
+	userId: string,
+): Promise<string[]> {
+	const ancestors: string[] = [];
+	let currentId: string | null = folderId;
+
+	while (currentId) {
+		const f: { parentId: string | null } | undefined =
+			await db.query.folder.findFirst({
+				where: and(eq(folder.id, currentId), eq(folder.userId, userId)),
+				columns: { parentId: true },
+			});
+
+		if (!f?.parentId) break;
+
+		ancestors.push(f.parentId);
+		currentId = f.parentId;
+	}
+
+	return ancestors;
+}
+
+async function getDescendantIds(
+	folderId: string,
+	userId: string,
+): Promise<string[]> {
+	const descendants: string[] = [];
+	const queue = [folderId];
+
+	while (queue.length > 0) {
+		const currentId = queue.shift();
+		if (!currentId) continue;
+
+		const children = await db.query.folder.findMany({
+			where: and(eq(folder.parentId, currentId), eq(folder.userId, userId)),
+			columns: { id: true },
+		});
+
+		for (const child of children) {
+			descendants.push(child.id);
+			queue.push(child.id);
+		}
+	}
+
+	return descendants;
+}
+
+export const getFolderPath = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.inputValidator(FolderIdInput)
+	.handler(async ({ data, context }) => {
+		const path: Array<{ id: string; name: string }> = [];
+		let currentId: string | null = data.id;
+
+		while (currentId) {
+			const f:
+				| { id: string; name: string; parentId: string | null }
+				| undefined = await db.query.folder.findFirst({
+				where: and(
+					eq(folder.id, currentId),
+					eq(folder.userId, context.user.id),
+				),
+				columns: { id: true, name: true, parentId: true },
+			});
+
+			if (!f) break;
+
+			path.unshift({ id: f.id, name: f.name });
+			currentId = f.parentId;
+		}
+
+		return path;
+	});
