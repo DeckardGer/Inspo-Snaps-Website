@@ -1,5 +1,11 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getFolder, getFolderPath, getFolders } from "./functions";
+import {
+	getFavouriteFolders,
+	getFolder,
+	getFolderPath,
+	getFolders,
+	isFolderFavourited,
+} from "./functions";
 
 export const foldersQueryOptions = (parentId?: string | null) =>
 	queryOptions({
@@ -22,20 +28,17 @@ export const folderPathQueryOptions = (id: string) =>
 		staleTime: 1000 * 60 * 5,
 	});
 
-// Temporary backwards compatibility for demo UI
-const demoGetFavouriteFolders = async () => {
-	return [
-		{
-			id: "1",
-			name: "Project Management & Task Tracking",
-			url: "/folders/project-management",
-		},
-	];
-};
-
 export const favouriteFoldersQueryOptions = () =>
 	queryOptions({
 		queryKey: ["favouriteFolders"],
-		queryFn: () => demoGetFavouriteFolders(),
+		queryFn: ({ signal }) => getFavouriteFolders({ signal }),
 		staleTime: 1000 * 60 * 5,
+	});
+
+export const isFolderFavouritedQueryOptions = (folderId: string) =>
+	queryOptions({
+		queryKey: ["isFolderFavourited", folderId],
+		queryFn: ({ signal }) =>
+			isFolderFavourited({ data: { id: folderId }, signal }),
+		staleTime: 1000 * 60 * 2,
 	});

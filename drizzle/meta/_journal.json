@@ -22,6 +22,13 @@
       "when": 1765443195872,
       "tag": "0002_black_morg",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1765460220383,
+      "tag": "0003_graceful_madame_masque",
+      "breakpoints": true
     }
   ]
 }

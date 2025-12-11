@@ -3,15 +3,8 @@ import { and, eq, inArray, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { db } from "@/lib/db";
-import { folder, folderImage, image } from "@/lib/db/schema";
+import { favouriteFolder, folder, folderImage, image } from "@/lib/db/schema";
 import { deleteStorageObjects } from "@/lib/storage/functions";
-
-// Temporary type for backwards compatibility
-export type FavouriteFolder = {
-	id: string;
-	name: string;
-	url: string;
-};
 
 const CreateFolderInput = z.object({
 	name: z.string().min(1).max(255),
@@ -322,4 +315,86 @@ export const getFolderPath = createServerFn({ method: "GET" })
 		}
 
 		return path;
+	});
+
+export const addFolderToFavourites = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(FolderIdInput)
+	.handler(async ({ data, context }) => {
+		const f = await db.query.folder.findFirst({
+			where: and(eq(folder.id, data.id), eq(folder.userId, context.user.id)),
+		});
+		if (!f) throw new Error("Folder not found or access denied");
+
+		await db
+			.insert(favouriteFolder)
+			.values({
+				userId: context.user.id,
+				folderId: data.id,
+			})
+			.onConflictDoNothing();
+
+		return { success: true };
+	});
+
+export const removeFolderFromFavourites = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(FolderIdInput)
+	.handler(async ({ data, context }) => {
+		await db
+			.delete(favouriteFolder)
+			.where(
+				and(
+					eq(favouriteFolder.userId, context.user.id),
+					eq(favouriteFolder.folderId, data.id),
+				),
+			);
+
+		return { success: true };
+	});
+
+export type FavouriteFolder = {
+	id: string;
+	name: string;
+	color: string | null;
+	emoji: string | null;
+	url: string;
+};
+
+export const getFavouriteFolders = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.handler(async ({ context }) => {
+		const favourites = await db.query.favouriteFolder.findMany({
+			where: eq(favouriteFolder.userId, context.user.id),
+			with: {
+				folder: {
+					columns: {
+						id: true,
+						name: true,
+						color: true,
+						emoji: true,
+					},
+				},
+			},
+			orderBy: (ff, { desc }) => [desc(ff.createdAt)],
+		});
+
+		return favourites.map((fav) => ({
+			...fav.folder,
+			url: `/folders/${fav.folder.id}`,
+		})) satisfies FavouriteFolder[];
+	});
+
+export const isFolderFavourited = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.inputValidator(FolderIdInput)
+	.handler(async ({ data, context }) => {
+		const favourite = await db.query.favouriteFolder.findFirst({
+			where: and(
+				eq(favouriteFolder.userId, context.user.id),
+				eq(favouriteFolder.folderId, data.id),
+			),
+		});
+
+		return { isFavourited: !!favourite };
 	});
