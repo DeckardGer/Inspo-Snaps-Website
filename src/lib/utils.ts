@@ -54,13 +54,17 @@ export function generateUserGradient(username: string) {
 	// Use more consistent saturations and lightness for harmony
 	const baseSaturation = 70 + Math.floor(seededRandom(hash + 5) * 15); // 70-85%
 	const saturation1 = baseSaturation;
-	const saturation2 = baseSaturation - 5 + Math.floor(seededRandom(hash + 6) * 10); // ±5%
-	const saturation3 = baseSaturation - 5 + Math.floor(seededRandom(hash + 7) * 10); // ±5%
+	const saturation2 =
+		baseSaturation - 5 + Math.floor(seededRandom(hash + 6) * 10); // ±5%
+	const saturation3 =
+		baseSaturation - 5 + Math.floor(seededRandom(hash + 7) * 10); // ±5%
 
 	const baseLightness = 50 + Math.floor(seededRandom(hash + 8) * 10); // 50-60%
 	const lightness1 = baseLightness;
-	const lightness2 = baseLightness - 5 + Math.floor(seededRandom(hash + 9) * 10); // ±5%
-	const lightness3 = baseLightness - 5 + Math.floor(seededRandom(hash + 10) * 10); // ±5%
+	const lightness2 =
+		baseLightness - 5 + Math.floor(seededRandom(hash + 9) * 10); // ±5%
+	const lightness3 =
+		baseLightness - 5 + Math.floor(seededRandom(hash + 10) * 10); // ±5%
 
 	const color1 = `hsl(${hue1}, ${saturation1}%, ${lightness1}%)`;
 	const color2 = `hsl(${hue2}, ${saturation2}%, ${lightness2}%)`;

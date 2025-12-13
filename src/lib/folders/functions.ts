@@ -3,7 +3,14 @@ import { and, eq, inArray, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { db } from "@/lib/db";
-import { favouriteFolder, folder, folderImage, image } from "@/lib/db/schema";
+import {
+	favouriteFolder,
+	folder,
+	folderImage,
+	image,
+	shareLink,
+	userShare,
+} from "@/lib/db/schema";
 import { deleteStorageObjects } from "@/lib/storage/functions";
 
 const CreateFolderInput = z.object({
@@ -397,4 +404,72 @@ export const isFolderFavourited = createServerFn({ method: "GET" })
 		});
 
 		return { isFavourited: !!favourite };
+	});
+
+export type FolderWithStats = {
+	id: string;
+	name: string;
+	color: string | null;
+	emoji: string | null;
+	createdAt: Date;
+	updatedAt: Date;
+	totalImageCount: number;
+	isShared: boolean;
+};
+
+export const getFoldersWithStats = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.inputValidator(GetFoldersInput)
+	.handler(async ({ data, context }) => {
+		const parentCondition = data?.parentId
+			? eq(folder.parentId, data.parentId)
+			: isNull(folder.parentId);
+
+		const folders = await db.query.folder.findMany({
+			where: and(eq(folder.userId, context.user.id), parentCondition),
+			orderBy: (folder, { asc }) => [asc(folder.name)],
+		});
+
+		const foldersWithStats: FolderWithStats[] = await Promise.all(
+			folders.map(async (f) => {
+				const descendantIds = await getDescendantIds(f.id, context.user.id);
+				const allFolderIds = [f.id, ...descendantIds];
+
+				const imageCountResult = await db
+					.select({ count: folderImage.imageId })
+					.from(folderImage)
+					.where(inArray(folderImage.folderId, allFolderIds));
+
+				const uniqueImageIds = new Set(
+					imageCountResult.map((r) => r.count).filter((id) => id !== null),
+				);
+				const totalImageCount = uniqueImageIds.size;
+
+				const [shareLinks, userShares] = await Promise.all([
+					db.query.shareLink.findFirst({
+						where: eq(shareLink.folderId, f.id),
+						columns: { id: true },
+					}),
+					db.query.userShare.findFirst({
+						where: eq(userShare.folderId, f.id),
+						columns: { folderId: true },
+					}),
+				]);
+
+				const isShared = !!shareLinks || !!userShares;
+
+				return {
+					id: f.id,
+					name: f.name,
+					color: f.color,
+					emoji: f.emoji,
+					createdAt: f.createdAt,
+					updatedAt: f.updatedAt,
+					totalImageCount,
+					isShared,
+				};
+			}),
+		);
+
+		return foldersWithStats;
 	});

@@ -4,6 +4,7 @@ import {
 	getFolder,
 	getFolderPath,
 	getFolders,
+	getFoldersWithStats,
 	isFolderFavourited,
 } from "./functions";
 
@@ -41,4 +42,12 @@ export const isFolderFavouritedQueryOptions = (folderId: string) =>
 		queryFn: ({ signal }) =>
 			isFolderFavourited({ data: { id: folderId }, signal }),
 		staleTime: 1000 * 60 * 2,
+	});
+
+export const foldersWithStatsQueryOptions = (parentId?: string | null) =>
+	queryOptions({
+		queryKey: ["foldersWithStats", parentId ?? "root"],
+		queryFn: ({ signal }) =>
+			getFoldersWithStats({ data: { parentId }, signal }),
+		staleTime: 1000 * 60 * 5,
 	});
