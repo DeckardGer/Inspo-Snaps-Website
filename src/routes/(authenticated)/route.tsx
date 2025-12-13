@@ -25,11 +25,9 @@ export const Route = createFileRoute("/(authenticated)")({
 });
 
 function RouteComponent() {
-	const { user } = Route.useRouteContext();
-
 	return (
 		<SidebarProvider>
-			<AppSidebar user={user} />
+			<AppSidebar />
 			<SidebarInset>
 				<Outlet />
 			</SidebarInset>

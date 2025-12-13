@@ -21,12 +21,8 @@ import {
 	SidebarMenuButton,
 	SidebarRail,
 } from "@/components/ui/sidebar";
-import type { AuthQueryResult } from "@/lib/auth/queries";
 import { favouriteFoldersQueryOptions } from "@/lib/folders/queries";
-
-interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-	user: NonNullable<AuthQueryResult>;
-}
+import { Route } from "@/routes/(authenticated)/route";
 
 function FavouritesFallback() {
 	return (
@@ -49,7 +45,9 @@ function FavouritesContent() {
 }
 
 // TODO: Don't import user and instead use route context
-export function AppSidebar({ user, ...props }: AppSidebarProps) {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+	const { user } = Route.useRouteContext();
+
 	return (
 		<Sidebar {...props} collapsible="icon">
 			<SidebarHeader className="flex-row items-center pr-0">
