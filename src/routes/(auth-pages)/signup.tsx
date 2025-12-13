@@ -25,7 +25,13 @@ import {
 	FieldLabel,
 	FieldSeparator,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupButton,
+	InputGroupInput,
+	InputGroupText,
+} from "@/components/ui/input-group";
 import { Google } from "@/components/ui/svgs/google";
 import {
 	Tooltip,
@@ -206,7 +212,10 @@ function RouteComponent() {
 											const hasErrors =
 												field.state.meta.errors &&
 												field.state.meta.errors.length > 0;
-											const isInvalid = hasValue && hasErrors && !isValidating;
+											const isInvalid =
+												field.state.meta.isTouched &&
+												hasErrors &&
+												!isValidating;
 											const isAvailable =
 												hasValue &&
 												!hasErrors &&
@@ -222,14 +231,17 @@ function RouteComponent() {
 													<FieldLabel htmlFor={field.name} required>
 														Username
 													</FieldLabel>
-													<div className="relative">
-														<HugeiconsIcon
-															icon={AtIcon}
-															size={18}
-															strokeWidth={2}
-															className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-														/>
-														<Input
+													<InputGroup>
+														<InputGroupAddon align="inline-start">
+															<InputGroupText>
+																<HugeiconsIcon
+																	icon={AtIcon}
+																	size={18}
+																	strokeWidth={2}
+																/>
+															</InputGroupText>
+														</InputGroupAddon>
+														<InputGroupInput
 															id={field.name}
 															name={field.name}
 															value={field.state.value}
@@ -240,25 +252,28 @@ function RouteComponent() {
 															aria-invalid={isInvalid}
 															autoComplete="username"
 															spellCheck={false}
-															className="pl-10 pr-10"
 														/>
-														{isValidating && (
-															<HugeiconsIcon
-																icon={Loading03Icon}
-																size={18}
-																strokeWidth={2}
-																className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground animate-spin"
-															/>
-														)}
-														{isAvailable && (
-															<HugeiconsIcon
-																icon={Tick02Icon}
-																size={18}
-																strokeWidth={2}
-																className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600"
-															/>
-														)}
-													</div>
+														<InputGroupAddon align="inline-end">
+															<InputGroupText>
+																{isValidating && (
+																	<HugeiconsIcon
+																		icon={Loading03Icon}
+																		size={18}
+																		strokeWidth={2}
+																		className="animate-spin"
+																	/>
+																)}
+																{isAvailable && (
+																	<HugeiconsIcon
+																		icon={Tick02Icon}
+																		size={18}
+																		strokeWidth={2}
+																		className="text-green-600"
+																	/>
+																)}
+															</InputGroupText>
+														</InputGroupAddon>
+													</InputGroup>
 													{isInvalid && (
 														<FieldError errors={transformedErrors} />
 													)}
@@ -276,14 +291,17 @@ function RouteComponent() {
 													<FieldLabel htmlFor={field.name} required>
 														Email
 													</FieldLabel>
-													<div className="relative">
-														<HugeiconsIcon
-															icon={Mail01Icon}
-															size={18}
-															strokeWidth={2}
-															className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-														/>
-														<Input
+													<InputGroup>
+														<InputGroupAddon align="inline-start">
+															<InputGroupText>
+																<HugeiconsIcon
+																	icon={Mail01Icon}
+																	size={18}
+																	strokeWidth={2}
+																/>
+															</InputGroupText>
+														</InputGroupAddon>
+														<InputGroupInput
 															id={field.name}
 															name={field.name}
 															value={field.state.value}
@@ -293,9 +311,8 @@ function RouteComponent() {
 															}
 															aria-invalid={isInvalid}
 															autoComplete="email"
-															className="pl-10"
 														/>
-													</div>
+													</InputGroup>
 													{isInvalid && (
 														<FieldError errors={field.state.meta.errors} />
 													)}
@@ -313,14 +330,17 @@ function RouteComponent() {
 													<FieldLabel htmlFor={field.name} required>
 														Password
 													</FieldLabel>
-													<div className="relative">
-														<HugeiconsIcon
-															icon={SquareLock02Icon}
-															size={18}
-															strokeWidth={2}
-															className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-														/>
-														<Input
+													<InputGroup>
+														<InputGroupAddon align="inline-start">
+															<InputGroupText>
+																<HugeiconsIcon
+																	icon={SquareLock02Icon}
+																	size={18}
+																	strokeWidth={2}
+																/>
+															</InputGroupText>
+														</InputGroupAddon>
+														<InputGroupInput
 															id={field.name}
 															name={field.name}
 															value={field.state.value}
@@ -331,41 +351,40 @@ function RouteComponent() {
 															aria-invalid={isInvalid}
 															autoComplete="new-password"
 															type={showPassword ? "text" : "password"}
-															className="pl-10 pr-10"
 														/>
-														<Tooltip>
-															<TooltipTrigger
-																render={
-																	<Button
-																		onClick={() =>
-																			setShowPassword(!showPassword)
-																		}
-																		variant="link"
-																		size="icon"
-																		className="absolute right-[8px] top-1/2 -translate-y-1/2 size-6"
-																	>
-																		<HugeiconsIcon
-																			icon={
-																				showPassword
-																					? ViewIcon
-																					: ViewOffSlashIcon
+														<InputGroupAddon align="inline-end">
+															<Tooltip>
+																<TooltipTrigger
+																	render={(props) => (
+																		<InputGroupButton
+																			{...props}
+																			onClick={() =>
+																				setShowPassword(!showPassword)
 																			}
-																			size={18}
-																			strokeWidth={2}
-																			className="text-muted-foreground"
-																		/>
-																	</Button>
-																}
-															/>
-															<TooltipContent>
-																<p>
-																	{showPassword
-																		? "Hide password"
-																		: "Show password"}
-																</p>
-															</TooltipContent>
-														</Tooltip>
-													</div>
+																			size="icon-xs"
+																		>
+																			<HugeiconsIcon
+																				icon={
+																					showPassword
+																						? ViewIcon
+																						: ViewOffSlashIcon
+																				}
+																				size={18}
+																				strokeWidth={2}
+																			/>
+																		</InputGroupButton>
+																	)}
+																/>
+																<TooltipContent>
+																	<p>
+																		{showPassword
+																			? "Hide password"
+																			: "Show password"}
+																	</p>
+																</TooltipContent>
+															</Tooltip>
+														</InputGroupAddon>
+													</InputGroup>
 													{isInvalid && (
 														<FieldError
 															errors={field.state.meta.errors}
