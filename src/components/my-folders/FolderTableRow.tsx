@@ -21,7 +21,7 @@ export function FolderTableRow({ folder, isFavourited }: FolderTableRowProps) {
 			<TableCell>{format(folder.createdAt, "MMM d, yyyy")}</TableCell>
 			<TableCell>{format(folder.updatedAt, "MMM d, yyyy")}</TableCell>
 			<TableCell>
-				<div className="inline-flex items-center justify-center rounded-full bg-bg-secondary px-2 py-1 text-xs font-medium">
+				<div className="inline-flex items-center justify-center rounded-full bg-card px-2 py-1 text-xs font-medium">
 					{folder.totalImageCount}
 				</div>
 			</TableCell>

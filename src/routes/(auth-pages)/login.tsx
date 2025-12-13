@@ -86,24 +86,24 @@ function RouteComponent() {
 	return (
 		<div className="flex h-screen p-2">
 			<div className="w-full lg:w-2/5 lg:max-w-200 flex flex-col">
-				<div className="flex justify-between py-4 px-8">
+				<div className="flex justify-between text-muted-foreground py-4 px-8">
 					<div>InspoSnaps Icon</div>
 				</div>
 				<div className="flex-1 overflow-y-auto px-8">
 					<div className="flex items-center justify-center min-h-full">
 						<div className="flex flex-col items-center max-w-100 w-full">
-							<div className="flex justify-center items-center p-4 rounded-full bg-linear-to-t from-bg-primary to-bg-tertiary">
-								<div className="flex items-center justify-center bg-bg-primary rounded-full p-4 border border-border-primary">
+							<div className="flex justify-center items-center p-4 rounded-full bg-linear-to-t from-background to-accent">
+								<div className="flex items-center justify-center bg-card rounded-full p-4 border">
 									<HugeiconsIcon
 										icon={UserIcon}
 										size={32}
-										className="text-fg-secondary"
+										className="text-foreground"
 									/>
 								</div>
 							</div>
 							<div className="flex flex-col items-center gap-1 mt-2">
 								<h1 className="text-2xl font-medium">Login to your account</h1>
-								<span className="text-text-tertiary">
+								<span className="text-muted-foreground">
 									Enter your details to login.
 								</span>
 							</div>
@@ -123,7 +123,7 @@ function RouteComponent() {
 								className="w-full mt-6"
 							>
 								<FieldGroup className="gap-4">
-									<FieldSeparator className="text-text-quaternary">
+									<FieldSeparator className="text-secondary-foreground">
 										OR
 									</FieldSeparator>
 									<form.Field
@@ -141,7 +141,7 @@ function RouteComponent() {
 															icon={Mail01Icon}
 															size={18}
 															strokeWidth={2}
-															className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
+															className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
 														/>
 														<Input
 															id={field.name}
@@ -176,7 +176,7 @@ function RouteComponent() {
 														</FieldLabel>
 														<Button
 															variant="link"
-															className="p-0 h-auto leading-snug"
+															className="p-0 h-auto leading-snug text-muted-foreground hover:text-primary"
 														>
 															Forgot Password?
 														</Button>
@@ -186,7 +186,7 @@ function RouteComponent() {
 															icon={SquareLock02Icon}
 															size={18}
 															strokeWidth={2}
-															className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
+															className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
 														/>
 														<Input
 															id={field.name}
@@ -202,21 +202,29 @@ function RouteComponent() {
 															className="pl-10 pr-10"
 														/>
 														<Tooltip>
-															<TooltipTrigger asChild>
-																<Button
-																	onClick={() => setShowPassword(!showPassword)}
-																	variant="link"
-																	className="absolute right-[8px] top-1/2 -translate-y-1/2 size-6"
-																>
-																	<HugeiconsIcon
-																		icon={
-																			showPassword ? ViewIcon : ViewOffSlashIcon
+															<TooltipTrigger
+																render={(props) => (
+																	<Button
+																		{...props}
+																		onClick={() =>
+																			setShowPassword(!showPassword)
 																		}
-																		size={18}
-																		strokeWidth={2}
-																	/>
-																</Button>
-															</TooltipTrigger>
+																		variant="link"
+																		className="absolute right-[8px] top-1/2 -translate-y-1/2 size-6"
+																	>
+																		<HugeiconsIcon
+																			icon={
+																				showPassword
+																					? ViewIcon
+																					: ViewOffSlashIcon
+																			}
+																			size={18}
+																			strokeWidth={2}
+																			className="text-muted-foreground"
+																		/>
+																	</Button>
+																)}
+															/>
 															<TooltipContent>
 																<p>
 																	{showPassword
@@ -247,11 +255,11 @@ function RouteComponent() {
 						</div>
 					</div>
 				</div>
-				<div className="text-sm text-text-tertiary py-4 px-8">
+				<div className="text-sm text-muted-foreground py-4 px-8">
 					&copy; 2025 InspoSnaps.com
 				</div>
 			</div>
-			<div className="hidden lg:flex lg:w-3/5 flex-1 justify-center items-center bg-bg-secondary rounded-2xl"></div>
+			<div className="hidden lg:flex lg:w-3/5 flex-1 justify-center items-center bg-secondary rounded-2xl"></div>
 		</div>
 	);
 }

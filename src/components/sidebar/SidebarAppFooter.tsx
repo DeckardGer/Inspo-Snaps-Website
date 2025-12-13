@@ -42,33 +42,12 @@ export function SidebarAppFooter({
 		<SidebarMenu>
 			<SidebarMenuItem>
 				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<SidebarMenuButton
-							size="lg"
-							className={cn(state === "collapsed" && "rounded-full")}
-						>
-							<UserAvatar
-								imageUrl={user.image || undefined}
-								username={user.username || ""}
-								size="sm"
-							/>
-							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-medium">@{user.username}</span>
-								<span className="truncate text-xs text-text-tertiary">
-									{user.email}
-								</span>
-							</div>
-							<HugeiconsIcon icon={UnfoldMoreIcon} className="ml-auto" />
-						</SidebarMenuButton>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent
-						className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-						side={isMobile ? "bottom" : "right"}
-						align="end"
-						sideOffset={4}
-					>
-						<DropdownMenuLabel className="p-0 font-normal">
-							<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+					<DropdownMenuTrigger
+						render={
+							<SidebarMenuButton
+								size="lg"
+								className={cn(state === "collapsed" && "rounded-full")}
+							>
 								<UserAvatar
 									imageUrl={user.image || undefined}
 									username={user.username || ""}
@@ -76,12 +55,39 @@ export function SidebarAppFooter({
 								/>
 								<div className="grid flex-1 text-left text-sm leading-tight">
 									<span className="truncate font-medium">@{user.username}</span>
-									<span className="truncate text-xs text-text-tertiary">
+									<span className="truncate text-xs text-muted-foreground">
 										{user.email}
 									</span>
 								</div>
-							</div>
-						</DropdownMenuLabel>
+								<HugeiconsIcon icon={UnfoldMoreIcon} className="ml-auto" />
+							</SidebarMenuButton>
+						}
+					/>
+					<DropdownMenuContent
+						className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+						side={isMobile ? "bottom" : "right"}
+						align="end"
+						sideOffset={4}
+					>
+						<DropdownMenuGroup>
+							<DropdownMenuLabel className="p-0 font-normal">
+								<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+									<UserAvatar
+										imageUrl={user.image || undefined}
+										username={user.username || ""}
+										size="sm"
+									/>
+									<div className="grid flex-1 text-left text-sm leading-tight">
+										<span className="truncate font-medium text-foreground">
+											@{user.username}
+										</span>
+										<span className="truncate text-xs text-muted-foreground">
+											{user.email}
+										</span>
+									</div>
+								</div>
+							</DropdownMenuLabel>
+						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
 							<DropdownMenuItem>

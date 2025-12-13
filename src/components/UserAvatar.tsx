@@ -16,6 +16,7 @@ const sizeClasses = {
 	xl: "h-20 w-20 text-lg",
 };
 
+// TODO: Update to skeleton loader while loading image
 export const UserAvatar = memo(function UserAvatar({
 	username,
 	imageUrl,

@@ -48,6 +48,7 @@ function FavouritesContent() {
 	return <NavFavourites favourites={folders} />;
 }
 
+// TODO: Don't import user and instead use route context
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
 	return (
 		<Sidebar {...props} collapsible="icon">

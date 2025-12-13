@@ -21,21 +21,21 @@ interface InfoCardProps {
 
 export function StatCard({ title, value, icon, tooltip }: InfoCardProps) {
 	return (
-		<Card className="flex-1 gap-1 overflow-hidden bg-gradient-to-tr from-bg-primary to-bg-tertiary/30 py-4">
+		<Card className="flex-1 gap-1 overflow-hidden bg-gradient-to-tr from-background to-background/30 py-4">
 			<CardHeader className="gap-0 px-4">
-				<CardTitle className="text-sm font-medium text-text-tertiary">
+				<CardTitle className="text-sm font-medium text-secondary-foreground">
 					{title}
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="px-4">
 				<div className="flex items-end justify-between gap-2">
 					<div className="flex gap-2 truncate">
-						<CardDescription className="truncate text-2xl font-semibold text-text-primary">
+						<CardDescription className="truncate text-2xl font-semibold text-secondary-foreground">
 							{value}
 						</CardDescription>
 					</div>
-					<Tooltip delayDuration={150}>
-						<TooltipTrigger asChild>
+					<Tooltip>
+						<TooltipTrigger>
 							<div className="rounded-md border bg-card p-2">
 								<HugeiconsIcon icon={icon} />
 							</div>

@@ -14,15 +14,15 @@ export function FoldersEmptyState({
 	if (hasSearch) {
 		return (
 			<div className="flex flex-col items-center justify-center gap-4 py-16">
-				<div className="flex size-16 items-center justify-center rounded-full bg-bg-secondary">
+				<div className="flex size-16 items-center justify-center rounded-full bg-card">
 					<HugeiconsIcon
 						icon={Search01Icon}
-						className="size-8 text-text-quaternary"
+						className="size-8 text-secondary-foreground"
 					/>
 				</div>
 				<div className="text-center">
 					<h3 className="text-lg font-semibold">No folders found</h3>
-					<p className="text-sm text-text-tertiary">
+					<p className="text-sm text-secondary-foreground">
 						Try adjusting your search or filters
 					</p>
 				</div>
@@ -32,15 +32,15 @@ export function FoldersEmptyState({
 
 	return (
 		<div className="flex flex-col items-center justify-center gap-4 py-16">
-			<div className="flex size-16 items-center justify-center rounded-full bg-bg-secondary">
+			<div className="flex size-16 items-center justify-center rounded-full bg-card">
 				<HugeiconsIcon
 					icon={FolderAddIcon}
-					className="size-8 text-text-quaternary"
+					className="size-8 text-secondary-foreground"
 				/>
 			</div>
 			<div className="text-center">
 				<h3 className="text-lg font-semibold">No folders yet</h3>
-				<p className="text-sm text-text-tertiary">
+				<p className="text-sm text-secondary-foreground">
 					Create your first folder to organize your images
 				</p>
 			</div>

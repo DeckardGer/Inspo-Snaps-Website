@@ -8,7 +8,7 @@ export function StatsCardsSkeleton() {
 				<Card
 					// biome-ignore lint/suspicious/noArrayIndexKey: No unique ID
 					key={i}
-					className="flex-1 gap-1 overflow-hidden bg-gradient-to-tr from-bg-primary to-bg-tertiary/30 py-4"
+					className="flex-1 gap-1 overflow-hidden bg-gradient-to-tr from-background to-background/30 py-4"
 				>
 					<CardHeader className="gap-0 px-4">
 						<Skeleton className="h-5 w-24" />

@@ -27,15 +27,20 @@ export function HeaderBreadcrumbs({ items }: HeaderBreadcrumbsProps) {
 			<BreadcrumbList>
 				{/* Home icon - always first */}
 				<BreadcrumbItem>
-					<Button variant="ghost" size="icon" className="h-7 w-7" asChild>
-						<Link to="/overview">
-							<HugeiconsIcon
-								icon={Home07Icon}
-								strokeWidth={2}
-								className="h-4 w-4"
-							/>
-						</Link>
-					</Button>
+					<Button
+						variant="ghost"
+						size="icon"
+						className="h-7 w-7"
+						render={
+							<Link to="/overview">
+								<HugeiconsIcon
+									icon={Home07Icon}
+									strokeWidth={2}
+									className="h-4 w-4"
+								/>
+							</Link>
+						}
+					/>
 				</BreadcrumbItem>
 
 				{/* Render breadcrumb items */}
@@ -49,9 +54,9 @@ export function HeaderBreadcrumbs({ items }: HeaderBreadcrumbsProps) {
 								{isLast ? (
 									<BreadcrumbPage>{item.name}</BreadcrumbPage>
 								) : (
-									<BreadcrumbLink asChild>
-										<Link to={item.link}>{item.name}</Link>
-									</BreadcrumbLink>
+									<BreadcrumbLink
+										render={<Link to={item.link}>{item.name}</Link>}
+									/>
 								)}
 							</BreadcrumbItem>
 						</Fragment>

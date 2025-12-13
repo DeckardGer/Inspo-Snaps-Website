@@ -49,12 +49,15 @@ export function NavMain() {
 
 						return (
 							<SidebarMenuItem key={item.name}>
-								<SidebarMenuButton asChild isActive={isActive}>
-									<Link to={item.url}>
-										<HugeiconsIcon icon={item.icon} />
-										<span>{item.name}</span>
-									</Link>
-								</SidebarMenuButton>
+								<SidebarMenuButton
+									isActive={isActive}
+									render={
+										<Link to={item.url}>
+											<HugeiconsIcon icon={item.icon} />
+											<span>{item.name}</span>
+										</Link>
+									}
+								/>
 							</SidebarMenuItem>
 						);
 					})}

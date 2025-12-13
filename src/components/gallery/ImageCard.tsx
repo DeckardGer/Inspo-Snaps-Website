@@ -37,7 +37,7 @@ export function ImageCard({ image, onToggleFavorite }: ImageCardProps) {
 	return (
 		// biome-ignore lint/a11y/noStaticElementInteractions: Needs to be
 		<div
-			className="group overflow-hidden rounded-xl border bg-bg-secondary shadow-md transition-[box-shadow] duration-300 hover:shadow-xl"
+			className="group overflow-hidden rounded-xl border bg-card shadow-md transition-[box-shadow] duration-300 hover:shadow-xl"
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
 		>
@@ -60,7 +60,7 @@ export function ImageCard({ image, onToggleFavorite }: ImageCardProps) {
 				{/* Top Overlay Actions */}
 				<div
 					className={cn(
-						"absolute top-2 right-2 bg-bg-secondary rounded-md transition-opacity duration-300",
+						"absolute top-2 right-2 bg-card rounded-md transition-opacity duration-300",
 						shouldShowButtons
 							? "opacity-100 pointer-events-auto"
 							: "opacity-0 pointer-events-none",
@@ -82,7 +82,7 @@ export function ImageCard({ image, onToggleFavorite }: ImageCardProps) {
 						/>
 					</Button>
 					<DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-						<DropdownMenuTrigger asChild>
+						<DropdownMenuTrigger>
 							<Button
 								size="icon"
 								variant="ghost"
@@ -109,15 +109,15 @@ export function ImageCard({ image, onToggleFavorite }: ImageCardProps) {
 					<HugeiconsIcon
 						icon={Folder01Icon}
 						size={12}
-						className="shrink-0 fill-fg-primary"
+						className="shrink-0 fill-foreground"
 					/>
-					<span className="truncate text-xs text-text-secondary leading-tight ml-2">
+					<span className="truncate text-xs text-secondary-foreground leading-tight ml-2">
 						{image.directory}
 					</span>
 				</div>
 				<div className="flex items-center">
 					<HugeiconsIcon icon={Globe02Icon} size={12} className="shrink-0" />
-					<span className="truncate text-xs text-text-secondary leading-tight ml-2">
+					<span className="truncate text-xs text-secondary-foreground leading-tight ml-2">
 						{image.savedFrom}
 					</span>
 				</div>

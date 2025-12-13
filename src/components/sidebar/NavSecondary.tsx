@@ -27,23 +27,28 @@ export function NavSecondary({
 			<SidebarGroupContent>
 				<SidebarMenu>
 					<SidebarMenuItem>
-						<SidebarMenuButton asChild isActive={isSettingsActive}>
-							<Link to="/settings">
-								<HugeiconsIcon icon={Settings01Icon} />
-								<span>Settings</span>
-							</Link>
-						</SidebarMenuButton>
+						<SidebarMenuButton
+							isActive={isSettingsActive}
+							render={
+								<Link to="/settings">
+									<HugeiconsIcon icon={Settings01Icon} />
+									<span>Settings</span>
+								</Link>
+							}
+						/>
 					</SidebarMenuItem>
 					<SidebarMenuItem>
-						<SidebarMenuButton asChild>
-							<a
-								href="mailto:deckardgerritsen@gmail.com"
-								onClick={handleLinkClick}
-							>
-								<HugeiconsIcon icon={Comment01Icon} />
-								Feedback
-							</a>
-						</SidebarMenuButton>
+						<SidebarMenuButton
+							render={
+								<a
+									href="mailto:deckardgerritsen@gmail.com"
+									onClick={handleLinkClick}
+								>
+									<HugeiconsIcon icon={Comment01Icon} />
+									Feedback
+								</a>
+							}
+						/>
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarGroupContent>

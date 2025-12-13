@@ -15,14 +15,14 @@ export function NavBar({ breadrumbs }: NavBarProps) {
 	const { state } = useSidebar();
 
 	return (
-		<header className="flex justify-between items-center h-15 shrink-0 border-b px-4 sticky top-0 bg-bg-primary z-1">
+		<header className="flex justify-between items-center h-13 shrink-0 border-b px-4 sticky top-0 bg-background z-1">
 			<div className="flex items-center gap-2">
 				{state === "collapsed" && (
 					<>
 						<SidebarTrigger />
 						<Separator
 							orientation="vertical"
-							className="mr-2 data-[orientation=vertical]:h-4"
+							className="mr-2 mt-1.5 data-[orientation=vertical]:h-4"
 						/>
 					</>
 				)}

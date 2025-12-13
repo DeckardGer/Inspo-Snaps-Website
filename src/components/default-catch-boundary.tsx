@@ -30,11 +30,11 @@ export function DefaultCatchBoundary({ error }: Readonly<ErrorComponentProps>) {
 					Try Again
 				</Button>
 				{isRoot ? (
-					<Button asChild variant="secondary">
+					<Button variant="secondary">
 						<Link to="/">Home</Link>
 					</Button>
 				) : (
-					<Button asChild variant="secondary">
+					<Button variant="secondary">
 						<Link
 							to="/"
 							onClick={(e) => {

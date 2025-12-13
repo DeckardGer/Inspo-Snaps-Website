@@ -69,7 +69,7 @@ export function FoldersToolbar({
 			<div className="relative flex-1 sm:max-w-sm">
 				<HugeiconsIcon
 					icon={Search01Icon}
-					className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-quaternary"
+					className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-secondary-foreground"
 				/>
 				<Input
 					placeholder="Search folders..."
@@ -82,7 +82,7 @@ export function FoldersToolbar({
 			<div className="flex items-center gap-2">
 				{/* Sort dropdown */}
 				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
+					<DropdownMenuTrigger>
 						<Button variant="outline">
 							{sortLabels[sort]}
 							{sortDir === "asc" ? (
@@ -123,7 +123,7 @@ export function FoldersToolbar({
 
 				{/* Filter dropdown */}
 				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
+					<DropdownMenuTrigger>
 						<Button variant="outline">{filterLabels[filter]}</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
