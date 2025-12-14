@@ -31,6 +31,7 @@ export function HeaderBreadcrumbs({ items }: HeaderBreadcrumbsProps) {
 						variant="ghost"
 						size="icon"
 						className="h-7 w-7"
+						nativeButton={false}
 						render={
 							<Link to="/overview">
 								<HugeiconsIcon
@@ -40,7 +41,7 @@ export function HeaderBreadcrumbs({ items }: HeaderBreadcrumbsProps) {
 								/>
 							</Link>
 						}
-					/>
+					></Button>
 				</BreadcrumbItem>
 
 				{/* Render breadcrumb items */}

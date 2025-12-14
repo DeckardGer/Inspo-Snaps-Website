@@ -7,28 +7,10 @@ import {
 	text,
 	timestamp,
 } from "drizzle-orm/pg-core";
+import { FOLDER_COLORS } from "@/lib/folders/constants";
 import { user } from "./auth.schema";
 
-export const folderColorEnum = pgEnum("folder_color", [
-	"slate",
-	"red",
-	"orange",
-	"amber",
-	"yellow",
-	"lime",
-	"green",
-	"emerald",
-	"teal",
-	"cyan",
-	"sky",
-	"blue",
-	"indigo",
-	"violet",
-	"purple",
-	"fuchsia",
-	"pink",
-	"rose",
-]);
+export const folderColorEnum = pgEnum("folder_color", FOLDER_COLORS);
 
 export const folder = pgTable(
 	"folder",
