@@ -2,12 +2,9 @@ import { FolderAddIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import { FolderIcon } from "./FolderIcon";
+import { FolderModal } from "./FolderModal";
 
-type FoldersEmptyStateProps = {
-	onCreateFolder?: () => void;
-};
-
-export function FoldersEmptyState({ onCreateFolder }: FoldersEmptyStateProps) {
+export function FoldersEmptyState() {
 	return (
 		<div className="flex flex-col items-center justify-center gap-8 py-20">
 			{/* Floating folders illustration */}
@@ -74,10 +71,14 @@ export function FoldersEmptyState({ onCreateFolder }: FoldersEmptyStateProps) {
 			</div>
 
 			{/* CTA */}
-			<Button onClick={onCreateFolder} size="lg" className="gap-2">
-				<HugeiconsIcon icon={FolderAddIcon} className="size-5" />
-				Create Folder
-			</Button>
+			<FolderModal
+				trigger={
+					<Button size="lg" className="gap-2">
+						<HugeiconsIcon icon={FolderAddIcon} className="size-5" />
+						Create Folder
+					</Button>
+				}
+			/>
 		</div>
 	);
 }

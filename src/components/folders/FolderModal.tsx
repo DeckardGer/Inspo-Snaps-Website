@@ -69,9 +69,10 @@ interface FolderModalProps {
 		emoji?: string | null;
 		color: FolderColor;
 	};
+	trigger: React.ReactElement;
 }
 
-export function FolderModal({ folder }: FolderModalProps) {
+export function FolderModal({ folder, trigger }: FolderModalProps) {
 	const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const isMobile = useIsMobile();
@@ -140,7 +141,7 @@ export function FolderModal({ folder }: FolderModalProps) {
 
 	return (
 		<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-			<DialogTrigger render={<Button>Open Folder Modal</Button>} />
+			<DialogTrigger render={trigger} />
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>

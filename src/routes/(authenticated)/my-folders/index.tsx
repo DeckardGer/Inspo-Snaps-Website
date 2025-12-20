@@ -36,7 +36,7 @@ function MyFoldersContent() {
 	const { data: folders } = useSuspenseQuery(foldersQueryOptions());
 
 	if (folders.length === 0) {
-		return <FoldersEmptyState onCreateFolder={() => {}} />;
+		return <FoldersEmptyState />;
 	}
 
 	return (
