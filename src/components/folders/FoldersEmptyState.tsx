@@ -13,7 +13,7 @@ export function FoldersEmptyState({ onCreateFolder }: FoldersEmptyStateProps) {
 			{/* Floating folders illustration */}
 			<div className="relative flex h-32 w-64 items-center justify-center">
 				{/* Background glow */}
-				<div className="absolute size-32 rounded-full bg-primary/5 blur-2xl" />
+				<div className="absolute size-32 rounded-full bg-primary/20 blur-2xl" />
 
 				{/* Floating folder icons - positioned with wrapper, animated inside */}
 				<div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -30,14 +30,14 @@ export function FoldersEmptyState({ onCreateFolder }: FoldersEmptyStateProps) {
 						className="animate-[float_3s_ease-in-out_infinite] opacity-60"
 						style={{ animationDelay: "-1s" }}
 					>
-						<FolderIcon color="violet" size="md" className="shadow-md" />
+						<FolderIcon color="purple" size="md" className="shadow-md" />
 					</div>
 				</div>
 
-				<div className="absolute right-[15%] top-[30%]">
+				<div className="absolute right-[15%] top-[26%]">
 					<div
 						className="animate-[float_3s_ease-in-out_infinite] opacity-60"
-						style={{ animationDelay: "-2s" }}
+						style={{ animationDelay: "-1.8s" }}
 					>
 						<FolderIcon color="rose" size="md" className="shadow-md" />
 					</div>
@@ -48,16 +48,16 @@ export function FoldersEmptyState({ onCreateFolder }: FoldersEmptyStateProps) {
 						className="animate-[float_3s_ease-in-out_infinite] opacity-40"
 						style={{ animationDelay: "-0.5s" }}
 					>
-						<FolderIcon color="sky" size="sm" className="shadow-sm" />
+						<FolderIcon color="yellow" size="sm" className="shadow-sm" />
 					</div>
 				</div>
 
-				<div className="absolute bottom-[15%] right-[20%]">
+				<div className="absolute bottom-[12%] right-[20%]">
 					<div
 						className="animate-[float_3s_ease-in-out_infinite] opacity-40"
 						style={{ animationDelay: "-1.5s" }}
 					>
-						<FolderIcon color="emerald" size="sm" className="shadow-sm" />
+						<FolderIcon color="green" size="sm" className="shadow-sm" />
 					</div>
 				</div>
 			</div>
