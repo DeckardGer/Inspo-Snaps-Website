@@ -7,7 +7,6 @@ export const FOLDER_COLORS = [
 	"blue",
 	"indigo",
 	"purple",
-	"pink",
 	"rose",
 ] as const;
 
@@ -22,7 +21,6 @@ export const COLOR_CLASSES: Record<FolderColor, string> = {
 	blue: "bg-blue-500 hover:bg-blue-600",
 	indigo: "bg-indigo-500 hover:bg-indigo-600",
 	purple: "bg-purple-500 hover:bg-purple-600",
-	pink: "bg-pink-500 hover:bg-pink-600",
 	rose: "bg-rose-500 hover:bg-rose-600",
 };
 
@@ -39,6 +37,5 @@ export const FOLDER_ICON_CLASSES: Record<FolderColor, string> = {
 		"bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-400",
 	purple:
 		"bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400",
-	pink: "bg-pink-100 text-pink-600 dark:bg-pink-900 dark:text-pink-400",
 	rose: "bg-rose-100 text-rose-600 dark:bg-rose-900 dark:text-rose-400",
 };
