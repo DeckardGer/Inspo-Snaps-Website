@@ -5,6 +5,15 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
 :root {
     --background: oklch(1 0 0);
     --foreground: oklch(0.141 0.005 285.823);
@@ -115,6 +124,7 @@
     --radius-3xl: calc(var(--radius) + 12px);
     --radius-4xl: calc(var(--radius) + 16px);
 }
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
