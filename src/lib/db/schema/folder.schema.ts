@@ -17,7 +17,7 @@ export const folder = pgTable(
 	{
 		id: text("id").primaryKey(),
 		name: text("name").notNull(),
-		color: folderColorEnum("color"),
+		color: folderColorEnum("color").notNull().default("indigo"),
 		emoji: text("emoji"),
 		userId: text("user_id")
 			.notNull()

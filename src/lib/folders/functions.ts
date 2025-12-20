@@ -11,33 +11,12 @@ import {
 	shareLink,
 	userShare,
 } from "@/lib/db/schema";
+import { FOLDER_COLORS } from "@/lib/folders/constants";
 import { deleteStorageObjects } from "@/lib/storage/functions";
 
 const CreateFolderInput = z.object({
 	name: z.string().min(1).max(255),
-	color: z
-		.enum([
-			"slate",
-			"red",
-			"orange",
-			"amber",
-			"yellow",
-			"lime",
-			"green",
-			"emerald",
-			"teal",
-			"cyan",
-			"sky",
-			"blue",
-			"indigo",
-			"violet",
-			"purple",
-			"fuchsia",
-			"pink",
-			"rose",
-		])
-		.nullable()
-		.optional(),
+	color: z.enum(FOLDER_COLORS).default("indigo"),
 	emoji: z.string().max(10).nullable().optional(),
 	parentId: z.uuid().nullable().optional(),
 });
@@ -45,29 +24,7 @@ const CreateFolderInput = z.object({
 const UpdateFolderInput = z.object({
 	id: z.uuid(),
 	name: z.string().min(1).max(255).optional(),
-	color: z
-		.enum([
-			"slate",
-			"red",
-			"orange",
-			"amber",
-			"yellow",
-			"lime",
-			"green",
-			"emerald",
-			"teal",
-			"cyan",
-			"sky",
-			"blue",
-			"indigo",
-			"violet",
-			"purple",
-			"fuchsia",
-			"pink",
-			"rose",
-		])
-		.nullable()
-		.optional(),
+	color: z.enum(FOLDER_COLORS).default("indigo"),
 	emoji: z.string().max(10).nullable().optional(),
 });
 
@@ -106,7 +63,7 @@ export const createFolder = createServerFn({ method: "POST" })
 			.values({
 				id: crypto.randomUUID(),
 				name: data.name,
-				color: data.color ?? null,
+				color: data.color,
 				emoji: data.emoji ?? null,
 				parentId: data.parentId ?? null,
 				userId: context.user.id,

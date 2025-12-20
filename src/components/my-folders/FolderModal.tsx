@@ -1,6 +1,11 @@
-import { Delete02Icon, SearchAddIcon } from "@hugeicons/core-free-icons";
+import {
+	Delete02Icon,
+	Loading03Icon,
+	SearchAddIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useForm } from "@tanstack/react-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -46,6 +51,7 @@ import {
 	FOLDER_COLORS,
 	type FolderColor,
 } from "@/lib/folders/constants";
+import { createFolder, updateFolder } from "@/lib/folders/functions";
 
 const formSchema = z.object({
 	name: z
@@ -61,14 +67,45 @@ interface FolderModalProps {
 		id: string;
 		name: string;
 		emoji?: string | null;
-		color?: FolderColor | null;
+		color: FolderColor;
 	};
 }
 
 export function FolderModal({ folder }: FolderModalProps) {
 	const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+	const [dialogOpen, setDialogOpen] = useState(false);
 	const isMobile = useIsMobile();
 	const isEditing = !!folder;
+	const queryClient = useQueryClient();
+
+	const createMutation = useMutation({
+		mutationFn: createFolder,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["folders"] });
+			toast.success("Folder created successfully");
+			setDialogOpen(false);
+			form.reset();
+		},
+		onError: (error) => {
+			toast.error("Failed to create folder", {
+				description: error.message,
+			});
+		},
+	});
+
+	const updateMutation = useMutation({
+		mutationFn: updateFolder,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["folders"] });
+			toast.success("Folder updated successfully");
+			setDialogOpen(false);
+		},
+		onError: (error) => {
+			toast.error("Failed to update folder", {
+				description: error.message,
+			});
+		},
+	});
 
 	const form = useForm({
 		defaultValues: {
@@ -80,25 +117,29 @@ export function FolderModal({ folder }: FolderModalProps) {
 			onSubmit: formSchema,
 		},
 		onSubmit: async ({ value }) => {
-			toast("You submitted the following values:", {
-				description: (
-					<pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-						<code>{JSON.stringify(value, null, 2)}</code>
-					</pre>
-				),
-				position: "bottom-right",
-				classNames: {
-					content: "flex flex-col gap-2",
-				},
-				style: {
-					"--border-radius": "calc(var(--radius)  + 4px)",
-				} as React.CSSProperties,
-			});
+			if (isEditing) {
+				updateMutation.mutate({
+					data: {
+						id: folder.id,
+						name: value.name,
+						emoji: value.emoji,
+						color: value.color,
+					},
+				});
+			} else {
+				createMutation.mutate({
+					data: {
+						name: value.name,
+						emoji: value.emoji,
+						color: value.color,
+					},
+				});
+			}
 		},
 	});
 
 	return (
-		<Dialog>
+		<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
 			<DialogTrigger render={<Button>Open Folder Modal</Button>} />
 			<DialogContent>
 				<DialogHeader>
@@ -215,7 +256,10 @@ export function FolderModal({ folder }: FolderModalProps) {
 														</>
 													)}
 												</PopoverTrigger>
-												<PopoverContent className="w-fit p-0" align="start">
+												<PopoverContent
+													className="w-[var(--anchor-width)] p-0"
+													align="start"
+												>
 													<EmojiPicker
 														onEmojiSelect={(emoji) => {
 															field.handleChange(emoji.emoji);
@@ -294,8 +338,25 @@ export function FolderModal({ folder }: FolderModalProps) {
 				</form>
 
 				<DialogFooter>
-					<Button type="submit" form="folder-form">
-						{isEditing ? "Save Changes" : "Create Folder"}
+					<Button
+						type="submit"
+						form="folder-form"
+						disabled={createMutation.isPending || updateMutation.isPending}
+					>
+						{createMutation.isPending || updateMutation.isPending ? (
+							<>
+								<HugeiconsIcon
+									icon={Loading03Icon}
+									strokeWidth={2}
+									className="animate-spin"
+								/>
+								{isEditing ? "Saving..." : "Creating..."}
+							</>
+						) : isEditing ? (
+							"Save Changes"
+						) : (
+							"Create Folder"
+						)}
 					</Button>
 				</DialogFooter>
 			</DialogContent>
