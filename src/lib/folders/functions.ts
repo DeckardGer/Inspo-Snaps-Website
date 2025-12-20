@@ -370,7 +370,7 @@ export type FolderWithStats = {
 	emoji: string | null;
 	createdAt: Date;
 	updatedAt: Date;
-	totalImageCount: number;
+	imageCount: number;
 	isShared: boolean;
 };
 
@@ -389,18 +389,12 @@ export const getFoldersWithStats = createServerFn({ method: "GET" })
 
 		const foldersWithStats: FolderWithStats[] = await Promise.all(
 			folders.map(async (f) => {
-				const descendantIds = await getDescendantIds(f.id, context.user.id);
-				const allFolderIds = [f.id, ...descendantIds];
-
 				const imageCountResult = await db
 					.select({ count: folderImage.imageId })
 					.from(folderImage)
-					.where(inArray(folderImage.folderId, allFolderIds));
+					.where(eq(folderImage.folderId, f.id));
 
-				const uniqueImageIds = new Set(
-					imageCountResult.map((r) => r.count).filter((id) => id !== null),
-				);
-				const totalImageCount = uniqueImageIds.size;
+				const imageCount = imageCountResult.length;
 
 				const [shareLinks, userShares] = await Promise.all([
 					db.query.shareLink.findFirst({
@@ -422,7 +416,7 @@ export const getFoldersWithStats = createServerFn({ method: "GET" })
 					emoji: f.emoji,
 					createdAt: f.createdAt,
 					updatedAt: f.updatedAt,
-					totalImageCount,
+					imageCount,
 					isShared,
 				};
 			}),

@@ -38,7 +38,7 @@ export function sortFolders(
 				comparison = a.updatedAt.getTime() - b.updatedAt.getTime();
 				break;
 			case "images":
-				comparison = a.totalImageCount - b.totalImageCount;
+				comparison = a.imageCount - b.imageCount;
 				break;
 		}
 
