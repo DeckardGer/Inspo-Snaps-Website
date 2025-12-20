@@ -1,11 +1,11 @@
 import { format } from "date-fns";
 import { TableCell, TableRow } from "@/components/ui/table";
-import type { FolderWithStats } from "@/lib/folders/functions";
+import type { Folder } from "@/lib/folders/functions";
 import { FolderActionsDropdown } from "./FolderActionsDropdown";
 import { FolderIcon } from "./FolderIcon";
 
 type FolderTableRowProps = {
-	folder: FolderWithStats;
+	folder: Folder;
 	isFavourited?: boolean;
 };
 

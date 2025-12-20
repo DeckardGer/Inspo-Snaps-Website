@@ -5,11 +5,11 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import type { FolderWithStats } from "@/lib/folders/functions";
+import type { Folder } from "@/lib/folders/functions";
 import { FolderTableRow } from "./FolderTableRow";
 
 type FolderTableProps = {
-	folders: FolderWithStats[];
+	folders: Folder[];
 	favouritedFolderIds?: Set<string>;
 };
 

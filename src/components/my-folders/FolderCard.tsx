@@ -1,10 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
-import type { FolderWithStats } from "@/lib/folders/functions";
+import type { Folder } from "@/lib/folders/functions";
 import { FolderActionsDropdown } from "./FolderActionsDropdown";
 import { FolderIcon } from "./FolderIcon";
 
 type FolderCardProps = {
-	folder: FolderWithStats;
+	folder: Folder;
 	isFavourited?: boolean;
 };
 

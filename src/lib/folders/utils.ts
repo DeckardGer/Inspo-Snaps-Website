@@ -1,10 +1,10 @@
-import type { FolderWithStats } from "./functions";
+import type { Folder } from "./functions";
 
 export function filterFolders(
-	folders: FolderWithStats[],
+	folders: Folder[],
 	filter: "all" | "private" | "shared",
 	search?: string,
-): FolderWithStats[] {
+): Folder[] {
 	return folders.filter((folder) => {
 		if (search && !folder.name.toLowerCase().includes(search.toLowerCase())) {
 			return false;
@@ -18,10 +18,10 @@ export function filterFolders(
 }
 
 export function sortFolders(
-	folders: FolderWithStats[],
+	folders: Folder[],
 	sort: "name" | "created" | "updated" | "images",
 	sortDir: "asc" | "desc",
-): FolderWithStats[] {
+): Folder[] {
 	const sorted = [...folders];
 
 	sorted.sort((a, b) => {

@@ -11,7 +11,7 @@ import {
 	FolderTable,
 } from "@/components/my-folders";
 import { NavBar } from "@/components/navbar/NavBar";
-import { foldersWithStatsQueryOptions } from "@/lib/folders/queries";
+import { foldersQueryOptions } from "@/lib/folders/queries";
 import { filterFolders, sortFolders } from "@/lib/folders/utils";
 
 const myFoldersSearchSchema = z.object({
@@ -25,7 +25,7 @@ const myFoldersSearchSchema = z.object({
 export const Route = createFileRoute("/(authenticated)/my-folders/")({
 	validateSearch: myFoldersSearchSchema,
 	beforeLoad: ({ context }) => {
-		context.queryClient.prefetchQuery(foldersWithStatsQueryOptions());
+		context.queryClient.prefetchQuery(foldersQueryOptions());
 	},
 	component: RouteComponent,
 });
@@ -61,7 +61,7 @@ function FoldersContent() {
 	const navigate = useNavigate({ from: Route.fullPath });
 	const { search, sort, sortDir, filter, view } = Route.useSearch();
 
-	const { data: folders } = useSuspenseQuery(foldersWithStatsQueryOptions());
+	const { data: folders } = useSuspenseQuery(foldersQueryOptions());
 
 	const processedFolders = useMemo(() => {
 		let result = folders;

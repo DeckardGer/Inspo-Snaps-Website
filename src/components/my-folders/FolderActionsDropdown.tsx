@@ -17,10 +17,10 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { FolderWithStats } from "@/lib/folders/functions";
+import type { Folder } from "@/lib/folders/functions";
 
 type FolderActionsDropdownProps = {
-	folder: FolderWithStats;
+	folder: Folder;
 	isFavourited?: boolean;
 	onOpen?: () => void;
 	onRename?: () => void;

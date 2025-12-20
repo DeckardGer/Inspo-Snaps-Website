@@ -43,6 +43,17 @@ const FolderIdInput = z.object({
 	id: z.uuid(),
 });
 
+export type Folder = {
+	id: string;
+	name: string;
+	color: string | null;
+	emoji: string | null;
+	createdAt: Date;
+	updatedAt: Date;
+	imageCount: number;
+	isShared: boolean;
+};
+
 export const createFolder = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(CreateFolderInput)
@@ -81,18 +92,47 @@ export const getFolders = createServerFn({ method: "GET" })
 			? eq(folder.parentId, data.parentId)
 			: isNull(folder.parentId);
 
-		return db.query.folder.findMany({
+		const folders = await db.query.folder.findMany({
 			where: and(eq(folder.userId, context.user.id), parentCondition),
 			orderBy: (folder, { asc }) => [asc(folder.name)],
-			with: {
-				children: {
-					columns: {
-						id: true,
-						name: true,
-					},
-				},
-			},
 		});
+
+		const foldersWithStats: Folder[] = await Promise.all(
+			folders.map(async (f) => {
+				const imageCountResult = await db
+					.select({ count: folderImage.imageId })
+					.from(folderImage)
+					.where(eq(folderImage.folderId, f.id));
+
+				const imageCount = imageCountResult.length;
+
+				const [shareLinkResult, userShareResult] = await Promise.all([
+					db.query.shareLink.findFirst({
+						where: eq(shareLink.folderId, f.id),
+						columns: { id: true },
+					}),
+					db.query.userShare.findFirst({
+						where: eq(userShare.folderId, f.id),
+						columns: { folderId: true },
+					}),
+				]);
+
+				const isShared = !!shareLinkResult || !!userShareResult;
+
+				return {
+					id: f.id,
+					name: f.name,
+					color: f.color,
+					emoji: f.emoji,
+					createdAt: f.createdAt,
+					updatedAt: f.updatedAt,
+					imageCount,
+					isShared,
+				};
+			}),
+		);
+
+		return foldersWithStats;
 	});
 
 export const getFolder = createServerFn({ method: "GET" })
@@ -361,66 +401,4 @@ export const isFolderFavourited = createServerFn({ method: "GET" })
 		});
 
 		return { isFavourited: !!favourite };
-	});
-
-export type FolderWithStats = {
-	id: string;
-	name: string;
-	color: string | null;
-	emoji: string | null;
-	createdAt: Date;
-	updatedAt: Date;
-	imageCount: number;
-	isShared: boolean;
-};
-
-export const getFoldersWithStats = createServerFn({ method: "GET" })
-	.middleware([authMiddleware])
-	.inputValidator(GetFoldersInput)
-	.handler(async ({ data, context }) => {
-		const parentCondition = data?.parentId
-			? eq(folder.parentId, data.parentId)
-			: isNull(folder.parentId);
-
-		const folders = await db.query.folder.findMany({
-			where: and(eq(folder.userId, context.user.id), parentCondition),
-			orderBy: (folder, { asc }) => [asc(folder.name)],
-		});
-
-		const foldersWithStats: FolderWithStats[] = await Promise.all(
-			folders.map(async (f) => {
-				const imageCountResult = await db
-					.select({ count: folderImage.imageId })
-					.from(folderImage)
-					.where(eq(folderImage.folderId, f.id));
-
-				const imageCount = imageCountResult.length;
-
-				const [shareLinks, userShares] = await Promise.all([
-					db.query.shareLink.findFirst({
-						where: eq(shareLink.folderId, f.id),
-						columns: { id: true },
-					}),
-					db.query.userShare.findFirst({
-						where: eq(userShare.folderId, f.id),
-						columns: { folderId: true },
-					}),
-				]);
-
-				const isShared = !!shareLinks || !!userShares;
-
-				return {
-					id: f.id,
-					name: f.name,
-					color: f.color,
-					emoji: f.emoji,
-					createdAt: f.createdAt,
-					updatedAt: f.updatedAt,
-					imageCount,
-					isShared,
-				};
-			}),
-		);
-
-		return foldersWithStats;
 	});
