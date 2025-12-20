@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { FolderModal } from "@/components/my-folders/FolderModal";
+import { FolderModal } from "@/components/my-folders-old/FolderModal";
 import { NavBar } from "@/components/navbar/NavBar";
 
 export const Route = createFileRoute("/(authenticated)/settings/")({

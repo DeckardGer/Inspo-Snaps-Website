@@ -9,7 +9,7 @@ import {
 	FoldersTableSkeleton,
 	FoldersToolbar,
 	FolderTable,
-} from "@/components/my-folders";
+} from "@/components/my-folders-old";
 import { NavBar } from "@/components/navbar/NavBar";
 import { foldersQueryOptions } from "@/lib/folders/queries";
 import { filterFolders, sortFolders } from "@/lib/folders/utils";
