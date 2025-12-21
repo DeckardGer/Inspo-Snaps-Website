@@ -70,9 +70,10 @@ interface FolderModalProps {
 		color: FolderColor;
 	};
 	trigger: React.ReactElement;
+	parentId?: string | null;
 }
 
-export function FolderModal({ folder, trigger }: FolderModalProps) {
+export function FolderModal({ folder, trigger, parentId }: FolderModalProps) {
 	const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const isMobile = useIsMobile();
@@ -82,7 +83,9 @@ export function FolderModal({ folder, trigger }: FolderModalProps) {
 	const createMutation = useMutation({
 		mutationFn: createFolder,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["folders"] });
+			queryClient.invalidateQueries({
+				queryKey: ["folders", parentId ?? "root"],
+			});
 			toast.success("Folder created successfully");
 			setDialogOpen(false);
 			form.reset();
@@ -133,6 +136,7 @@ export function FolderModal({ folder, trigger }: FolderModalProps) {
 						name: value.name,
 						emoji: value.emoji,
 						color: value.color,
+						parentId: parentId ?? null,
 					},
 				});
 			}

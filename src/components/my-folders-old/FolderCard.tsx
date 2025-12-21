@@ -18,8 +18,7 @@ export function FolderCard({ folder, isFavourited }: FolderCardProps) {
 				</h3>
 				{folder.imageCount > 0 && (
 					<span className="text-xs text-secondary-foreground">
-						{folder.imageCount}{" "}
-						{folder.imageCount === 1 ? "image" : "images"}
+						{folder.imageCount} {folder.imageCount === 1 ? "image" : "images"}
 					</span>
 				)}
 			</CardContent>

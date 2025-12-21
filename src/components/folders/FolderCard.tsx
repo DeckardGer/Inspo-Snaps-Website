@@ -1,5 +1,6 @@
 import { Folder01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { Link } from "@tanstack/react-router";
 import { FOLDER_CLASSES } from "@/lib/folders/constants";
 import type { Folder } from "@/lib/folders/functions";
 import { cn } from "@/lib/utils";
@@ -12,9 +13,11 @@ export function FolderCard({ folder }: FolderCardProps) {
 	const colors = FOLDER_CLASSES[folder.color];
 
 	return (
-		<div
+		<Link
+			to="/my-folders/{-$folderId}"
+			params={{ folderId: folder.id }}
 			className={cn(
-				"group bg-card rounded-xl shadow-md transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-lg cursor-pointer",
+				"block group bg-card rounded-xl shadow-md transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-lg cursor-pointer focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none",
 				colors.glow,
 			)}
 		>
@@ -47,6 +50,6 @@ export function FolderCard({ folder }: FolderCardProps) {
 					{folder.imageCount}
 				</div>
 			</div>
-		</div>
+		</Link>
 	);
 }

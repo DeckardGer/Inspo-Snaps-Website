@@ -4,7 +4,12 @@ import { Button } from "@/components/ui/button";
 import { FolderIcon } from "./FolderIcon";
 import { FolderModal } from "./FolderModal";
 
-export function FoldersEmptyState() {
+interface FoldersEmptyStateProps {
+	parentId?: string | null;
+}
+
+export function FoldersEmptyState({ parentId }: FoldersEmptyStateProps) {
+	const isNested = !!parentId;
 	return (
 		<div className="flex flex-col items-center justify-center gap-8 py-20">
 			{/* Floating folders illustration */}
@@ -62,20 +67,22 @@ export function FoldersEmptyState() {
 			{/* Content */}
 			<div className="text-center">
 				<h3 className="text-xl font-semibold tracking-tight">
-					Create your first folder
+					{isNested ? "This folder is empty" : "Create your first folder"}
 				</h3>
 				<p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-					Organize your inspiration into folders. Group images by project,
-					theme, mood, or however you like.
+					{isNested
+						? "Add subfolders to organize this folder's content."
+						: "Organize your inspiration into folders. Group images by project, theme, mood, or however you like."}
 				</p>
 			</div>
 
 			{/* CTA */}
 			<FolderModal
+				parentId={parentId}
 				trigger={
 					<Button size="lg" className="gap-2">
 						<HugeiconsIcon icon={FolderAddIcon} className="size-5" />
-						Create Folder
+						{isNested ? "Create Subfolder" : "Create Folder"}
 					</Button>
 				}
 			/>

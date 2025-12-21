@@ -391,7 +391,7 @@ export const getFavouriteFolders = createServerFn({ method: "GET" })
 
 		return favourites.map((fav) => ({
 			...fav.folder,
-			url: `/folders/${fav.folder.id}`,
+			url: `/my-folders/${fav.folder.id}`,
 		})) satisfies FavouriteFolder[];
 	});
 
