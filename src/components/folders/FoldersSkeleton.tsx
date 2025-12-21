@@ -1,17 +1,22 @@
-/** biome-ignore-all lint/suspicious/noArrayIndexKey: No unique key */
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function FoldersGridSkeleton() {
 	return (
-		<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-			{Array.from({ length: 10 }).map((_, i) => (
-				<Card key={`grid-skeleton-${i}`} className="relative">
-					<CardContent className="flex flex-col items-center gap-2 p-6">
-						<Skeleton className="size-10 rounded-md" />
-						<Skeleton className="h-4 w-24" />
-					</CardContent>
-				</Card>
+		<div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
+			{Array.from({ length: 15 }).map((_, i) => (
+				<div
+					// biome-ignore lint/suspicious/noArrayIndexKey: skeleton items have no unique key
+					key={i}
+					className="bg-card rounded-xl shadow-md"
+				>
+					<Skeleton className="flex justify-center items-center h-32 w-full rounded-xl">
+						<Skeleton className="w-20 h-20 rounded-full bg-muted-foreground/10" />
+					</Skeleton>
+					<div className="flex justify-between items-center m-2">
+						<Skeleton className="h-5 w-24" />
+						<Skeleton className="h-4 w-6" />
+					</div>
+				</div>
 			))}
 		</div>
 	);
