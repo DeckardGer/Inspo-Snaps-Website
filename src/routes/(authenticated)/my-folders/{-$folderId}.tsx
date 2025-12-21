@@ -9,7 +9,6 @@ import {
 import { NavBar } from "@/components/navbar/NavBar";
 import {
 	folderPathQueryOptions,
-	folderQueryOptions,
 	foldersQueryOptions,
 } from "@/lib/folders/queries";
 
@@ -20,112 +19,62 @@ export const Route = createFileRoute(
 		const { folderId } = params;
 
 		if (folderId) {
-			// Nested folder: prefetch contents, details, and path
 			await Promise.all([
 				context.queryClient.prefetchQuery(foldersQueryOptions(folderId)),
-				context.queryClient.prefetchQuery(folderQueryOptions(folderId)),
 				context.queryClient.prefetchQuery(folderPathQueryOptions(folderId)),
 			]);
 		} else {
-			// Root: just prefetch root folders
 			context.queryClient.prefetchQuery(foldersQueryOptions());
 		}
 	},
 	component: RouteComponent,
 });
 
-const baseBreadcrumbs = [{ name: "My Folders", link: "/my-folders" }];
+const BASE_BREADCRUMBS = [{ name: "My Folders", link: "/my-folders" }];
 
 function RouteComponent() {
 	const { folderId } = Route.useParams();
 
-	// Root folder - no validation needed
-	if (!folderId) {
-		return (
-			<>
-				<NavBar breadrumbs={baseBreadcrumbs} />
-				<div className="flex flex-1 flex-col gap-4 p-4">
-					<Suspense fallback={<FoldersGridSkeleton />}>
-						<FolderContents />
-					</Suspense>
-				</div>
-			</>
-		);
-	}
+	// Only fetch path for nested folders
+	const { data: path, isLoading } = useQuery({
+		...folderPathQueryOptions(folderId ?? ""),
+		enabled: !!folderId,
+	});
 
-	// Nested folder - needs validation
-	return <NestedFolderView folderId={folderId} />;
-}
+	// For root, always valid. For nested, valid if path has items
+	const isValidFolder = !folderId || (path && path.length > 0);
 
-function NestedFolderView({ folderId }: { folderId: string }) {
-	const {
-		data: folder,
-		isLoading,
-		error,
-	} = useQuery(folderQueryOptions(folderId));
-
-	const folderExists = !isLoading && !error && folder;
+	// Build breadcrumbs from path
+	const breadcrumbs =
+		path && path.length > 0
+			? [
+					...BASE_BREADCRUMBS,
+					...path.map((item) => ({
+						name: item.name,
+						link: `/my-folders/${item.id}`,
+					})),
+				]
+			: BASE_BREADCRUMBS;
 
 	return (
 		<>
-			{folderExists ? (
-				<FolderBreadcrumbs folderId={folderId} />
-			) : (
-				<NavBar breadrumbs={baseBreadcrumbs} />
-			)}
+			<NavBar breadrumbs={breadcrumbs} />
 			<div className="flex flex-1 flex-col gap-4 p-4">
-				<FolderPageContent
-					folderId={folderId}
-					isLoading={isLoading}
-					error={error}
-					folder={folder}
-				/>
+				{folderId && isLoading ? (
+					<FoldersGridSkeleton />
+				) : folderId && !isValidFolder ? (
+					<FolderNotFound />
+				) : (
+					<Suspense fallback={<FoldersGridSkeleton />}>
+						<FolderContents folderId={folderId} />
+					</Suspense>
+				)}
 			</div>
 		</>
 	);
 }
 
-function FolderBreadcrumbs({ folderId }: { folderId: string }) {
-	const { data: path } = useSuspenseQuery(folderPathQueryOptions(folderId));
-
-	const breadcrumbs = [
-		...baseBreadcrumbs,
-		...path.map((item) => ({
-			name: item.name,
-			link: `/my-folders/${item.id}`,
-		})),
-	];
-
-	return <NavBar breadrumbs={breadcrumbs} />;
-}
-
-function FolderPageContent({
-	folderId,
-	isLoading,
-	error,
-	folder,
-}: {
-	folderId: string;
-	isLoading: boolean;
-	error: Error | null;
-	folder: unknown;
-}) {
-	if (isLoading) {
-		return <FoldersGridSkeleton />;
-	}
-
-	if (error || !folder) {
-		return <FolderNotFound />;
-	}
-
-	return (
-		<Suspense fallback={<FoldersGridSkeleton />}>
-			<FolderContents folderId={folderId} />
-		</Suspense>
-	);
-}
-
-export function FolderContents({ folderId }: { folderId?: string | null }) {
+function FolderContents({ folderId }: { folderId?: string }) {
 	const { data: folders } = useSuspenseQuery(foldersQueryOptions(folderId));
 
 	if (folders.length === 0) {

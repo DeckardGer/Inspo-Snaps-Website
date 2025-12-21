@@ -17,7 +17,7 @@ export function FolderCard({ folder }: FolderCardProps) {
 			to="/my-folders/{-$folderId}"
 			params={{ folderId: folder.id }}
 			className={cn(
-				"block group bg-card rounded-xl shadow-md transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-lg cursor-pointer focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none",
+				"block group bg-card rounded-xl shadow-md transition-[scale,box-shadow] duration-200 ease-out hover:scale-[1.02] hover:shadow-lg cursor-pointer focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none",
 				colors.glow,
 			)}
 		>
