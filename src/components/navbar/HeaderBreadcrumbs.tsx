@@ -41,7 +41,7 @@ export function HeaderBreadcrumbs({ items }: HeaderBreadcrumbsProps) {
 								/>
 							</Link>
 						}
-					></Button>
+					/>
 				</BreadcrumbItem>
 
 				{/* Render breadcrumb items */}

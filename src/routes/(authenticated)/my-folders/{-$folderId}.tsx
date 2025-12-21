@@ -1,8 +1,9 @@
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 import {
 	FolderGrid,
+	FolderNotFound,
 	FoldersEmptyState,
 	FoldersGridSkeleton,
 } from "@/components/folders";
@@ -82,22 +83,4 @@ function FolderContents({ folderId }: { folderId?: string }) {
 	}
 
 	return <FolderGrid folders={folders} />;
-}
-
-function FolderNotFound() {
-	return (
-		<div className="flex flex-col items-center justify-center gap-4 py-20">
-			<h2 className="text-xl font-semibold">Folder not found</h2>
-			<p className="text-muted-foreground">
-				This folder doesn't exist or you don't have access to it.
-			</p>
-			<Link
-				to="/my-folders/{-$folderId}"
-				params={{ folderId: undefined }}
-				className="text-primary underline"
-			>
-				Go back to My Folders
-			</Link>
-		</div>
-	);
 }
