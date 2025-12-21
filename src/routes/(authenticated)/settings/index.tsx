@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { FolderModal } from "@/components/my-folders-old/FolderModal";
+import { FolderModal } from "@/components/folders/FolderModal";
 import { NavBar } from "@/components/navbar/NavBar";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/(authenticated)/settings/")({
 	component: RouteComponent,
@@ -18,7 +19,7 @@ function RouteComponent() {
 				]}
 			/>
 			<div className="flex flex-1 flex-col gap-4 p-4">
-				<FolderModal />
+				<FolderModal trigger={<Button variant="outline">Add Folder</Button>} />
 			</div>
 		</>
 	);

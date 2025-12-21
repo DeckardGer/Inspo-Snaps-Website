@@ -11,7 +11,7 @@ import {
 	shareLink,
 	userShare,
 } from "@/lib/db/schema";
-import { FOLDER_COLORS } from "@/lib/folders/constants";
+import { FOLDER_COLORS, type FolderColor } from "@/lib/folders/constants";
 import { deleteStorageObjects } from "@/lib/storage/functions";
 
 const CreateFolderInput = z.object({
@@ -46,7 +46,7 @@ const FolderIdInput = z.object({
 export type Folder = {
 	id: string;
 	name: string;
-	color: string | null;
+	color: FolderColor;
 	emoji: string | null;
 	createdAt: Date;
 	updatedAt: Date;

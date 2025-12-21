@@ -1,7 +1,11 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
-import { FoldersEmptyState, FoldersGridSkeleton } from "@/components/folders";
+import {
+	FolderGrid,
+	FoldersEmptyState,
+	FoldersGridSkeleton,
+} from "@/components/folders";
 import { NavBar } from "@/components/navbar/NavBar";
 import { foldersQueryOptions } from "@/lib/folders/queries";
 
@@ -39,12 +43,7 @@ function MyFoldersContent() {
 		return <FoldersEmptyState />;
 	}
 
-	return (
-		<>
-			<div>Toolbar</div>
-			<div>Loaded {folders.length} folders</div>
-		</>
-	);
+	return <FolderGrid folders={folders} />;
 }
 
 // function FoldersContent() {
