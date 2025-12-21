@@ -35,6 +35,7 @@ const FolderIdInput = z.object({
 	folderId: z.uuid(),
 });
 
+// TODO: Not currently used
 export const saveImage = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(SaveImageInput)
@@ -71,6 +72,7 @@ export const saveImage = createServerFn({ method: "POST" })
 		return newImage[0];
 	});
 
+// TODO: Not currently used
 export const addImageToFolder = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(AddToFolderInput)
@@ -107,6 +109,7 @@ export const addImageToFolder = createServerFn({ method: "POST" })
 		return { success: true };
 	});
 
+// TODO: Not currently used
 export const removeImageFromFolder = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(RemoveFromFolderInput)
@@ -139,6 +142,7 @@ export const removeImageFromFolder = createServerFn({ method: "POST" })
 		return { deleted: false };
 	});
 
+// TODO: Not currently used
 export const getImage = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(ImageIdInput)
@@ -152,6 +156,7 @@ export const getImage = createServerFn({ method: "GET" })
 		return img;
 	});
 
+// TODO: Not currently used
 export const getFolderImages = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)

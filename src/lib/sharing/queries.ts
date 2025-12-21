@@ -6,6 +6,7 @@ import {
 	getShareLinks,
 } from "./functions";
 
+// TODO: Not currently used
 export const shareLinksQueryOptions = (folderId: string) =>
 	queryOptions({
 		queryKey: ["shareLinks", folderId],
@@ -13,6 +14,7 @@ export const shareLinksQueryOptions = (folderId: string) =>
 		staleTime: 1000 * 60 * 5,
 	});
 
+// TODO: Not currently used
 export const sharedUsersQueryOptions = (folderId: string) =>
 	queryOptions({
 		queryKey: ["sharedUsers", folderId],
@@ -20,6 +22,7 @@ export const sharedUsersQueryOptions = (folderId: string) =>
 		staleTime: 1000 * 60 * 5,
 	});
 
+// TODO: Not currently used
 export const sharedWithMeQueryOptions = () =>
 	queryOptions({
 		queryKey: ["sharedWithMe"],
@@ -27,6 +30,7 @@ export const sharedWithMeQueryOptions = () =>
 		staleTime: 1000 * 60 * 5,
 	});
 
+// TODO: Not currently used
 export const sharedLinkAccessQueryOptions = (linkId: string) =>
 	queryOptions({
 		queryKey: ["sharedLinkAccess", linkId],

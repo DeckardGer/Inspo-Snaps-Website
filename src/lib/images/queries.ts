@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { getFolderImages, getImage } from "./functions";
 
+// TODO: Not currently used
 export const folderImagesQueryOptions = (folderId: string) =>
 	queryOptions({
 		queryKey: ["folderImages", folderId],
@@ -8,6 +9,7 @@ export const folderImagesQueryOptions = (folderId: string) =>
 		staleTime: 1000 * 60 * 2,
 	});
 
+// TODO: Not currently used
 export const imageQueryOptions = (id: string) =>
 	queryOptions({
 		queryKey: ["image", id],

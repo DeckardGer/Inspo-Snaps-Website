@@ -26,6 +26,7 @@ export function generateStorageKey(userId: string, filename: string): string {
 	return `${userId}/${uuid}${ext ? `.${ext}` : ""}`;
 }
 
+// TODO: Not currently used
 export const getUploadUrl = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(GetUploadUrlInput)
@@ -45,6 +46,7 @@ export const getUploadUrl = createServerFn({ method: "POST" })
 		return { uploadUrl, storageKey };
 	});
 
+// TODO: Not currently used
 export const getDownloadUrl = createServerFn({ method: "POST" })
 	.inputValidator(GetDownloadUrlInput)
 	.handler(async ({ data }) => {

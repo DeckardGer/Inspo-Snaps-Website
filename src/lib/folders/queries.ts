@@ -14,6 +14,7 @@ export const foldersQueryOptions = (parentId?: string | null) =>
 		staleTime: 1000 * 60 * 5,
 	});
 
+// TODO: Not currently used
 export const folderQueryOptions = (id: string) =>
 	queryOptions({
 		queryKey: ["folder", id],
@@ -21,6 +22,7 @@ export const folderQueryOptions = (id: string) =>
 		staleTime: 1000 * 60 * 5,
 	});
 
+// TODO: Not currently used
 export const folderPathQueryOptions = (id: string) =>
 	queryOptions({
 		queryKey: ["folderPath", id],
@@ -35,6 +37,7 @@ export const favouriteFoldersQueryOptions = () =>
 		staleTime: 1000 * 60 * 5,
 	});
 
+// TODO: Not currently used
 export const isFolderFavouritedQueryOptions = (folderId: string) =>
 	queryOptions({
 		queryKey: ["isFolderFavourited", folderId],

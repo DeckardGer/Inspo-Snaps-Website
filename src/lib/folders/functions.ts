@@ -135,6 +135,7 @@ export const getFolders = createServerFn({ method: "GET" })
 		return foldersWithStats;
 	});
 
+// TODO: Not currently used
 export const getFolder = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
@@ -170,6 +171,7 @@ export const updateFolder = createServerFn({ method: "POST" })
 		return result[0];
 	});
 
+// TODO: Not currently used
 export const moveFolder = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(MoveFolderInput)
@@ -205,6 +207,7 @@ export const moveFolder = createServerFn({ method: "POST" })
 		return result[0];
 	});
 
+// TODO: Not currently used
 export const deleteFolder = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
@@ -294,6 +297,7 @@ async function getDescendantIds(
 	return descendants;
 }
 
+// TODO: Not currently used
 export const getFolderPath = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
@@ -321,6 +325,7 @@ export const getFolderPath = createServerFn({ method: "GET" })
 		return path;
 	});
 
+// TODO: Not currently used
 export const addFolderToFavourites = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
@@ -341,6 +346,7 @@ export const addFolderToFavourites = createServerFn({ method: "POST" })
 		return { success: true };
 	});
 
+// TODO: Not currently used
 export const removeFolderFromFavourites = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
@@ -389,6 +395,7 @@ export const getFavouriteFolders = createServerFn({ method: "GET" })
 		})) satisfies FavouriteFolder[];
 	});
 
+// TODO: Not currently used
 export const isFolderFavourited = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)

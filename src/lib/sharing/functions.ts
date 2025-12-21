@@ -38,6 +38,7 @@ const GetSharedFolderContentsInput = z.object({
 	linkId: z.uuid().optional(),
 });
 
+// TODO: Not currently used
 export const createShareLink = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(CreateShareLinkInput)
@@ -67,6 +68,7 @@ export const createShareLink = createServerFn({ method: "POST" })
 		return link[0];
 	});
 
+// TODO: Not currently used
 export const getShareLinks = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
@@ -86,6 +88,7 @@ export const getShareLinks = createServerFn({ method: "GET" })
 		});
 	});
 
+// TODO: Not currently used
 export const deleteShareLink = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(DeleteShareLinkInput)
@@ -104,6 +107,7 @@ export const deleteShareLink = createServerFn({ method: "POST" })
 		return { success: true };
 	});
 
+// TODO: Not currently used
 export const shareWithUser = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(ShareWithUserInput)
@@ -146,6 +150,7 @@ export const shareWithUser = createServerFn({ method: "POST" })
 		return { success: true, sharedWithName: targetUser.name };
 	});
 
+// TODO: Not currently used
 export const getSharedUsers = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
@@ -168,6 +173,7 @@ export const getSharedUsers = createServerFn({ method: "GET" })
 		});
 	});
 
+// TODO: Not currently used
 export const revokeUserShare = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(RevokeShareInput)
@@ -192,6 +198,7 @@ export const revokeUserShare = createServerFn({ method: "POST" })
 		return { success: true };
 	});
 
+// TODO: Not currently used
 export const getSharedWithMe = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.handler(async ({ context }) => {
@@ -214,6 +221,7 @@ export const getSharedWithMe = createServerFn({ method: "GET" })
 		}));
 	});
 
+// TODO: Not currently used
 export const accessSharedLink = createServerFn({ method: "GET" })
 	.inputValidator(LinkIdInput)
 	.handler(async ({ data }) => {
@@ -239,6 +247,7 @@ export const accessSharedLink = createServerFn({ method: "GET" })
 		};
 	});
 
+// TODO: Not currently used
 export const getSharedFolderContents = createServerFn({ method: "GET" })
 	.inputValidator(GetSharedFolderContentsInput)
 	.handler(async ({ data }) => {
@@ -299,6 +308,7 @@ async function verifyFolderInHierarchy(
 	return false;
 }
 
+// TODO: Not currently used
 export const getSharedFolderContentsAuth = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
