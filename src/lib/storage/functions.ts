@@ -38,6 +38,7 @@ export const getUploadUrl = createServerFn({ method: "POST" })
 	});
 
 export const getDownloadUrl = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
 	.inputValidator(GetDownloadUrlInput)
 	.handler(async ({ data }) => {
 		const downloadUrl = await createPresignedDownloadUrl(data.storageKey);

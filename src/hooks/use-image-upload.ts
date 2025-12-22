@@ -136,10 +136,6 @@ export function useImageUpload(folderId: string) {
 
 				updateUpload(uploadId, { status: "success", progress: 100 });
 
-				// Invalidate queries to refresh UI
-				queryClient.invalidateQueries({ queryKey: ["folderImages", folderId] });
-				queryClient.invalidateQueries({ queryKey: ["folders"] });
-
 				return true;
 			} catch (error) {
 				const errorMessage =
@@ -148,7 +144,7 @@ export function useImageUpload(folderId: string) {
 				return false;
 			}
 		},
-		[folderId, queryClient, updateUpload],
+		[folderId, updateUpload],
 	);
 
 	const uploadFiles = useCallback(
@@ -158,6 +154,14 @@ export function useImageUpload(folderId: string) {
 			const results = await Promise.all(files.map(uploadFile));
 			const successCount = results.filter(Boolean).length;
 			const failCount = results.length - successCount;
+
+			// Invalidate queries once after all uploads complete to avoid AbortError
+			if (successCount > 0) {
+				await queryClient.invalidateQueries({
+					queryKey: ["folderImages", folderId],
+				});
+				await queryClient.invalidateQueries({ queryKey: ["folders"] });
+			}
 
 			if (successCount > 0 && failCount === 0) {
 				toast.success(
@@ -171,7 +175,7 @@ export function useImageUpload(folderId: string) {
 				);
 			}
 		},
-		[uploadFile],
+		[uploadFile, queryClient, folderId],
 	);
 
 	return {

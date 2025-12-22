@@ -30,8 +30,12 @@ const UsernameInputSchema = z.object({
 		),
 });
 
+const UsernameInput = z.object({
+	username: z.string(),
+});
+
 export const checkUsernameAvailability = createServerFn({ method: "GET" })
-	.inputValidator((data: { username: string }) => data)
+	.inputValidator(UsernameInput)
 	.handler(async ({ data }) => {
 		// Validate username format first
 		const validationResult = UsernameInputSchema.safeParse(data);
