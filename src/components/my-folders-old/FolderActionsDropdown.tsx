@@ -47,11 +47,13 @@ export function FolderActionsDropdown({
 
 	return (
 		<DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-			<DropdownMenuTrigger asChild>
-				<Button size="icon-sm" variant="ghost">
-					<HugeiconsIcon icon={MoreVerticalIcon} />
-				</Button>
-			</DropdownMenuTrigger>
+			<DropdownMenuTrigger
+				render={
+					<Button size="icon-sm" variant="ghost">
+						<HugeiconsIcon icon={MoreVerticalIcon} />
+					</Button>
+				}
+			/>
 			<DropdownMenuContent align="end" className="w-48">
 				<DropdownMenuItem
 					onClick={() => {

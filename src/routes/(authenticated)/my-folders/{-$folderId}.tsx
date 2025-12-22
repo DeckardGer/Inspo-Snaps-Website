@@ -10,12 +10,15 @@ import {
 	FoldersEmptyState,
 	FoldersGridSkeleton,
 } from "@/components/folders";
+import { ImageGrid } from "@/components/images";
 import { NavBar } from "@/components/navbar/NavBar";
 import { Button } from "@/components/ui/button";
+import { DropZone } from "@/components/upload";
 import {
 	folderPathQueryOptions,
 	foldersQueryOptions,
 } from "@/lib/folders/queries";
+import { folderImagesQueryOptions } from "@/lib/images/queries";
 
 export const Route = createFileRoute(
 	"/(authenticated)/my-folders/{-$folderId}",
@@ -27,6 +30,7 @@ export const Route = createFileRoute(
 			await Promise.all([
 				context.queryClient.prefetchQuery(foldersQueryOptions(folderId)),
 				context.queryClient.prefetchQuery(folderPathQueryOptions(folderId)),
+				context.queryClient.prefetchQuery(folderImagesQueryOptions(folderId)),
 			]);
 		} else {
 			context.queryClient.prefetchQuery(foldersQueryOptions());
@@ -68,7 +72,9 @@ function RouteComponent() {
 				{/* Toolbar - always visible */}
 				<div className="flex items-center justify-between gap-2 p-4 pb-0">
 					<h1 className="text-xl font-semibold">
-						{path && path.length > 0 ? path[path.length - 1].name : "My Folders"}
+						{path && path.length > 0
+							? path[path.length - 1].name
+							: "My Folders"}
 					</h1>
 					<FolderModal
 						parentId={folderId}
@@ -101,9 +107,48 @@ function RouteComponent() {
 function FolderContents({ folderId }: { folderId?: string }) {
 	const { data: folders } = useSuspenseQuery(foldersQueryOptions(folderId));
 
-	if (folders.length === 0) {
-		return <FoldersEmptyState parentId={folderId} />;
+	// Only fetch images for subfolders (not root)
+	const { data: images = [] } = useQuery({
+		...folderImagesQueryOptions(folderId ?? ""),
+		enabled: !!folderId,
+	});
+
+	const hasContent = folders.length > 0 || images.length > 0;
+
+	// Empty state - only when no folders AND no images
+	if (!hasContent) {
+		return (
+			<div className="space-y-6">
+				{folderId && <DropZone folderId={folderId} />}
+				<FoldersEmptyState parentId={folderId} />
+			</div>
+		);
 	}
 
-	return <FolderGrid folders={folders} />;
+	return (
+		<div className="space-y-6">
+			{/* Folders Section */}
+			{folders.length > 0 && (
+				<section>
+					<h2 className="mb-3 text-sm font-medium text-muted-foreground">
+						Folders
+					</h2>
+					<FolderGrid folders={folders} />
+				</section>
+			)}
+
+			{/* Drop Zone - always visible in subfolders */}
+			{folderId && <DropZone folderId={folderId} />}
+
+			{/* Images Section */}
+			{images.length > 0 && folderId && (
+				<section>
+					<h2 className="mb-3 text-sm font-medium text-muted-foreground">
+						Images
+					</h2>
+					<ImageGrid images={images} folderId={folderId} />
+				</section>
+			)}
+		</div>
+	);
 }

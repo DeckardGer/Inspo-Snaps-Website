@@ -82,16 +82,18 @@ export function ImageCard({ image, onToggleFavorite }: ImageCardProps) {
 						/>
 					</Button>
 					<DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-						<DropdownMenuTrigger>
-							<Button
-								size="icon"
-								variant="ghost"
-								className="rounded-l-none"
-								tabIndex={shouldShowButtons ? 0 : -1}
-							>
-								<HugeiconsIcon icon={MoreVerticalIcon} />
-							</Button>
-						</DropdownMenuTrigger>
+						<DropdownMenuTrigger
+							render={
+								<Button
+									size="icon"
+									variant="ghost"
+									className="rounded-l-none"
+									tabIndex={shouldShowButtons ? 0 : -1}
+								>
+									<HugeiconsIcon icon={MoreVerticalIcon} />
+								</Button>
+							}
+						/>
 						<DropdownMenuContent align="end" className="w-48">
 							<DropdownMenuItem>View Full Size</DropdownMenuItem>
 							<DropdownMenuItem>Download</DropdownMenuItem>

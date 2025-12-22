@@ -1,18 +1,20 @@
+import { createServerOnlyFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-const serverEnvSchema = z.object({
-	VITE_BASE_URL: z.url().default("http://localhost:3000"),
-	BETTER_AUTH_SECRET: z.string().min(1),
-	GOOGLE_CLIENT_ID: z.string().min(1),
-	GOOGLE_CLIENT_SECRET: z.string().min(1),
-	DATABASE_URL: z.url(),
-	S3_ENDPOINT: z.string().optional(),
-	S3_REGION: z.string().default("us-east-1"),
-	S3_ACCESS_KEY_ID: z.string().optional(),
-	S3_SECRET_ACCESS_KEY: z.string().optional(),
-	S3_BUCKET_NAME: z.string().optional(),
-	S3_FORCE_PATH_STYLE: z.coerce.boolean().default(false),
-});
+export const serverEnv = createServerOnlyFn(() => {
+	const serverEnvSchema = z.object({
+		VITE_BASE_URL: z.url().default("http://localhost:3000"),
+		BETTER_AUTH_SECRET: z.string().min(1),
+		GOOGLE_CLIENT_ID: z.string().min(1),
+		GOOGLE_CLIENT_SECRET: z.string().min(1),
+		DATABASE_URL: z.url(),
+		S3_ENDPOINT: z.string().optional(),
+		S3_REGION: z.string().default("us-east-1"),
+		S3_ACCESS_KEY_ID: z.string().optional(),
+		S3_SECRET_ACCESS_KEY: z.string().optional(),
+		S3_BUCKET_NAME: z.string().optional(),
+		S3_FORCE_PATH_STYLE: z.coerce.boolean().default(false),
+	});
 
-// Validate server environment
-export const serverEnv = serverEnvSchema.parse(process.env);
+	return serverEnvSchema.parse(process.env);
+})();
