@@ -69,13 +69,25 @@ interface FolderModalProps {
 		emoji?: string | null;
 		color: FolderColor;
 	};
-	trigger: React.ReactElement;
+	trigger?: React.ReactElement;
 	parentId?: string | null;
+	open?: boolean;
+	onOpenChange?: (open: boolean) => void;
 }
 
-export function FolderModal({ folder, trigger, parentId }: FolderModalProps) {
+export function FolderModal({
+	folder,
+	trigger,
+	parentId,
+	open,
+	onOpenChange,
+}: FolderModalProps) {
 	const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-	const [dialogOpen, setDialogOpen] = useState(false);
+	const [internalOpen, setInternalOpen] = useState(false);
+
+	// Use external control if provided, otherwise use internal state
+	const dialogOpen = open ?? internalOpen;
+	const setDialogOpen = onOpenChange ?? setInternalOpen;
 	const isMobile = useIsMobile();
 	const isEditing = !!folder;
 	const queryClient = useQueryClient();
@@ -145,7 +157,7 @@ export function FolderModal({ folder, trigger, parentId }: FolderModalProps) {
 
 	return (
 		<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-			<DialogTrigger render={trigger} />
+			{trigger && <DialogTrigger render={trigger} />}
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>

@@ -3,6 +3,7 @@ import {
 	getFavouriteFolders,
 	getFolder,
 	getFolderPath,
+	getFolderStats,
 	getFolders,
 	isFolderFavourited,
 } from "./functions";
@@ -43,5 +44,12 @@ export const isFolderFavouritedQueryOptions = (folderId: string) =>
 		queryKey: ["isFolderFavourited", folderId],
 		queryFn: ({ signal }) =>
 			isFolderFavourited({ data: { id: folderId }, signal }),
+		staleTime: 1000 * 60 * 2,
+	});
+
+export const folderStatsQueryOptions = (folderId: string) =>
+	queryOptions({
+		queryKey: ["folderStats", folderId],
+		queryFn: ({ signal }) => getFolderStats({ data: { id: folderId }, signal }),
 		staleTime: 1000 * 60 * 2,
 	});

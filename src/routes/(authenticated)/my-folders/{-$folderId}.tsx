@@ -1,13 +1,17 @@
+import { FolderAddIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 import {
 	FolderGrid,
+	FolderModal,
 	FolderNotFound,
 	FoldersEmptyState,
 	FoldersGridSkeleton,
 } from "@/components/folders";
 import { NavBar } from "@/components/navbar/NavBar";
+import { Button } from "@/components/ui/button";
 import {
 	folderPathQueryOptions,
 	foldersQueryOptions,
@@ -60,16 +64,32 @@ function RouteComponent() {
 	return (
 		<>
 			<NavBar breadrumbs={breadcrumbs} />
-			<div className="flex flex-1 flex-col gap-4 p-4">
-				{folderId && isLoading ? (
-					<FoldersGridSkeleton />
-				) : folderId && !isValidFolder ? (
-					<FolderNotFound />
-				) : (
-					<Suspense fallback={<FoldersGridSkeleton />}>
-						<FolderContents folderId={folderId} />
-					</Suspense>
-				)}
+			<div className="flex flex-1 flex-col">
+				{/* Toolbar - always visible */}
+				<div className="flex items-center justify-end gap-2 p-4 pb-0">
+					<FolderModal
+						parentId={folderId}
+						trigger={
+							<Button>
+								<HugeiconsIcon icon={FolderAddIcon} data-icon="inline-start" />
+								New Folder
+							</Button>
+						}
+					/>
+				</div>
+
+				{/* Folder content */}
+				<div className="flex flex-1 flex-col gap-4 p-4">
+					{folderId && isLoading ? (
+						<FoldersGridSkeleton />
+					) : folderId && !isValidFolder ? (
+						<FolderNotFound />
+					) : (
+						<Suspense fallback={<FoldersGridSkeleton />}>
+							<FolderContents folderId={folderId} />
+						</Suspense>
+					)}
+				</div>
 			</div>
 		</>
 	);

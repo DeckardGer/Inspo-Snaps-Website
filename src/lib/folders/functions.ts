@@ -409,3 +409,37 @@ export const isFolderFavourited = createServerFn({ method: "GET" })
 
 		return { isFavourited: !!favourite };
 	});
+
+export type FolderStats = {
+	nestedFolderCount: number;
+	imageCount: number;
+};
+
+export const getFolderStats = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.inputValidator(FolderIdInput)
+	.handler(async ({ data, context }): Promise<FolderStats> => {
+		// Verify folder belongs to user
+		const f = await db.query.folder.findFirst({
+			where: and(eq(folder.id, data.id), eq(folder.userId, context.user.id)),
+		});
+		if (!f) throw new Error("Folder not found or access denied");
+
+		// Get all descendant folder IDs
+		const descendantIds = await getDescendantIds(data.id, context.user.id);
+		const allFolderIds = [data.id, ...descendantIds];
+
+		// Count images across all folders
+		const imageResults = await db
+			.select({ imageId: folderImage.imageId })
+			.from(folderImage)
+			.where(inArray(folderImage.folderId, allFolderIds));
+
+		// Use Set to count unique images (an image might be in multiple folders)
+		const uniqueImageIds = new Set(imageResults.map((r) => r.imageId));
+
+		return {
+			nestedFolderCount: descendantIds.length,
+			imageCount: uniqueImageIds.size,
+		};
+	});
