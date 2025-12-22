@@ -84,7 +84,7 @@ export function FolderCard({ folder }: FolderCardProps) {
 						<Button
 							size="icon-sm"
 							variant="secondary"
-							className="absolute top-2 right-2 z-10 shadow-sm hover:bg-tertiary opacity-0 group-hover:opacity-100 group-data-[menu-open]:opacity-100 transition-[opacity,background-color] focus-visible:opacity-100"
+							className="absolute top-2 right-2 z-10 shadow-lg hover:bg-tertiary opacity-0 group-hover:opacity-100 group-data-[menu-open]:opacity-100 transition-[opacity,background-color] focus-visible:opacity-100"
 						/>
 					}
 				>
@@ -126,7 +126,7 @@ export function FolderCard({ folder }: FolderCardProps) {
 			<Link
 				to="/my-folders/{-$folderId}"
 				params={{ folderId: folder.id }}
-				className="block focus-visible:ring-ring/50 focus-visible:ring-[3px] rounded-xl outline-none"
+				className="block focus-visible:ring-ring/50 focus-visible:ring-[3px] rounded-xl outline-none h-full"
 			>
 				<div
 					className={cn(
