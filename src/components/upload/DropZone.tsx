@@ -117,7 +117,7 @@ export function DropZone({ folderId, className }: DropZoneProps) {
 				className={cn(
 					"relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 transition-all duration-200 cursor-pointer w-full",
 					"hover:border-primary/50 hover:bg-primary/5",
-					"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+					"focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
 					dragState === "idle" && "border-muted-foreground/30 bg-muted/30",
 					dragState === "valid" &&
 						"border-primary bg-primary/10 scale-[1.01] shadow-lg",
@@ -131,6 +131,7 @@ export function DropZone({ folderId, className }: DropZoneProps) {
 					multiple
 					onChange={handleFileSelect}
 					className="sr-only"
+					tabIndex={-1}
 					aria-label="Upload images"
 				/>
 
