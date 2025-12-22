@@ -152,7 +152,9 @@ export function FolderCard({ folder }: FolderCardProps) {
 					</div>
 				</div>
 				<div className="flex justify-between items-center m-2">
-					<div className="text-sm font-semibold">{folder.name}</div>
+					<div className="text-sm font-semibold truncate pr-2">
+						{folder.name}
+					</div>
 					<div className="text-xs font-medium text-quaternary-foreground">
 						{folder.imageCount}
 					</div>
