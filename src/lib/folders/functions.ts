@@ -340,6 +340,7 @@ export const removeFolderFromFavourites = createServerFn({ method: "POST" })
 
 export type FavouriteFolder = {
 	id: string;
+	parentId: string | null;
 	name: string;
 	color: string | null;
 	emoji: string | null;
@@ -355,6 +356,7 @@ export const getFavouriteFolders = createServerFn({ method: "GET" })
 				folder: {
 					columns: {
 						id: true,
+						parentId: true,
 						name: true,
 						color: true,
 						emoji: true,

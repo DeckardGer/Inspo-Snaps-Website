@@ -7,6 +7,10 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Link, useLocation } from "@tanstack/react-router";
 import {
+	FolderActionsMenu,
+	type FolderForActions,
+} from "@/components/folders/FolderActionsMenu";
+import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
@@ -20,6 +24,7 @@ import {
 import {
 	SidebarGroup,
 	SidebarMenu,
+	SidebarMenuAction,
 	SidebarMenuButton,
 	SidebarMenuItem,
 	SidebarMenuSub,
@@ -58,6 +63,17 @@ function FolderIcon({
 			)}
 		</div>
 	);
+}
+
+function toFolderForActions(item: FavouriteFolder): FolderForActions {
+	return {
+		id: item.id,
+		parentId: item.parentId,
+		name: item.name,
+		color: (item.color ?? "indigo") as FolderColor,
+		emoji: item.emoji,
+		isFavourited: true,
+	};
 }
 
 export function NavFavourites({
@@ -141,6 +157,14 @@ export function NavFavourites({
 																	/>
 																	<span className="truncate">{item.name}</span>
 																</Link>
+															}
+														/>
+														<FolderActionsMenu
+															folder={toFolderForActions(item)}
+															side="right"
+															align="start"
+															trigger={
+																<SidebarMenuAction className="peer-data-active/menu-sub-button:text-sidebar-accent-foreground group-focus-within/menu-sub-item:opacity-100 group-hover/menu-sub-item:opacity-100 data-popup-open:opacity-100 md:opacity-0" />
 															}
 														/>
 													</SidebarMenuSubItem>
