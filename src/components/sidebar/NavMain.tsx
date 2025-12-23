@@ -51,6 +51,7 @@ export function NavMain() {
 							<SidebarMenuItem key={item.name}>
 								<SidebarMenuButton
 									isActive={isActive}
+									tooltip={item.name}
 									render={
 										<Link to={item.url}>
 											<HugeiconsIcon icon={item.icon} />

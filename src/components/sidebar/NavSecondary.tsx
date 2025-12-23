@@ -29,6 +29,7 @@ export function NavSecondary({
 					<SidebarMenuItem>
 						<SidebarMenuButton
 							isActive={isSettingsActive}
+							tooltip="Settings"
 							render={
 								<Link to="/settings">
 									<HugeiconsIcon icon={Settings01Icon} />
@@ -39,6 +40,7 @@ export function NavSecondary({
 					</SidebarMenuItem>
 					<SidebarMenuItem>
 						<SidebarMenuButton
+							tooltip="Feedback"
 							render={
 								<a
 									href="mailto:deckardgerritsen@gmail.com"

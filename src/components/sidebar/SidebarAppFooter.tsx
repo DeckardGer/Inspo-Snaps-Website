@@ -46,6 +46,7 @@ export function SidebarAppFooter({
 						render={
 							<SidebarMenuButton
 								size="lg"
+								tooltip="Account"
 								className={cn(state === "collapsed" && "rounded-full")}
 							>
 								<UserAvatar
