@@ -5,3 +5,6 @@ export {
 	type SharedFolderForActions,
 } from "./SharedFolderActionsMenu";
 export { SharedFolderCard } from "./SharedFolderCard";
+export { SharedFolderEmptyState } from "./SharedFolderEmptyState";
+export { SharedFolderError } from "./SharedFolderError";
+export { SharedFoldersEmptyState } from "./SharedFoldersEmptyState";

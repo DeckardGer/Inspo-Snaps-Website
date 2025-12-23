@@ -6,7 +6,11 @@ import { Suspense } from "react";
 import { FoldersGridSkeleton } from "@/components/folders";
 import { ImageGrid } from "@/components/images";
 import { NavBar } from "@/components/navbar/NavBar";
-import { SharedFolderCard } from "@/components/sharing";
+import {
+	SharedFolderCard,
+	SharedFolderEmptyState,
+	SharedFolderError,
+} from "@/components/sharing";
 import type { FolderColor } from "@/lib/folders/constants";
 import {
 	sharedFolderContentsQueryOptions,
@@ -157,41 +161,6 @@ function SharedFolderContents({
 					<ImageGrid images={images} folderId={folderId} readOnly />
 				</section>
 			)}
-		</div>
-	);
-}
-
-function SharedFolderEmptyState() {
-	return (
-		<div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-			<div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-				<HugeiconsIcon
-					icon={Share08Icon}
-					className="size-8 text-muted-foreground"
-				/>
-			</div>
-			<div>
-				<h3 className="text-lg font-semibold">This folder is empty</h3>
-				<p className="text-sm text-muted-foreground">
-					No folders or images in this shared folder yet.
-				</p>
-			</div>
-		</div>
-	);
-}
-
-function SharedFolderError() {
-	return (
-		<div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-			<div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
-				<HugeiconsIcon icon={Share08Icon} className="size-8 text-destructive" />
-			</div>
-			<div>
-				<h3 className="text-lg font-semibold">Access Denied</h3>
-				<p className="text-sm text-muted-foreground">
-					You don't have access to this folder, or it doesn't exist.
-				</p>
-			</div>
 		</div>
 	);
 }
