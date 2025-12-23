@@ -114,12 +114,28 @@ export const removeImageFromFolder = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(RemoveFromFolderInput)
 	.handler(async ({ data, context }) => {
-		const img = await db.query.image.findFirst({
-			where: and(eq(image.id, data.imageId), eq(image.userId, context.user.id)),
+		// Check if user owns the folder
+		const targetFolder = await db.query.folder.findFirst({
+			where: and(
+				eq(folder.id, data.folderId),
+				eq(folder.userId, context.user.id),
+			),
 		});
 
-		if (!img) throw new Error("Image not found");
+		if (!targetFolder) throw new Error("Folder not found or access denied");
 
+		// Verify the image exists in this folder
+		const folderImageEntry = await db.query.folderImage.findFirst({
+			where: and(
+				eq(folderImage.folderId, data.folderId),
+				eq(folderImage.imageId, data.imageId),
+			),
+			with: { image: true },
+		});
+
+		if (!folderImageEntry) throw new Error("Image not found in folder");
+
+		// Remove the folder-image relationship
 		await db
 			.delete(folderImage)
 			.where(
@@ -129,11 +145,13 @@ export const removeImageFromFolder = createServerFn({ method: "POST" })
 				),
 			);
 
+		// Delete the image if no other folders reference it
 		const remaining = await db.query.folderImage.findFirst({
 			where: eq(folderImage.imageId, data.imageId),
 		});
 
 		if (!remaining) {
+			const img = folderImageEntry.image;
 			await db.delete(image).where(eq(image.id, data.imageId));
 			await deleteStorageObject(img.storageKey);
 			return { deleted: true };

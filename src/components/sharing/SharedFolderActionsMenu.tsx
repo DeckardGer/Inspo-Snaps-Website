@@ -1,4 +1,5 @@
 import {
+	Copy01Icon,
 	FolderFavouriteIcon,
 	FolderRemoveIcon,
 	Loading03Icon,
@@ -31,7 +32,10 @@ import {
 	addFolderToFavourites,
 	removeFolderFromFavourites,
 } from "@/lib/folders/functions";
-import { removeFromShared } from "@/lib/sharing/functions";
+import {
+	cloneSharedFolder,
+	removeFromShared,
+} from "@/lib/sharing/functions";
 
 export type SharedFolderForActions = {
 	id: string;
@@ -116,6 +120,21 @@ export function SharedFolderActionsMenu({
 		},
 	});
 
+	const cloneMutation = useMutation({
+		mutationFn: () => cloneSharedFolder({ data: { folderId: folder.id } }),
+		onSuccess: (result) => {
+			queryClient.invalidateQueries({ queryKey: ["folders", "root"] });
+			toast.success(`Cloned "${result.folderName}" to My Folders`, {
+				description: "The folder and all its contents have been copied.",
+			});
+		},
+		onError: (error) => {
+			toast.error("Failed to clone folder", {
+				description: error.message,
+			});
+		},
+	});
+
 	return (
 		<>
 			<DropdownMenu open={menuOpen} onOpenChange={handleOpenChange}>
@@ -136,6 +155,16 @@ export function SharedFolderActionsMenu({
 							}
 						/>
 						{folder.isFavourited ? "Unfavourite" : "Favourite"}
+					</DropdownMenuItem>
+					<DropdownMenuItem
+						onClick={() => {
+							setMenuOpen(false);
+							cloneMutation.mutate();
+						}}
+						disabled={cloneMutation.isPending}
+					>
+						<HugeiconsIcon icon={Copy01Icon} />
+						Clone to My Folders
 					</DropdownMenuItem>
 					{showRemoveFromShared && (
 						<>

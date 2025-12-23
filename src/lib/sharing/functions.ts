@@ -809,3 +809,104 @@ async function getAllDescendantFolderIds(
 
 	return result;
 }
+
+// Clone a shared folder and all its contents to user's own folders
+export const cloneSharedFolder = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(FolderIdInput)
+	.handler(async ({ data, context }) => {
+		// 1. Verify access to the shared folder
+		const hasAccess = await checkUserShareAccess(
+			data.folderId,
+			context.user.id,
+		);
+		if (!hasAccess) throw new Error("Access denied");
+
+		// 2. Get source folder
+		const sourceFolder = await db.query.folder.findFirst({
+			where: eq(folder.id, data.folderId),
+		});
+		if (!sourceFolder) throw new Error("Folder not found");
+
+		// 3. Get all descendant folder IDs
+		const allDescendantIds = await getAllDescendantFolderIds(data.folderId);
+
+		// 4. Get all folders in hierarchy
+		const allFolders = await db.query.folder.findMany({
+			where: inArray(folder.id, allDescendantIds),
+		});
+
+		// 5. Get all folder-image relationships
+		const allFolderImages = await db.query.folderImage.findMany({
+			where: inArray(folderImage.folderId, allDescendantIds),
+		});
+
+		// 6. Create ID mapping (old ID -> new ID)
+		const idMap = new Map<string, string>();
+		for (const f of allFolders) {
+			idMap.set(f.id, crypto.randomUUID());
+		}
+
+		// 7. Sort folders by depth to ensure parents exist before children
+		// Build a depth map by traversing from root
+		const depthMap = new Map<string, number>();
+		depthMap.set(data.folderId, 0);
+
+		const queue = [data.folderId];
+		while (queue.length > 0) {
+			const currentId = queue.shift();
+			if (!currentId) break;
+			const currentDepth = depthMap.get(currentId) ?? 0;
+
+			for (const f of allFolders) {
+				if (f.parentId === currentId && !depthMap.has(f.id)) {
+					depthMap.set(f.id, currentDepth + 1);
+					queue.push(f.id);
+				}
+			}
+		}
+
+		const sortedFolders = [...allFolders].sort((a, b) => {
+			const depthA = depthMap.get(a.id) ?? 0;
+			const depthB = depthMap.get(b.id) ?? 0;
+			return depthA - depthB;
+		});
+
+		// 8. Insert new folders
+		for (const f of sortedFolders) {
+			const newId = idMap.get(f.id);
+			if (!newId) continue;
+
+			const newParentId =
+				f.id === data.folderId
+					? null // Root of clone goes to top level
+					: idMap.get(f.parentId ?? "");
+
+			await db.insert(folder).values({
+				id: newId,
+				name: f.name,
+				color: f.color,
+				emoji: f.emoji,
+				userId: context.user.id,
+				parentId: newParentId ?? null,
+			});
+		}
+
+		// 9. Insert new folder-image relationships
+		for (const fi of allFolderImages) {
+			const newFolderId = idMap.get(fi.folderId);
+			if (newFolderId) {
+				await db.insert(folderImage).values({
+					folderId: newFolderId,
+					imageId: fi.imageId,
+				});
+			}
+		}
+
+		// 10. Return the new root folder ID
+		return {
+			success: true,
+			newFolderId: idMap.get(data.folderId),
+			folderName: sourceFolder.name,
+		};
+	});
