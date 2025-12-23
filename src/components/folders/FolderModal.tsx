@@ -68,6 +68,7 @@ interface FolderModalProps {
 		name: string;
 		emoji?: string | null;
 		color: FolderColor;
+		isFavourited?: boolean;
 	};
 	trigger?: React.ReactElement;
 	parentId?: string | null;
@@ -117,6 +118,12 @@ export function FolderModal({
 				queryKey: ["folders", parentId ?? "root"],
 				exact: true,
 			});
+			if (folder?.isFavourited) {
+				queryClient.invalidateQueries({
+					queryKey: ["favouriteFolders"],
+					exact: true,
+				});
+			}
 			toast.success("Folder updated successfully");
 			setDialogOpen(false);
 		},

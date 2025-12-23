@@ -1,6 +1,7 @@
 import {
 	ArrowDown01Icon,
 	ArrowRight01Icon,
+	Folder01Icon,
 	FolderFavouriteIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -26,7 +27,38 @@ import {
 	SidebarMenuSubItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { FOLDER_ICON_CLASSES, type FolderColor } from "@/lib/folders/constants";
 import type { FavouriteFolder } from "@/lib/folders/functions";
+import { cn } from "@/lib/utils";
+
+function FolderIcon({
+	color,
+	emoji,
+}: {
+	color: FolderColor;
+	emoji: string | null;
+}) {
+	const colorClass = FOLDER_ICON_CLASSES[color];
+
+	return (
+		<div
+			className={cn(
+				"flex items-center justify-center size-5 rounded-sm shrink-0",
+				colorClass,
+			)}
+		>
+			{emoji ? (
+				<span className="text-xs leading-none">{emoji}</span>
+			) : (
+				<HugeiconsIcon
+					icon={Folder01Icon}
+					className="size-3"
+					fill="currentColor"
+				/>
+			)}
+		</div>
+	);
+}
 
 export function NavFavourites({
 	favourites,
@@ -60,7 +92,11 @@ export function NavFavourites({
 									key={item.id}
 									render={
 										<Link to={item.url} className="cursor-pointer">
-											<span>{item.name}</span>
+											<FolderIcon
+												color={item.color as FolderColor}
+												emoji={item.emoji}
+											/>
+											<span className="truncate">{item.name}</span>
 										</Link>
 									}
 								/>
@@ -99,7 +135,11 @@ export function NavFavourites({
 															isActive={isActive}
 															render={
 																<Link to={item.url} className="h-8">
-																	<span>{item.name}</span>
+																	<FolderIcon
+																		color={item.color as FolderColor}
+																		emoji={item.emoji}
+																	/>
+																	<span className="truncate">{item.name}</span>
 																</Link>
 															}
 														/>
