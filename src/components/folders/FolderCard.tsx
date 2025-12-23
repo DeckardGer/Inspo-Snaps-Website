@@ -10,11 +10,18 @@ import { FolderActionsMenu } from "./FolderActionsMenu";
 
 type FolderCardProps = {
 	folder: Folder;
+	readOnly?: boolean;
+	linkPrefix?: string;
 };
 
-export function FolderCard({ folder }: FolderCardProps) {
+export function FolderCard({ folder, readOnly, linkPrefix }: FolderCardProps) {
 	const [menuOpen, setMenuOpen] = useState(false);
 	const colors = FOLDER_CLASSES[folder.color];
+
+	// Build the link path - use linkPrefix if provided, otherwise default to my-folders
+	const linkTo = linkPrefix
+		? `${linkPrefix}/${folder.id}`
+		: "/my-folders/{-$folderId}";
 
 	return (
 		<div
@@ -25,22 +32,24 @@ export function FolderCard({ folder }: FolderCardProps) {
 			)}
 		>
 			{/* Menu button - positioned absolutely */}
-			<FolderActionsMenu
-				folder={folder}
-				onOpenChange={setMenuOpen}
-				trigger={
-					<Button
-						size="icon-sm"
-						variant="secondary"
-						className="absolute top-2 right-2 z-10 shadow-lg hover:bg-tertiary opacity-0 group-hover:opacity-100 group-data-[menu-open]:opacity-100 transition-[opacity,background-color] focus-visible:opacity-100"
-					/>
-				}
-			/>
+			{!readOnly && (
+				<FolderActionsMenu
+					folder={folder}
+					onOpenChange={setMenuOpen}
+					trigger={
+						<Button
+							size="icon-sm"
+							variant="secondary"
+							className="absolute top-2 right-2 z-10 shadow-lg hover:bg-tertiary opacity-0 group-hover:opacity-100 group-data-[menu-open]:opacity-100 transition-[opacity,background-color] focus-visible:opacity-100"
+						/>
+					}
+				/>
+			)}
 
 			{/* Card link - covers the entire card */}
 			<Link
-				to="/my-folders/{-$folderId}"
-				params={{ folderId: folder.id }}
+				to={linkTo}
+				params={linkPrefix ? undefined : { folderId: folder.id }}
 				className="block focus-visible:ring-ring/50 focus-visible:ring-[3px] rounded-xl outline-none h-full"
 			>
 				<div

@@ -36,6 +36,7 @@ import {
 	removeFolderFromFavourites,
 } from "@/lib/folders/functions";
 import { folderStatsQueryOptions } from "@/lib/folders/queries";
+import { ShareDialog } from "@/components/sharing";
 import { FolderModal } from "./FolderModal";
 
 export type FolderForActions = {
@@ -64,6 +65,7 @@ export function FolderActionsMenu({
 }: FolderActionsMenuProps) {
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [editModalOpen, setEditModalOpen] = useState(false);
+	const [shareDialogOpen, setShareDialogOpen] = useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const queryClient = useQueryClient();
 
@@ -159,7 +161,12 @@ export function FolderActionsMenu({
 						/>
 						{folder.isFavourited ? "Unfavourite" : "Favourite"}
 					</DropdownMenuItem>
-					<DropdownMenuItem>
+					<DropdownMenuItem
+						onClick={() => {
+							setMenuOpen(false);
+							setShareDialogOpen(true);
+						}}
+					>
 						<HugeiconsIcon icon={Share08Icon} />
 						Share
 					</DropdownMenuItem>
@@ -187,6 +194,13 @@ export function FolderActionsMenu({
 				parentId={folder.parentId}
 				open={editModalOpen}
 				onOpenChange={setEditModalOpen}
+			/>
+
+			{/* Share dialog */}
+			<ShareDialog
+				folder={folder}
+				open={shareDialogOpen}
+				onOpenChange={setShareDialogOpen}
 			/>
 
 			{/* Delete confirmation dialog */}

@@ -41,9 +41,10 @@ export interface Image {
 interface FolderImageCardProps {
 	image: Image;
 	folderId: string;
+	readOnly?: boolean;
 }
 
-export function ImageCard({ image, folderId }: FolderImageCardProps) {
+export function ImageCard({ image, folderId, readOnly }: FolderImageCardProps) {
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const queryClient = useQueryClient();
@@ -124,17 +125,21 @@ export function ImageCard({ image, folderId }: FolderImageCardProps) {
 								<HugeiconsIcon icon={Download04Icon} />
 								Download
 							</DropdownMenuItem>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem
-								variant="destructive"
-								onClick={() => {
-									setMenuOpen(false);
-									setDeleteDialogOpen(true);
-								}}
-							>
-								<HugeiconsIcon icon={Delete02Icon} />
-								Remove from folder
-							</DropdownMenuItem>
+							{!readOnly && (
+								<>
+									<DropdownMenuSeparator />
+									<DropdownMenuItem
+										variant="destructive"
+										onClick={() => {
+											setMenuOpen(false);
+											setDeleteDialogOpen(true);
+										}}
+									>
+										<HugeiconsIcon icon={Delete02Icon} />
+										Remove from folder
+									</DropdownMenuItem>
+								</>
+							)}
 						</DropdownMenuContent>
 					</DropdownMenu>
 

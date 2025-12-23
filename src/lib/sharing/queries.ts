@@ -1,6 +1,9 @@
 import { queryOptions } from "@tanstack/react-query";
 import {
 	accessSharedLink,
+	getSharedFolderContentsAuth,
+	getSharedFolderImages,
+	getSharedFolderPath,
 	getSharedUsers,
 	getSharedWithMe,
 	getShareLinks,
@@ -35,5 +38,29 @@ export const sharedLinkAccessQueryOptions = (linkId: string) =>
 	queryOptions({
 		queryKey: ["sharedLinkAccess", linkId],
 		queryFn: ({ signal }) => accessSharedLink({ data: { linkId }, signal }),
+		staleTime: 1000 * 60 * 5,
+	});
+
+export const sharedFolderContentsQueryOptions = (folderId: string) =>
+	queryOptions({
+		queryKey: ["sharedFolderContents", folderId],
+		queryFn: ({ signal }) =>
+			getSharedFolderContentsAuth({ data: { folderId }, signal }),
+		staleTime: 1000 * 60 * 5,
+	});
+
+export const sharedFolderImagesQueryOptions = (folderId: string) =>
+	queryOptions({
+		queryKey: ["sharedFolderImages", folderId],
+		queryFn: ({ signal }) =>
+			getSharedFolderImages({ data: { folderId }, signal }),
+		staleTime: 1000 * 60 * 2,
+	});
+
+export const sharedFolderPathQueryOptions = (folderId: string) =>
+	queryOptions({
+		queryKey: ["sharedFolderPath", folderId],
+		queryFn: ({ signal }) =>
+			getSharedFolderPath({ data: { folderId }, signal }),
 		staleTime: 1000 * 60 * 5,
 	});
