@@ -1,8 +1,10 @@
+import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
-const clientEnvSchema = z.object({
-	VITE_BASE_URL: z.url().default("http://localhost:3000"),
+export const clientEnv = createEnv({
+	clientPrefix: "VITE_",
+	client: {
+		VITE_BASE_URL: z.url().default("http://localhost:3000"),
+	},
+	runtimeEnv: import.meta.env,
 });
-
-// Validate client environment
-export const clientEnv = clientEnvSchema.parse(import.meta.env);

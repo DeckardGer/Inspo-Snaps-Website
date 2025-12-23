@@ -1,8 +1,8 @@
-import { createServerOnlyFn } from "@tanstack/react-start";
+import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
-export const serverEnv = createServerOnlyFn(() => {
-	const serverEnvSchema = z.object({
+export const serverEnv = createEnv({
+	server: {
 		VITE_BASE_URL: z.url().default("http://localhost:3000"),
 		BETTER_AUTH_SECRET: z.string().min(1),
 		GOOGLE_CLIENT_ID: z.string().min(1),
@@ -14,7 +14,6 @@ export const serverEnv = createServerOnlyFn(() => {
 		S3_SECRET_ACCESS_KEY: z.string().optional(),
 		S3_BUCKET_NAME: z.string().optional(),
 		S3_FORCE_PATH_STYLE: z.coerce.boolean().default(false),
-	});
-
-	return serverEnvSchema.parse(process.env);
-})();
+	},
+	runtimeEnv: process.env,
+});
