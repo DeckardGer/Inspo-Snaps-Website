@@ -80,7 +80,9 @@ function toFolderForActions(item: FavouriteFolder): FolderForActions {
 	};
 }
 
-function toSharedFolderForActions(item: FavouriteFolder): SharedFolderForActions {
+function toSharedFolderForActions(
+	item: FavouriteFolder,
+): SharedFolderForActions {
 	return {
 		id: item.id,
 		name: item.name,
@@ -138,7 +140,7 @@ export function NavFavourites({
 						<SidebarMenuItem>
 							<CollapsibleTrigger
 								render={
-									<SidebarMenuButton>
+									<SidebarMenuButton className="pr-[6px]!">
 										<HugeiconsIcon icon={FolderFavouriteIcon} />
 										Favourites
 										<HugeiconsIcon
