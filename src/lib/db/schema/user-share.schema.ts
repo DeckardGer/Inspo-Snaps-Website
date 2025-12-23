@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
 	index,
+	pgEnum,
 	pgTable,
 	primaryKey,
 	text,
@@ -8,6 +9,11 @@ import {
 } from "drizzle-orm/pg-core";
 import { user } from "./auth.schema";
 import { folder } from "./folder.schema";
+
+export const SHARE_STATUSES = ["pending", "accepted", "cancelled"] as const;
+export type ShareStatus = (typeof SHARE_STATUSES)[number];
+
+export const shareStatusEnum = pgEnum("share_status", SHARE_STATUSES);
 
 export const userShare = pgTable(
 	"user_share",
@@ -21,6 +27,7 @@ export const userShare = pgTable(
 		sharedByUserId: text("shared_by_user_id")
 			.notNull()
 			.references(() => user.id, { onDelete: "cascade" }),
+		status: shareStatusEnum("status").notNull().default("pending"),
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 	},
 	(table) => [
@@ -28,6 +35,7 @@ export const userShare = pgTable(
 		index("userShare_folderId_idx").on(table.folderId),
 		index("userShare_sharedWithUserId_idx").on(table.sharedWithUserId),
 		index("userShare_sharedByUserId_idx").on(table.sharedByUserId),
+		index("userShare_status_idx").on(table.status),
 	],
 );
 

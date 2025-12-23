@@ -114,7 +114,6 @@ export const deleteShareLink = createServerFn({ method: "POST" })
 		return { success: true };
 	});
 
-// TODO: Not currently used
 export const shareWithUser = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(ShareWithUserInput)
@@ -146,12 +145,30 @@ export const shareWithUser = createServerFn({ method: "POST" })
 			),
 		});
 
-		if (existing) throw new Error("Already shared with this user");
+		if (existing) {
+			// If cancelled, re-invite by setting back to pending
+			if (existing.status === "cancelled") {
+				await db
+					.update(userShare)
+					.set({ status: "pending", sharedByUserId: context.user.id })
+					.where(
+						and(
+							eq(userShare.folderId, data.folderId),
+							eq(userShare.sharedWithUserId, targetUser.id),
+						),
+					);
+				return { success: true, sharedWithName: targetUser.name };
+			}
+			// Already pending or accepted
+			throw new Error("Already shared with this user");
+		}
 
+		// Create new pending invitation
 		await db.insert(userShare).values({
 			folderId: data.folderId,
 			sharedWithUserId: targetUser.id,
 			sharedByUserId: context.user.id,
+			status: "pending",
 		});
 
 		return { success: true, sharedWithName: targetUser.name };
@@ -205,12 +222,14 @@ export const revokeUserShare = createServerFn({ method: "POST" })
 		return { success: true };
 	});
 
-// TODO: Not currently used
 export const getSharedWithMe = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.handler(async ({ context }) => {
 		const shares = await db.query.userShare.findMany({
-			where: eq(userShare.sharedWithUserId, context.user.id),
+			where: and(
+				eq(userShare.sharedWithUserId, context.user.id),
+				eq(userShare.status, "accepted"),
+			),
 			with: {
 				folder: {
 					with: {
@@ -306,15 +325,29 @@ export const acceptShareLinkInvite = createServerFn({ method: "POST" })
 		});
 
 		if (existing) {
-			// Already has access, just return the folder ID
+			// If cancelled or pending, update to accepted
+			if (existing.status !== "accepted") {
+				await db
+					.update(userShare)
+					.set({ status: "accepted" })
+					.where(
+						and(
+							eq(userShare.folderId, link.folderId),
+							eq(userShare.sharedWithUserId, context.user.id),
+						),
+					);
+				return { folderId: link.folderId, alreadyAccepted: false };
+			}
+			// Already accepted
 			return { folderId: link.folderId, alreadyAccepted: true };
 		}
 
-		// Create the user share entry
+		// Create the user share entry with accepted status
 		await db.insert(userShare).values({
 			folderId: link.folderId,
 			sharedWithUserId: context.user.id,
 			sharedByUserId: link.createdBy,
+			status: "accepted",
 		});
 
 		return { folderId: link.folderId, alreadyAccepted: false };
@@ -459,6 +492,7 @@ async function findRootSharedFolder(
 			where: and(
 				eq(userShare.folderId, currentId),
 				eq(userShare.sharedWithUserId, userId),
+				eq(userShare.status, "accepted"),
 			),
 		});
 
@@ -489,6 +523,7 @@ async function checkUserShareAccess(
 			where: and(
 				eq(userShare.folderId, currentId),
 				eq(userShare.sharedWithUserId, userId),
+				eq(userShare.status, "accepted"),
 			),
 		});
 
@@ -580,4 +615,92 @@ export const getLinkSharedFolderImages = createServerFn({ method: "GET" })
 		);
 
 		return imagesWithUrls;
+	});
+
+// Get pending invitations for the current user
+export const getPendingInvitations = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.handler(async ({ context }) => {
+		const invitations = await db.query.userShare.findMany({
+			where: and(
+				eq(userShare.sharedWithUserId, context.user.id),
+				eq(userShare.status, "pending"),
+			),
+			with: {
+				folder: {
+					columns: { id: true, name: true, color: true, emoji: true },
+					with: {
+						owner: { columns: { id: true, name: true, image: true } },
+					},
+				},
+				sharedBy: { columns: { id: true, name: true, image: true } },
+			},
+			orderBy: (us, { desc }) => [desc(us.createdAt)],
+		});
+
+		return invitations.map((inv) => ({
+			folder: inv.folder,
+			sharedBy: inv.sharedBy,
+			invitedAt: inv.createdAt,
+		}));
+	});
+
+// Accept a pending invitation
+export const acceptInvitation = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(FolderIdInput)
+	.handler(async ({ data, context }) => {
+		const invitation = await db.query.userShare.findFirst({
+			where: and(
+				eq(userShare.folderId, data.folderId),
+				eq(userShare.sharedWithUserId, context.user.id),
+				eq(userShare.status, "pending"),
+			),
+		});
+
+		if (!invitation) {
+			throw new Error("Invitation not found");
+		}
+
+		await db
+			.update(userShare)
+			.set({ status: "accepted" })
+			.where(
+				and(
+					eq(userShare.folderId, data.folderId),
+					eq(userShare.sharedWithUserId, context.user.id),
+				),
+			);
+
+		return { success: true };
+	});
+
+// Cancel (permanently reject) a pending invitation
+export const cancelInvitation = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(FolderIdInput)
+	.handler(async ({ data, context }) => {
+		const invitation = await db.query.userShare.findFirst({
+			where: and(
+				eq(userShare.folderId, data.folderId),
+				eq(userShare.sharedWithUserId, context.user.id),
+				eq(userShare.status, "pending"),
+			),
+		});
+
+		if (!invitation) {
+			throw new Error("Invitation not found");
+		}
+
+		await db
+			.update(userShare)
+			.set({ status: "cancelled" })
+			.where(
+				and(
+					eq(userShare.folderId, data.folderId),
+					eq(userShare.sharedWithUserId, context.user.id),
+				),
+			);
+
+		return { success: true };
 	});
