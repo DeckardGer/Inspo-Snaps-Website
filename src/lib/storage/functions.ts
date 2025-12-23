@@ -47,4 +47,8 @@ export const getDownloadUrl = createServerFn({ method: "POST" })
 	});
 
 // Re-export for use in other server functions
-export { deleteStorageObject, deleteStorageObjects };
+export {
+	createPresignedDownloadUrl,
+	deleteStorageObject,
+	deleteStorageObjects,
+};

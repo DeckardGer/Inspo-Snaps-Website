@@ -38,7 +38,6 @@ const getBucketName = createServerOnlyFn(() => {
 
 // Cache durations
 const ONE_YEAR_SECONDS = 31536000;
-const TWENTY_FOUR_HOURS_SECONDS = 86400;
 
 // Cache-Control header value for uploaded images
 // Exported so the client can send the same header during upload
@@ -63,6 +62,9 @@ export async function createPresignedUploadUrl(
 	return getSignedUrl(getS3Client(), command, { expiresIn: 3600 });
 }
 
+// 7 days in seconds for presigned URL expiration
+const SEVEN_DAYS_SECONDS = 7 * 24 * 60 * 60;
+
 /**
  * Creates a cache-friendly presigned download URL.
  *
@@ -72,15 +74,16 @@ export async function createPresignedUploadUrl(
  * each unique URL = a new download, even for the same image.
  *
  * THE SOLUTION:
- * Round the signing time to fixed intervals (e.g., every hour). All requests
- * within the same hour get the EXACT same URL, enabling browser cache hits.
+ * Round the signing time to 24-hour intervals (midnight UTC). All requests
+ * within the same day get the EXACT same URL, enabling browser cache hits.
  *
- * Example with 1-hour rounding:
- * - Request at 10:05 → signs as 10:00 → URL valid until 11:00 (55 min left)
- * - Request at 10:45 → signs as 10:00 → SAME URL! Browser uses cache
- * - Request at 11:05 → signs as 11:00 → New URL (previous expired)
+ * Example with 24-hour rounding:
+ * - Request at Mon 10:05 → signs as Mon 00:00 → URL valid for 7 days
+ * - Request at Mon 18:30 → signs as Mon 00:00 → SAME URL! Browser uses cache
+ * - Request at Tue 09:00 → signs as Tue 00:00 → New URL (new day)
  *
- * We use 1-hour intervals with 24-hour expiration, giving 23-24 hours validity.
+ * We use 24-hour intervals with 7-day expiration, ensuring URLs remain valid
+ * well beyond the rounding window.
  */
 export async function createPresignedDownloadUrl(
 	storageKey: string,
@@ -90,15 +93,15 @@ export async function createPresignedDownloadUrl(
 		Key: storageKey,
 	});
 
-	// Round to the start of the current hour for cache-friendly signatures
-	// All requests within the same hour get the exact same URL
-	const ONE_HOUR_MS = 3600 * 1000;
+	// Round to the start of the current day (midnight UTC) for cache-friendly signatures
+	// All requests within the same day get the exact same URL
+	const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 	const signingDate = new Date(
-		Math.floor(Date.now() / ONE_HOUR_MS) * ONE_HOUR_MS,
+		Math.floor(Date.now() / TWENTY_FOUR_HOURS_MS) * TWENTY_FOUR_HOURS_MS,
 	);
 
 	return getSignedUrl(getS3Client(), command, {
-		expiresIn: TWENTY_FOUR_HOURS_SECONDS, // 24 hours
+		expiresIn: SEVEN_DAYS_SECONDS, // 7 days
 		signingDate, // Use rounded time for consistent URLs
 	});
 }

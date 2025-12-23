@@ -27,14 +27,13 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useImageUrl } from "@/hooks/use-image-url";
 import { removeImageFromFolder } from "@/lib/images/functions";
 
 export interface Image {
 	id: string;
 	storageKey: string;
 	filename: string;
+	imageUrl: string;
 	originUrl?: string | null;
 	addedAt: Date;
 }
@@ -47,11 +46,9 @@ interface FolderImageCardProps {
 export function ImageCard({ image, folderId }: FolderImageCardProps) {
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
 	const queryClient = useQueryClient();
-	const { data: imageUrl, isLoading: isLoadingUrl } = useImageUrl(
-		image.storageKey,
-	);
+
+	const imageUrl = image.imageUrl;
 
 	const deleteMutation = useMutation({
 		mutationFn: () =>
@@ -101,9 +98,7 @@ export function ImageCard({ image, folderId }: FolderImageCardProps) {
 			className="group relative bg-card rounded-xl shadow-md overflow-hidden h-32"
 		>
 			{/* Image Container */}
-			{isLoadingUrl ? (
-				<Skeleton className="w-full h-full" />
-			) : imageUrl ? (
+			{imageUrl ? (
 				<>
 					{/* Menu button - positioned absolutely */}
 					<DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
@@ -140,6 +135,8 @@ export function ImageCard({ image, folderId }: FolderImageCardProps) {
 					<img
 						src={imageUrl}
 						alt={image.filename}
+						loading="lazy"
+						decoding="async"
 						className="w-full h-full object-cover group-hover:scale-105 group-data-[menu-open]:scale-105 transition-transform duration-200 cursor-pointer"
 					/>
 

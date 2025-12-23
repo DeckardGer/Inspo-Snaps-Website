@@ -4,7 +4,10 @@ import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { db } from "@/lib/db";
 import { folder, folderImage, image } from "@/lib/db/schema";
-import { deleteStorageObject } from "@/lib/storage/functions";
+import {
+	createPresignedDownloadUrl,
+	deleteStorageObject,
+} from "@/lib/storage/functions";
 
 const SaveImageInput = z.object({
 	filename: z.string(),
@@ -171,5 +174,14 @@ export const getFolderImages = createServerFn({ method: "GET" })
 			orderBy: (fi, { desc }) => [desc(fi.addedAt)],
 		});
 
-		return results.map((r) => ({ ...r.image, addedAt: r.addedAt }));
+		// Generate presigned URLs for all images in parallel
+		const imagesWithUrls = await Promise.all(
+			results.map(async (r) => ({
+				...r.image,
+				addedAt: r.addedAt,
+				imageUrl: await createPresignedDownloadUrl(r.image.storageKey),
+			})),
+		);
+
+		return imagesWithUrls;
 	});
