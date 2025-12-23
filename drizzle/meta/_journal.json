@@ -50,6 +50,13 @@
       "when": 1766481821082,
       "tag": "0006_damp_warpath",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1766500737750,
+      "tag": "0007_glorious_sabra",
+      "breakpoints": true
     }
   ]
 }
