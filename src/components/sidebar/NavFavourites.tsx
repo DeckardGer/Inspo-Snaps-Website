@@ -11,6 +11,10 @@ import {
 	type FolderForActions,
 } from "@/components/folders/FolderActionsMenu";
 import {
+	SharedFolderActionsMenu,
+	type SharedFolderForActions,
+} from "@/components/sharing";
+import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
@@ -69,6 +73,16 @@ function toFolderForActions(item: FavouriteFolder): FolderForActions {
 	return {
 		id: item.id,
 		parentId: item.parentId,
+		name: item.name,
+		color: (item.color ?? "indigo") as FolderColor,
+		emoji: item.emoji,
+		isFavourited: true,
+	};
+}
+
+function toSharedFolderForActions(item: FavouriteFolder): SharedFolderForActions {
+	return {
+		id: item.id,
 		name: item.name,
 		color: (item.color ?? "indigo") as FolderColor,
 		emoji: item.emoji,
@@ -159,14 +173,26 @@ export function NavFavourites({
 																</Link>
 															}
 														/>
-														<FolderActionsMenu
-															folder={toFolderForActions(item)}
-															side="right"
-															align="start"
-															trigger={
-																<SidebarMenuAction className="peer-data-active/menu-sub-button:text-sidebar-accent-foreground group-focus-within/menu-sub-item:opacity-100 group-hover/menu-sub-item:opacity-100 data-popup-open:opacity-100 md:opacity-0" />
-															}
-														/>
+														{item.isShared ? (
+															<SharedFolderActionsMenu
+																folder={toSharedFolderForActions(item)}
+																side="right"
+																align="start"
+																showRemoveFromShared={item.isRootShared}
+																trigger={
+																	<SidebarMenuAction className="peer-data-active/menu-sub-button:text-sidebar-accent-foreground group-focus-within/menu-sub-item:opacity-100 group-hover/menu-sub-item:opacity-100 data-popup-open:opacity-100 md:opacity-0" />
+																}
+															/>
+														) : (
+															<FolderActionsMenu
+																folder={toFolderForActions(item)}
+																side="right"
+																align="start"
+																trigger={
+																	<SidebarMenuAction className="peer-data-active/menu-sub-button:text-sidebar-accent-foreground group-focus-within/menu-sub-item:opacity-100 group-hover/menu-sub-item:opacity-100 data-popup-open:opacity-100 md:opacity-0" />
+																}
+															/>
+														)}
 													</SidebarMenuSubItem>
 												);
 											})}

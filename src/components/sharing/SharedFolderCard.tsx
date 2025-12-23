@@ -1,8 +1,11 @@
 import { Folder01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { FOLDER_CLASSES, type FolderColor } from "@/lib/folders/constants";
 import { cn } from "@/lib/utils";
+import { SharedFolderActionsMenu } from "./SharedFolderActionsMenu";
 
 interface SharedFolder {
 	id: string;
@@ -10,6 +13,7 @@ interface SharedFolder {
 	color: FolderColor;
 	emoji: string | null;
 	imageCount?: number;
+	isFavourited?: boolean;
 }
 
 interface SharedBy {
@@ -20,18 +24,45 @@ interface SharedBy {
 interface SharedFolderCardProps {
 	folder: SharedFolder;
 	sharedBy: SharedBy;
+	showRemoveFromShared?: boolean;
 }
 
-export function SharedFolderCard({ folder, sharedBy }: SharedFolderCardProps) {
+export function SharedFolderCard({
+	folder,
+	sharedBy,
+	showRemoveFromShared = true,
+}: SharedFolderCardProps) {
 	const colors = FOLDER_CLASSES[folder.color];
+	const [menuOpen, setMenuOpen] = useState(false);
 
 	return (
 		<div
+			data-menu-open={menuOpen || undefined}
 			className={cn(
 				"group relative bg-card rounded-xl shadow-md transition-[scale,box-shadow] duration-200 ease-out hover:scale-[1.02] hover:shadow-lg",
 				colors.glow,
 			)}
 		>
+			{/* Actions menu */}
+			<SharedFolderActionsMenu
+				folder={{
+					id: folder.id,
+					name: folder.name,
+					color: folder.color,
+					emoji: folder.emoji,
+					isFavourited: folder.isFavourited ?? false,
+				}}
+				showRemoveFromShared={showRemoveFromShared}
+				onOpenChange={setMenuOpen}
+				trigger={
+					<Button
+						size="icon-sm"
+						variant="secondary"
+						className="absolute top-2 right-2 z-10 shadow-lg hover:bg-tertiary opacity-0 group-hover:opacity-100 group-data-[menu-open]:opacity-100 transition-[opacity,background-color] focus-visible:opacity-100"
+					/>
+				}
+			/>
+
 			<Link
 				to="/shared-folders/$folderId"
 				params={{ folderId: folder.id }}

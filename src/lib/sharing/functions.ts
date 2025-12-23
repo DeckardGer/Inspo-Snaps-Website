@@ -4,6 +4,7 @@ import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { db } from "@/lib/db";
 import {
+	favouriteFolder,
 	folder,
 	folderImage,
 	shareLink,
@@ -244,8 +245,9 @@ export const getSharedWithMe = createServerFn({ method: "GET" })
 			return [];
 		}
 
-		// Get all image counts in a single query
 		const folderIds = shares.map((s) => s.folderId);
+
+		// Get all image counts in a single query
 		const imageCounts = await db
 			.select({
 				folderId: folderImage.folderId,
@@ -255,13 +257,24 @@ export const getSharedWithMe = createServerFn({ method: "GET" })
 			.where(inArray(folderImage.folderId, folderIds))
 			.groupBy(folderImage.folderId);
 
-		// Create a map for quick lookup
+		// Get all favourites for these folders
+		const favourites = await db.query.favouriteFolder.findMany({
+			where: and(
+				eq(favouriteFolder.userId, context.user.id),
+				inArray(favouriteFolder.folderId, folderIds),
+			),
+			columns: { folderId: true },
+		});
+
+		// Create maps for quick lookup
 		const countMap = new Map(imageCounts.map((ic) => [ic.folderId, ic.count]));
+		const favouriteSet = new Set(favourites.map((f) => f.folderId));
 
 		return shares.map((s) => ({
 			folder: {
 				...s.folder,
 				imageCount: countMap.get(s.folderId) ?? 0,
+				isFavourited: favouriteSet.has(s.folderId),
 			},
 			sharedBy: s.sharedBy,
 			sharedAt: s.createdAt,
@@ -414,7 +427,6 @@ async function verifyFolderInHierarchy(
 	return false;
 }
 
-// TODO: Not currently used
 export const getSharedFolderContentsAuth = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
@@ -434,7 +446,30 @@ export const getSharedFolderContentsAuth = createServerFn({ method: "GET" })
 			},
 		});
 
-		return f;
+		if (!f) return null;
+
+		// Get favourite status for all children
+		const childIds = f.children.map((c) => c.id);
+		const favourites =
+			childIds.length > 0
+				? await db.query.favouriteFolder.findMany({
+						where: and(
+							eq(favouriteFolder.userId, context.user.id),
+							inArray(favouriteFolder.folderId, childIds),
+						),
+						columns: { folderId: true },
+					})
+				: [];
+
+		const favouriteSet = new Set(favourites.map((fav) => fav.folderId));
+
+		return {
+			...f,
+			children: f.children.map((child) => ({
+				...child,
+				isFavourited: favouriteSet.has(child.id),
+			})),
+		};
 	});
 
 export const getSharedFolderPath = createServerFn({ method: "GET" })
@@ -704,3 +739,73 @@ export const cancelInvitation = createServerFn({ method: "POST" })
 
 		return { success: true };
 	});
+
+// Remove yourself from a shared folder (leave/unshare)
+export const removeFromShared = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(FolderIdInput)
+	.handler(async ({ data, context }) => {
+		// Verify the share exists for this user
+		const share = await db.query.userShare.findFirst({
+			where: and(
+				eq(userShare.folderId, data.folderId),
+				eq(userShare.sharedWithUserId, context.user.id),
+			),
+		});
+
+		if (!share) {
+			throw new Error("Share not found");
+		}
+
+		// Get all descendant folder IDs (including the root folder)
+		const allFolderIds = await getAllDescendantFolderIds(data.folderId);
+
+		// Delete the share entry
+		await db
+			.delete(userShare)
+			.where(
+				and(
+					eq(userShare.folderId, data.folderId),
+					eq(userShare.sharedWithUserId, context.user.id),
+				),
+			);
+
+		// Remove favorites for the folder and all its descendants
+		if (allFolderIds.length > 0) {
+			await db
+				.delete(favouriteFolder)
+				.where(
+					and(
+						inArray(favouriteFolder.folderId, allFolderIds),
+						eq(favouriteFolder.userId, context.user.id),
+					),
+				);
+		}
+
+		return { success: true };
+	});
+
+// Helper to get all descendant folder IDs (including the root folder itself)
+async function getAllDescendantFolderIds(
+	rootFolderId: string,
+): Promise<string[]> {
+	const result: string[] = [rootFolderId];
+	const queue: string[] = [rootFolderId];
+
+	while (queue.length > 0) {
+		const currentId = queue.shift();
+		if (!currentId) break;
+
+		const children = await db.query.folder.findMany({
+			where: eq(folder.parentId, currentId),
+			columns: { id: true },
+		});
+
+		for (const child of children) {
+			result.push(child.id);
+			queue.push(child.id);
+		}
+	}
+
+	return result;
+}

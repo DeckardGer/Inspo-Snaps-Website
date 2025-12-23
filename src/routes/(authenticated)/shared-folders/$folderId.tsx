@@ -3,9 +3,11 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
-import { FolderGrid, FoldersGridSkeleton } from "@/components/folders";
+import { FoldersGridSkeleton } from "@/components/folders";
 import { ImageGrid } from "@/components/images";
 import { NavBar } from "@/components/navbar/NavBar";
+import { SharedFolderCard } from "@/components/sharing";
+import type { FolderColor } from "@/lib/folders/constants";
 import {
 	sharedFolderContentsQueryOptions,
 	sharedFolderImagesQueryOptions,
@@ -93,21 +95,13 @@ interface FolderData {
 	children: Array<{
 		id: string;
 		name: string;
-		color:
-			| "slate"
-			| "red"
-			| "orange"
-			| "yellow"
-			| "green"
-			| "blue"
-			| "indigo"
-			| "purple"
-			| "rose";
+		color: FolderColor;
 		emoji: string | null;
 		parentId: string | null;
 		userId: string;
 		createdAt: Date;
 		updatedAt: Date;
+		isFavourited: boolean;
 	}>;
 	owner: { id: string; name: string | null; image: string | null } | null;
 }
@@ -123,15 +117,7 @@ function SharedFolderContents({
 		sharedFolderImagesQueryOptions(folderId),
 	);
 
-	// Transform children to match Folder type expected by FolderGrid
-	const folders = folder.children.map((child) => ({
-		...child,
-		imageCount: 0,
-		isShared: false,
-		isFavourited: false,
-	}));
-
-	const hasContent = folders.length > 0 || images.length > 0;
+	const hasContent = folder.children.length > 0 || images.length > 0;
 
 	if (!hasContent) {
 		return <SharedFolderEmptyState />;
@@ -139,12 +125,27 @@ function SharedFolderContents({
 
 	return (
 		<div className="space-y-6">
-			{folders.length > 0 && (
+			{folder.children.length > 0 && (
 				<section>
 					<h2 className="mb-3 text-sm font-medium text-muted-foreground">
 						Folders
 					</h2>
-					<FolderGrid folders={folders} readOnly linkPrefix="/shared-folders" />
+					<div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
+						{folder.children.map((child) => (
+							<SharedFolderCard
+								key={child.id}
+								folder={{
+									id: child.id,
+									name: child.name,
+									color: child.color,
+									emoji: child.emoji,
+									isFavourited: child.isFavourited,
+								}}
+								sharedBy={{ id: folder.owner?.id ?? "", name: folder.owner?.name ?? null }}
+								showRemoveFromShared={false}
+							/>
+						))}
+					</div>
 				</section>
 			)}
 

@@ -3,7 +3,13 @@ import { and, eq, inArray, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { db } from "@/lib/db";
-import { favouriteFolder, folder, folderImage, image } from "@/lib/db/schema";
+import {
+	favouriteFolder,
+	folder,
+	folderImage,
+	image,
+	userShare,
+} from "@/lib/db/schema";
 import { FOLDER_COLORS, type FolderColor } from "@/lib/folders/constants";
 import { deleteStorageObjects } from "@/lib/storage/functions";
 
@@ -306,10 +312,21 @@ export const addFolderToFavourites = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
 	.handler(async ({ data, context }) => {
-		const f = await db.query.folder.findFirst({
+		// Check if user owns the folder
+		const ownedFolder = await db.query.folder.findFirst({
 			where: and(eq(folder.id, data.id), eq(folder.userId, context.user.id)),
 		});
-		if (!f) throw new Error("Folder not found or access denied");
+
+		// If not owned, check if user has accepted share access
+		if (!ownedFolder) {
+			const hasSharedAccess = await checkSharedFolderAccess(
+				data.id,
+				context.user.id,
+			);
+			if (!hasSharedAccess) {
+				throw new Error("Folder not found or access denied");
+			}
+		}
 
 		await db
 			.insert(favouriteFolder)
@@ -321,6 +338,36 @@ export const addFolderToFavourites = createServerFn({ method: "POST" })
 
 		return { success: true };
 	});
+
+// Helper to check if user has accepted share access to a folder (or any parent)
+async function checkSharedFolderAccess(
+	folderId: string,
+	userId: string,
+): Promise<boolean> {
+	let currentId: string | null = folderId;
+
+	while (currentId) {
+		const share = await db.query.userShare.findFirst({
+			where: and(
+				eq(userShare.folderId, currentId),
+				eq(userShare.sharedWithUserId, userId),
+				eq(userShare.status, "accepted"),
+			),
+		});
+
+		if (share) return true;
+
+		const f: { parentId: string | null } | undefined =
+			await db.query.folder.findFirst({
+				where: eq(folder.id, currentId),
+				columns: { parentId: true },
+			});
+
+		currentId = f?.parentId ?? null;
+	}
+
+	return false;
+}
 
 export const removeFolderFromFavourites = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
@@ -345,6 +392,8 @@ export type FavouriteFolder = {
 	color: string | null;
 	emoji: string | null;
 	url: string;
+	isShared: boolean;
+	isRootShared: boolean;
 };
 
 export const getFavouriteFolders = createServerFn({ method: "GET" })
@@ -360,16 +409,49 @@ export const getFavouriteFolders = createServerFn({ method: "GET" })
 						name: true,
 						color: true,
 						emoji: true,
+						userId: true,
 					},
 				},
 			},
 			orderBy: (ff, { desc }) => [desc(ff.createdAt)],
 		});
 
-		return favourites.map((fav) => ({
-			...fav.folder,
-			url: `/my-folders/${fav.folder.id}`,
-		})) satisfies FavouriteFolder[];
+		// Get all shared folder IDs to check which are root shares
+		const sharedFolderIds = favourites
+			.filter((fav) => fav.folder.userId !== context.user.id)
+			.map((fav) => fav.folder.id);
+
+		// Find which shared folders have direct userShare entries (are root shares)
+		const rootShares =
+			sharedFolderIds.length > 0
+				? await db.query.userShare.findMany({
+						where: and(
+							eq(userShare.sharedWithUserId, context.user.id),
+							eq(userShare.status, "accepted"),
+							inArray(userShare.folderId, sharedFolderIds),
+						),
+						columns: { folderId: true },
+					})
+				: [];
+
+		const rootShareSet = new Set(rootShares.map((s) => s.folderId));
+
+		return favourites.map((fav) => {
+			const isOwned = fav.folder.userId === context.user.id;
+			const isRootShared = !isOwned && rootShareSet.has(fav.folder.id);
+			return {
+				id: fav.folder.id,
+				parentId: fav.folder.parentId,
+				name: fav.folder.name,
+				color: fav.folder.color,
+				emoji: fav.folder.emoji,
+				url: isOwned
+					? `/my-folders/${fav.folder.id}`
+					: `/shared-folders/${fav.folder.id}`,
+				isShared: !isOwned,
+				isRootShared,
+			};
+		}) satisfies FavouriteFolder[];
 	});
 
 export type FolderStats = {
