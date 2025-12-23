@@ -1,6 +1,8 @@
 import {
 	Delete02Icon,
 	Folder01Icon,
+	FolderFavouriteIcon,
+	FolderRemoveIcon,
 	FolderTransferIcon,
 	Loading03Icon,
 	MoreVerticalIcon,
@@ -31,7 +33,12 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FOLDER_CLASSES } from "@/lib/folders/constants";
-import { deleteFolder, type Folder } from "@/lib/folders/functions";
+import {
+	addFolderToFavourites,
+	deleteFolder,
+	type Folder,
+	removeFolderFromFavourites,
+} from "@/lib/folders/functions";
 import { folderStatsQueryOptions } from "@/lib/folders/queries";
 import { cn } from "@/lib/utils";
 import { FolderModal } from "./FolderModal";
@@ -53,10 +60,45 @@ export function FolderCard({ folder }: FolderCardProps) {
 		enabled: deleteDialogOpen,
 	});
 
+	const favouriteMutation = useMutation({
+		mutationFn: () =>
+			folder.isFavourited
+				? removeFolderFromFavourites({ data: { id: folder.id } })
+				: addFolderToFavourites({ data: { id: folder.id } }),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["folders", folder.parentId ?? "root"],
+				exact: true,
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["favouriteFolders"],
+				exact: true,
+			});
+			toast.success(
+				folder.isFavourited ? "Removed from favourites" : "Added to favourites",
+			);
+		},
+		onError: (error) => {
+			toast.error(
+				folder.isFavourited
+					? "Failed to remove from favourites"
+					: "Failed to add to favourites",
+				{ description: error.message },
+			);
+		},
+	});
+
 	const deleteMutation = useMutation({
 		mutationFn: () => deleteFolder({ data: { id: folder.id } }),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["folders"] });
+			queryClient.invalidateQueries({
+				queryKey: ["folders", folder.parentId ?? "root"],
+				exact: true,
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["favouriteFolders"],
+				exact: true,
+			});
 			toast.success("Folder deleted", {
 				description: `"${folder.name}" has been permanently deleted.`,
 			});
@@ -99,6 +141,20 @@ export function FolderCard({ folder }: FolderCardProps) {
 					>
 						<HugeiconsIcon icon={PencilEdit01Icon} />
 						Edit
+					</DropdownMenuItem>
+					<DropdownMenuItem
+						onClick={() => {
+							setMenuOpen(false);
+							favouriteMutation.mutate();
+						}}
+						disabled={favouriteMutation.isPending}
+					>
+						<HugeiconsIcon
+							icon={
+								folder.isFavourited ? FolderRemoveIcon : FolderFavouriteIcon
+							}
+						/>
+						{folder.isFavourited ? "Unfavourite" : "Favourite"}
 					</DropdownMenuItem>
 					<DropdownMenuItem>
 						<HugeiconsIcon icon={Share08Icon} />
@@ -164,6 +220,7 @@ export function FolderCard({ folder }: FolderCardProps) {
 			{/* Edit modal */}
 			<FolderModal
 				folder={folder}
+				parentId={folder.parentId}
 				open={editModalOpen}
 				onOpenChange={setEditModalOpen}
 			/>

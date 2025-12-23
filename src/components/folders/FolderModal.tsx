@@ -97,6 +97,7 @@ export function FolderModal({
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: ["folders", parentId ?? "root"],
+				exact: true,
 			});
 			toast.success("Folder created successfully");
 			setDialogOpen(false);
@@ -112,7 +113,10 @@ export function FolderModal({
 	const updateMutation = useMutation({
 		mutationFn: updateFolder,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["folders"] });
+			queryClient.invalidateQueries({
+				queryKey: ["folders", parentId ?? "root"],
+				exact: true,
+			});
 			toast.success("Folder updated successfully");
 			setDialogOpen(false);
 		},

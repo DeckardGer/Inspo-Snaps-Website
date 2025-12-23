@@ -9,6 +9,10 @@ import {
 } from "drizzle-orm/pg-core";
 import { FOLDER_COLORS } from "@/lib/folders/constants";
 import { user } from "./auth.schema";
+import { favouriteFolder } from "./favourite-folder.schema";
+import { folderImage } from "./folder-image.schema";
+import { shareLink } from "./share-link.schema";
+import { userShare } from "./user-share.schema";
 
 export const folderColorEnum = pgEnum("folder_color", FOLDER_COLORS);
 
@@ -57,4 +61,8 @@ export const folderRelations = relations(folder, ({ one, many }) => ({
 		relationName: "parentChild",
 	}),
 	children: many(folder, { relationName: "parentChild" }),
+	images: many(folderImage),
+	shareLinks: many(shareLink),
+	userShares: many(userShare),
+	favourites: many(favouriteFolder),
 }));

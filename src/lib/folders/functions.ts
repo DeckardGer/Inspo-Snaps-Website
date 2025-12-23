@@ -3,14 +3,7 @@ import { and, eq, inArray, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { db } from "@/lib/db";
-import {
-	favouriteFolder,
-	folder,
-	folderImage,
-	image,
-	shareLink,
-	userShare,
-} from "@/lib/db/schema";
+import { favouriteFolder, folder, folderImage, image } from "@/lib/db/schema";
 import { FOLDER_COLORS, type FolderColor } from "@/lib/folders/constants";
 import { deleteStorageObjects } from "@/lib/storage/functions";
 
@@ -45,6 +38,7 @@ const FolderIdInput = z.object({
 
 export type Folder = {
 	id: string;
+	parentId: string | null;
 	name: string;
 	color: FolderColor;
 	emoji: string | null;
@@ -52,6 +46,7 @@ export type Folder = {
 	updatedAt: Date;
 	imageCount: number;
 	isShared: boolean;
+	isFavourited: boolean;
 };
 
 export const createFolder = createServerFn({ method: "POST" })
@@ -95,44 +90,26 @@ export const getFolders = createServerFn({ method: "GET" })
 		const folders = await db.query.folder.findMany({
 			where: and(eq(folder.userId, context.user.id), parentCondition),
 			orderBy: (folder, { asc }) => [asc(folder.name)],
+			with: {
+				images: { columns: { imageId: true } },
+				shareLinks: { columns: { id: true }, limit: 1 },
+				userShares: { columns: { folderId: true }, limit: 1 },
+				favourites: { columns: { userId: true } },
+			},
 		});
 
-		const foldersWithStats: Folder[] = await Promise.all(
-			folders.map(async (f) => {
-				const imageCountResult = await db
-					.select({ count: folderImage.imageId })
-					.from(folderImage)
-					.where(eq(folderImage.folderId, f.id));
-
-				const imageCount = imageCountResult.length;
-
-				const [shareLinkResult, userShareResult] = await Promise.all([
-					db.query.shareLink.findFirst({
-						where: eq(shareLink.folderId, f.id),
-						columns: { id: true },
-					}),
-					db.query.userShare.findFirst({
-						where: eq(userShare.folderId, f.id),
-						columns: { folderId: true },
-					}),
-				]);
-
-				const isShared = !!shareLinkResult || !!userShareResult;
-
-				return {
-					id: f.id,
-					name: f.name,
-					color: f.color,
-					emoji: f.emoji,
-					createdAt: f.createdAt,
-					updatedAt: f.updatedAt,
-					imageCount,
-					isShared,
-				};
-			}),
-		);
-
-		return foldersWithStats;
+		return folders.map((f) => ({
+			id: f.id,
+			parentId: f.parentId,
+			name: f.name,
+			color: f.color,
+			emoji: f.emoji,
+			createdAt: f.createdAt,
+			updatedAt: f.updatedAt,
+			imageCount: f.images.length,
+			isShared: f.shareLinks.length > 0 || f.userShares.length > 0,
+			isFavourited: f.favourites.some((fav) => fav.userId === context.user.id),
+		})) satisfies Folder[];
 	});
 
 // TODO: Not currently used
@@ -325,7 +302,6 @@ export const getFolderPath = createServerFn({ method: "GET" })
 		return path;
 	});
 
-// TODO: Not currently used
 export const addFolderToFavourites = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
@@ -346,7 +322,6 @@ export const addFolderToFavourites = createServerFn({ method: "POST" })
 		return { success: true };
 	});
 
-// TODO: Not currently used
 export const removeFolderFromFavourites = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
@@ -393,21 +368,6 @@ export const getFavouriteFolders = createServerFn({ method: "GET" })
 			...fav.folder,
 			url: `/my-folders/${fav.folder.id}`,
 		})) satisfies FavouriteFolder[];
-	});
-
-// TODO: Not currently used
-export const isFolderFavourited = createServerFn({ method: "GET" })
-	.middleware([authMiddleware])
-	.inputValidator(FolderIdInput)
-	.handler(async ({ data, context }) => {
-		const favourite = await db.query.favouriteFolder.findFirst({
-			where: and(
-				eq(favouriteFolder.userId, context.user.id),
-				eq(favouriteFolder.folderId, data.id),
-			),
-		});
-
-		return { isFavourited: !!favourite };
 	});
 
 export type FolderStats = {

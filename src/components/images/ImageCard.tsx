@@ -54,8 +54,14 @@ export function ImageCard({ image, folderId }: FolderImageCardProps) {
 		mutationFn: () =>
 			removeImageFromFolder({ data: { imageId: image.id, folderId } }),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["folderImages", folderId] });
-			queryClient.invalidateQueries({ queryKey: ["folders"] });
+			queryClient.invalidateQueries({
+				queryKey: ["folderImages", folderId],
+				exact: true,
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["folders"],
+				refetchType: "active",
+			});
 
 			toast.success("Image removed from folder");
 

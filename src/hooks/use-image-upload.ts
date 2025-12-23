@@ -159,8 +159,12 @@ export function useImageUpload(folderId: string) {
 			if (successCount > 0) {
 				await queryClient.invalidateQueries({
 					queryKey: ["folderImages", folderId],
+					exact: true,
 				});
-				await queryClient.invalidateQueries({ queryKey: ["folders"] });
+				await queryClient.invalidateQueries({
+					queryKey: ["folders"],
+					refetchType: "active",
+				});
 			}
 
 			if (successCount > 0 && failCount === 0) {
