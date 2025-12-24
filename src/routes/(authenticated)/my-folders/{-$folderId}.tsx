@@ -126,7 +126,9 @@ function FolderContents({ folderId }: { folderId?: string }) {
 
 	// Empty state - only when no folders AND no images
 	if (!hasContent) {
-		return <FoldersEmptyState parentId={folderId} />;
+		return (
+			<FoldersEmptyState parentId={folderId} onFilesDropped={uploadFiles} />
+		);
 	}
 
 	return (

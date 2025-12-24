@@ -2,16 +2,19 @@ import { FolderAddIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { FolderIcon } from "@/components/folders/FolderIcon";
 import { Button } from "@/components/ui/button";
+import { ImageDropPlaceholder } from "@/components/upload/ImageDropPlaceholder";
 import { TeamFolderModal } from "./TeamFolderModal";
 
 interface TeamFoldersEmptyStateProps {
 	organizationId: string;
 	parentId?: string;
+	onFilesDropped?: (files: File[]) => void;
 }
 
 export function TeamFoldersEmptyState({
 	organizationId,
 	parentId,
+	onFilesDropped,
 }: TeamFoldersEmptyStateProps) {
 	const isNested = !!parentId;
 
@@ -77,22 +80,27 @@ export function TeamFoldersEmptyState({
 				</h3>
 				<p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
 					{isNested
-						? "Add subfolders to organize this folder's content."
+						? "Add images or create subfolders to organize your content."
 						: "Organize your team's inspiration into folders. Everyone in the team can access and contribute."}
 				</p>
 			</div>
 
-			{/* CTA */}
-			<TeamFolderModal
-				organizationId={organizationId}
-				parentId={parentId}
-				trigger={
-					<Button size="lg" className="gap-2">
-						<HugeiconsIcon icon={FolderAddIcon} className="size-5" />
-						{isNested ? "Create Subfolder" : "Create Folder"}
-					</Button>
-				}
-			/>
+			{/* CTAs */}
+			<div className="flex flex-col items-center gap-4 w-full max-w-xs">
+				{isNested && onFilesDropped && (
+					<ImageDropPlaceholder onFilesDropped={onFilesDropped} />
+				)}
+				<TeamFolderModal
+					organizationId={organizationId}
+					parentId={parentId}
+					trigger={
+						<Button size="lg" className="gap-2">
+							<HugeiconsIcon icon={FolderAddIcon} className="size-5" />
+							{isNested ? "Create Subfolder" : "Create Folder"}
+						</Button>
+					}
+				/>
+			</div>
 		</div>
 	);
 }

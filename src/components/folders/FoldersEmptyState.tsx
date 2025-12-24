@@ -1,15 +1,21 @@
 import { FolderAddIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
+import { ImageDropPlaceholder } from "@/components/upload/ImageDropPlaceholder";
 import { FolderIcon } from "./FolderIcon";
 import { FolderModal } from "./FolderModal";
 
 interface FoldersEmptyStateProps {
 	parentId?: string | null;
+	onFilesDropped?: (files: File[]) => void;
 }
 
-export function FoldersEmptyState({ parentId }: FoldersEmptyStateProps) {
+export function FoldersEmptyState({
+	parentId,
+	onFilesDropped,
+}: FoldersEmptyStateProps) {
 	const isNested = !!parentId;
+
 	return (
 		<div className="flex flex-col items-center justify-center gap-8 py-20">
 			{/* Floating folders illustration */}
@@ -71,21 +77,26 @@ export function FoldersEmptyState({ parentId }: FoldersEmptyStateProps) {
 				</h3>
 				<p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
 					{isNested
-						? "Add subfolders to organize this folder's content."
+						? "Add images or create subfolders to organize your content."
 						: "Organize your inspiration into folders. Group images by project, theme, mood, or however you like."}
 				</p>
 			</div>
 
-			{/* CTA */}
-			<FolderModal
-				parentId={parentId}
-				trigger={
-					<Button size="lg" className="gap-2">
-						<HugeiconsIcon icon={FolderAddIcon} className="size-5" />
-						{isNested ? "Create Subfolder" : "Create Folder"}
-					</Button>
-				}
-			/>
+			{/* CTAs */}
+			<div className="flex flex-col items-center gap-4 w-full max-w-xs">
+				{isNested && onFilesDropped && (
+					<ImageDropPlaceholder onFilesDropped={onFilesDropped} />
+				)}
+				<FolderModal
+					parentId={parentId}
+					trigger={
+						<Button size="lg" className="gap-2">
+							<HugeiconsIcon icon={FolderAddIcon} className="size-5" />
+							{isNested ? "Create Subfolder" : "Create Folder"}
+						</Button>
+					}
+				/>
+			</div>
 		</div>
 	);
 }
