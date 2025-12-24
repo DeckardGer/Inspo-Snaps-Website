@@ -105,9 +105,11 @@ function DropdownMenuSubTrigger({
 	className,
 	inset,
 	children,
+	showArrow = true,
 	...props
 }: MenuPrimitive.SubmenuTrigger.Props & {
 	inset?: boolean;
+	showArrow?: boolean;
 }) {
 	return (
 		<MenuPrimitive.SubmenuTrigger
@@ -120,11 +122,13 @@ function DropdownMenuSubTrigger({
 			{...props}
 		>
 			{children}
-			<HugeiconsIcon
-				icon={ArrowRight01Icon}
-				strokeWidth={2}
-				className="ml-auto"
-			/>
+			{showArrow && (
+				<HugeiconsIcon
+					icon={ArrowRight01Icon}
+					strokeWidth={2}
+					className="ml-auto"
+				/>
+			)}
 		</MenuPrimitive.SubmenuTrigger>
 	);
 }

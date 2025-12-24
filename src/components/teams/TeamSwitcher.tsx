@@ -1,7 +1,11 @@
 import {
 	AddTeamIcon,
 	ArrowDown01Icon,
+	ArrowRight01Icon,
+	Delete02Icon,
+	PencilEdit01Icon,
 	Tick02Icon,
+	UserAdd02Icon,
 	UserGroupIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -16,6 +20,9 @@ import {
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import authClient from "@/lib/auth/auth-client";
@@ -35,6 +42,8 @@ export function TeamSwitcher({
 	currentOrgId,
 	currentOrgName,
 }: TeamSwitcherProps) {
+	const [dropdownOpen, setDropdownOpen] = useState(false);
+	const [openSubMenuId, setOpenSubMenuId] = useState<string | null>(null);
 	const [teamModalOpen, setTeamModalOpen] = useState(false);
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
@@ -56,6 +65,9 @@ export function TeamSwitcher({
 	});
 
 	const handleTeamSelect = async (orgId: string) => {
+		// Close the dropdown
+		setDropdownOpen(false);
+
 		if (orgId === currentOrgId) return;
 
 		// Set the organization as active
@@ -68,8 +80,15 @@ export function TeamSwitcher({
 		});
 	};
 
+	const handleDropdownOpenChange = (open: boolean) => {
+		setDropdownOpen(open);
+		if (!open) {
+			setOpenSubMenuId(null);
+		}
+	};
+
 	return (
-		<DropdownMenu>
+		<DropdownMenu open={dropdownOpen} onOpenChange={handleDropdownOpenChange}>
 			<DropdownMenuTrigger
 				render={
 					<Button
@@ -94,37 +113,70 @@ export function TeamSwitcher({
 					</DropdownMenuLabel>
 					{organizations.map((org) => {
 						const isActive = org.id === currentOrgId;
+						const isSubMenuOpen = openSubMenuId === org.id;
 						return (
-							<DropdownMenuItem
+							<DropdownMenuSub
 								key={org.id}
-								onClick={() => handleTeamSelect(org.id)}
-								className={cn("gap-2 p-2", isActive && "bg-accent")}
+								onOpenChange={(open) => setOpenSubMenuId(open ? org.id : null)}
 							>
-								<div className="flex size-6 items-center justify-center rounded-md border">
-									{org.logo ? (
-										<img
-											src={org.logo}
-											alt={org.name}
-											className="size-full rounded-md object-cover"
-										/>
-									) : (
+								<DropdownMenuSubTrigger
+									showArrow={false}
+									onClick={() => handleTeamSelect(org.id)}
+									className={cn(
+										"group/team-item gap-2 p-2",
+										isActive && "bg-accent",
+										isSubMenuOpen && "bg-accent text-accent-foreground",
+									)}
+								>
+									<div className="flex size-6 items-center justify-center rounded-md border">
+										{org.logo ? (
+											<img
+												src={org.logo}
+												alt={org.name}
+												className="size-full rounded-md object-cover"
+											/>
+										) : (
+											<HugeiconsIcon
+												icon={UserGroupIcon}
+												className={cn(
+													"size-3.5 text-muted-foreground",
+													(isActive || isSubMenuOpen) && "text-accent-foreground",
+												)}
+											/>
+										)}
+									</div>
+									<span className="flex-1 truncate">{org.name}</span>
+									{isActive && !isSubMenuOpen && (
 										<HugeiconsIcon
-											icon={UserGroupIcon}
-											className={cn(
-												"size-3.5 text-muted-foreground",
-												isActive && "text-accent-foreground",
-											)}
+											icon={Tick02Icon}
+											className="size-4 text-primary group-hover/team-item:hidden"
 										/>
 									)}
-								</div>
-								<span className="flex-1 truncate">{org.name}</span>
-								{isActive && (
 									<HugeiconsIcon
-										icon={Tick02Icon}
-										className="size-4 text-primary"
+										icon={ArrowRight01Icon}
+										strokeWidth={2}
+										className={cn(
+											"ml-auto hidden group-hover/team-item:block",
+											isSubMenuOpen && "block",
+										)}
 									/>
-								)}
-							</DropdownMenuItem>
+								</DropdownMenuSubTrigger>
+								<DropdownMenuSubContent className="min-w-40">
+									<DropdownMenuItem>
+										<HugeiconsIcon icon={PencilEdit01Icon} />
+										Edit Team
+									</DropdownMenuItem>
+									<DropdownMenuItem>
+										<HugeiconsIcon icon={UserAdd02Icon} />
+										Invite Members
+									</DropdownMenuItem>
+									<DropdownMenuSeparator />
+									<DropdownMenuItem variant="destructive">
+										<HugeiconsIcon icon={Delete02Icon} />
+										Delete Team
+									</DropdownMenuItem>
+								</DropdownMenuSubContent>
+							</DropdownMenuSub>
 						);
 					})}
 				</DropdownMenuGroup>
