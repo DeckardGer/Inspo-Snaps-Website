@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/sidebar";
 import authClient from "@/lib/auth/auth-client";
 import type { AuthQueryResult } from "@/lib/auth/queries";
-import { authQueryOptions } from "@/lib/auth/queries";
 import { cn } from "@/lib/utils";
 
 export function SidebarAppFooter({
@@ -114,11 +113,9 @@ export function SidebarAppFooter({
 								await authClient.signOut({
 									fetchOptions: {
 										onResponse: async () => {
-											// manually set to null to avoid unnecessary refetching
-											queryClient.setQueryData(
-												authQueryOptions().queryKey,
-												null,
-											);
+											// Clear all cached data to prevent stale user-specific
+											// data from persisting if another user logs in
+											queryClient.clear();
 											await router.invalidate();
 										},
 									},

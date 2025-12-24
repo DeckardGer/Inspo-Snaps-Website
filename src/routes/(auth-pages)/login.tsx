@@ -50,7 +50,7 @@ const loginFormSchema = z.object({
 });
 
 function RouteComponent() {
-	const { redirectUrl } = Route.useRouteContext();
+	const { redirectUrl, queryClient } = Route.useRouteContext();
 	const [showPassword, setShowPassword] = useState(false);
 
 	const { mutate: emailLoginMutate, isPending } = useMutation({
@@ -64,12 +64,12 @@ function RouteComponent() {
 					onError: ({ error }) => {
 						toast.error(error.message || "An error occurred while signing in.");
 					},
-					// better-auth seems to trigger a hard navigation on login,
-					// so we don't have to revalidate & navigate ourselves
-					// onSuccess: () => {
-					//   queryClient.removeQueries({ queryKey: authQueryOptions().queryKey });
-					//   navigate({ to: redirectUrl });
-					// },
+					onSuccess: () => {
+						// Clear all cached data when switching accounts to prevent
+						// stale user-specific data (folders, favorites, etc.) from persisting
+						// Note: better-auth triggers a hard navigation after this
+						queryClient.clear();
+					},
 				},
 			),
 	});

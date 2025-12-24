@@ -40,7 +40,6 @@ import {
 } from "@/components/ui/tooltip";
 import authClient from "@/lib/auth/auth-client";
 import { checkUsernameAvailability } from "@/lib/auth/functions";
-import { authQueryOptions } from "@/lib/auth/queries";
 
 // Helper to transform TanStack Form errors to FieldError format
 function transformFormErrors(
@@ -105,9 +104,9 @@ function RouteComponent() {
 						toast.error(error.message || "An error occurred while signing up.");
 					},
 					onSuccess: () => {
-						queryClient.removeQueries({
-							queryKey: authQueryOptions().queryKey,
-						});
+						// Clear all cached data when switching accounts to prevent
+						// stale user-specific data (folders, favorites, etc.) from persisting
+						queryClient.clear();
 						navigate({ to: redirectUrl });
 					},
 				},
