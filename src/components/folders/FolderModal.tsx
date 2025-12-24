@@ -124,6 +124,10 @@ export function FolderModal({
 					exact: true,
 				});
 			}
+			// Invalidate folder path queries to update breadcrumbs and toolbar title
+			queryClient.invalidateQueries({
+				queryKey: ["folderPath"],
+			});
 			toast.success("Folder updated successfully");
 			setDialogOpen(false);
 		},

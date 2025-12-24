@@ -125,6 +125,10 @@ export function TeamFolderModal({
 					exact: true,
 				});
 			}
+			// Invalidate folder path queries to update breadcrumbs and toolbar title
+			queryClient.invalidateQueries({
+				queryKey: ["teamFolderPath"],
+			});
 			toast.success("Folder updated successfully");
 			setDialogOpen(false);
 		},
