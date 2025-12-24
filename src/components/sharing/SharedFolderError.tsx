@@ -142,14 +142,8 @@ export function SharedFolderError() {
 			<Button
 				variant="outline"
 				nativeButton={false}
-				render={
-					<Link
-						to="/shared-folders"
-						className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md border border-border bg-background px-4 text-sm font-medium shadow-xs transition-all hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
-					>
-						Back to Shared Folders
-					</Link>
-				}
+				size="lg"
+				render={<Link to="/shared-folders">Back to Shared Folders</Link>}
 			/>
 		</div>
 	);

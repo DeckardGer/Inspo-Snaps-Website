@@ -8,6 +8,7 @@ import {
 	folder,
 	folderImage,
 	image,
+	member,
 	userShare,
 } from "@/lib/db/schema";
 import { FOLDER_COLORS, type FolderColor } from "@/lib/folders/constants";
@@ -486,4 +487,331 @@ export const getFolderStats = createServerFn({ method: "GET" })
 			nestedFolderCount: descendantIds.length,
 			imageCount: uniqueImageIds.size,
 		};
+	});
+
+// ============================================================================
+// Team Folder Functions
+// ============================================================================
+
+const CreateTeamFolderInput = z.object({
+	name: z.string().min(1).max(255),
+	color: z.enum(FOLDER_COLORS).default("indigo"),
+	emoji: z.string().max(10).nullable().optional(),
+	parentId: z.string().nullable().optional(),
+	organizationId: z.string(),
+});
+
+const GetTeamFoldersInput = z.object({
+	organizationId: z.string(),
+	parentId: z.string().nullable().optional(),
+});
+
+const TeamFolderIdInput = z.object({
+	id: z.string(),
+	organizationId: z.string(),
+});
+
+const UpdateTeamFolderInput = z.object({
+	id: z.string(),
+	organizationId: z.string(),
+	name: z.string().min(1).max(255).optional(),
+	color: z.enum(FOLDER_COLORS).optional(),
+	emoji: z.string().max(10).nullable().optional(),
+});
+
+export type TeamFolder = {
+	id: string;
+	parentId: string | null;
+	name: string;
+	color: FolderColor;
+	emoji: string | null;
+	createdAt: Date;
+	updatedAt: Date;
+	imageCount: number;
+	isFavourited: boolean;
+	createdBy: {
+		id: string;
+		name: string;
+		image: string | null;
+	};
+};
+
+export const createTeamFolder = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(CreateTeamFolderInput)
+	.handler(async ({ data, context }) => {
+		// Verify user is member of organization
+		const membership = await db.query.member.findFirst({
+			where: and(
+				eq(member.organizationId, data.organizationId),
+				eq(member.userId, context.user.id),
+			),
+		});
+
+		if (!membership) {
+			throw new Error("You are not a member of this organization");
+		}
+
+		// If creating in a subfolder, verify parent belongs to same org
+		if (data.parentId) {
+			const parent = await db.query.folder.findFirst({
+				where: and(
+					eq(folder.id, data.parentId),
+					eq(folder.organizationId, data.organizationId),
+				),
+			});
+
+			if (!parent) {
+				throw new Error(
+					"Parent folder not found or belongs to different organization",
+				);
+			}
+		}
+
+		const newFolder = await db
+			.insert(folder)
+			.values({
+				id: crypto.randomUUID(),
+				name: data.name,
+				color: data.color,
+				emoji: data.emoji ?? null,
+				parentId: data.parentId ?? null,
+				userId: context.user.id,
+				organizationId: data.organizationId,
+			})
+			.returning();
+
+		return newFolder[0];
+	});
+
+export const getTeamFolders = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.inputValidator(GetTeamFoldersInput)
+	.handler(async ({ data, context }) => {
+		// Verify user is member
+		const membership = await db.query.member.findFirst({
+			where: and(
+				eq(member.organizationId, data.organizationId),
+				eq(member.userId, context.user.id),
+			),
+		});
+
+		if (!membership) {
+			throw new Error("You are not a member of this organization");
+		}
+
+		const parentCondition = data.parentId
+			? eq(folder.parentId, data.parentId)
+			: isNull(folder.parentId);
+
+		const folders = await db.query.folder.findMany({
+			where: and(
+				eq(folder.organizationId, data.organizationId),
+				parentCondition,
+			),
+			orderBy: (folder, { asc }) => [asc(folder.name)],
+			with: {
+				images: { columns: { imageId: true } },
+				owner: { columns: { id: true, name: true, image: true } },
+				favourites: { columns: { userId: true } },
+			},
+		});
+
+		return folders.map((f) => ({
+			id: f.id,
+			parentId: f.parentId,
+			name: f.name,
+			color: f.color,
+			emoji: f.emoji,
+			createdAt: f.createdAt,
+			updatedAt: f.updatedAt,
+			imageCount: f.images.length,
+			createdBy: f.owner,
+			isFavourited: f.favourites.some((fav) => fav.userId === context.user.id),
+		})) satisfies TeamFolder[];
+	});
+
+export const updateTeamFolder = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(UpdateTeamFolderInput)
+	.handler(async ({ data, context }) => {
+		const { id, organizationId, ...updates } = data;
+
+		const existingFolder = await db.query.folder.findFirst({
+			where: and(eq(folder.id, id), eq(folder.organizationId, organizationId)),
+		});
+
+		if (!existingFolder) {
+			throw new Error("Team folder not found");
+		}
+
+		// Check permissions: creator or org admin/owner
+		const membership = await db.query.member.findFirst({
+			where: and(
+				eq(member.organizationId, organizationId),
+				eq(member.userId, context.user.id),
+			),
+		});
+
+		if (!membership) {
+			throw new Error("You are not a member of this organization");
+		}
+
+		const isCreator = existingFolder.userId === context.user.id;
+		const isAdminOrOwner = ["owner", "admin"].includes(membership.role);
+
+		if (!isCreator && !isAdminOrOwner) {
+			throw new Error(
+				"Only the folder creator or organization admins can edit this folder",
+			);
+		}
+
+		const result = await db
+			.update(folder)
+			.set(updates)
+			.where(eq(folder.id, id))
+			.returning();
+
+		return result[0];
+	});
+
+export const deleteTeamFolder = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(TeamFolderIdInput)
+	.handler(async ({ data, context }) => {
+		const existingFolder = await db.query.folder.findFirst({
+			where: and(
+				eq(folder.id, data.id),
+				eq(folder.organizationId, data.organizationId),
+			),
+		});
+
+		if (!existingFolder) {
+			throw new Error("Team folder not found");
+		}
+
+		// Check permissions
+		const membership = await db.query.member.findFirst({
+			where: and(
+				eq(member.organizationId, data.organizationId),
+				eq(member.userId, context.user.id),
+			),
+		});
+
+		if (!membership) {
+			throw new Error("You are not a member of this organization");
+		}
+
+		const isCreator = existingFolder.userId === context.user.id;
+		const isAdminOrOwner = ["owner", "admin"].includes(membership.role);
+
+		if (!isCreator && !isAdminOrOwner) {
+			throw new Error(
+				"Only the folder creator or organization admins can delete this folder",
+			);
+		}
+
+		// Get all descendant folders for cleanup
+		const allFolderIds = await getTeamDescendantIds(
+			data.id,
+			data.organizationId,
+		);
+		allFolderIds.push(data.id);
+
+		// Handle images (similar to existing deleteFolder logic)
+		const affectedImages = await db.query.folderImage.findMany({
+			where: inArray(folderImage.folderId, allFolderIds),
+			columns: { imageId: true },
+		});
+		const imageIds = [...new Set(affectedImages.map((fi) => fi.imageId))];
+
+		await db.delete(folder).where(eq(folder.id, data.id));
+
+		// Clean up orphaned images
+		if (imageIds.length > 0) {
+			const remainingLinks = await db.query.folderImage.findMany({
+				where: inArray(folderImage.imageId, imageIds),
+				columns: { imageId: true },
+			});
+
+			const stillLinkedIds = new Set(remainingLinks.map((r) => r.imageId));
+			const orphanedIds = imageIds.filter((id) => !stillLinkedIds.has(id));
+
+			if (orphanedIds.length > 0) {
+				const orphanedImages = await db.query.image.findMany({
+					where: inArray(image.id, orphanedIds),
+					columns: { id: true, storageKey: true },
+				});
+
+				await db.delete(image).where(inArray(image.id, orphanedIds));
+				await deleteStorageObjects(orphanedImages.map((i) => i.storageKey));
+			}
+		}
+
+		return { success: true };
+	});
+
+async function getTeamDescendantIds(
+	folderId: string,
+	organizationId: string,
+): Promise<string[]> {
+	const descendants: string[] = [];
+	const queue = [folderId];
+
+	while (queue.length > 0) {
+		const currentId = queue.shift();
+		if (!currentId) continue;
+
+		const children = await db.query.folder.findMany({
+			where: and(
+				eq(folder.parentId, currentId),
+				eq(folder.organizationId, organizationId),
+			),
+			columns: { id: true },
+		});
+
+		for (const child of children) {
+			descendants.push(child.id);
+			queue.push(child.id);
+		}
+	}
+
+	return descendants;
+}
+
+export const getTeamFolderPath = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.inputValidator(TeamFolderIdInput)
+	.handler(async ({ data, context }) => {
+		// Verify membership
+		const membership = await db.query.member.findFirst({
+			where: and(
+				eq(member.organizationId, data.organizationId),
+				eq(member.userId, context.user.id),
+			),
+		});
+
+		if (!membership) throw new Error("Not a member of this organization");
+
+		const path: Array<{ id: string; name: string }> = [];
+		let currentId: string | null = data.id;
+
+		while (currentId) {
+			const f:
+				| { id: string; name: string; parentId: string | null }
+				| undefined = await db.query.folder.findFirst({
+				where: and(
+					eq(folder.id, currentId),
+					eq(folder.organizationId, data.organizationId),
+				),
+				columns: { id: true, name: true, parentId: true },
+			});
+
+			if (!f) break;
+
+			path.unshift({ id: f.id, name: f.name });
+			currentId = f.parentId;
+		}
+
+		return path;
 	});

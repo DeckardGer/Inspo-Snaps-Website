@@ -8,7 +8,7 @@ import {
 	timestamp,
 } from "drizzle-orm/pg-core";
 import { FOLDER_COLORS } from "@/lib/folders/constants";
-import { user } from "./auth.schema";
+import { organization, user } from "./auth.schema";
 import { favouriteFolder } from "./favourite-folder.schema";
 import { folderImage } from "./folder-image.schema";
 import { shareLink } from "./share-link.schema";
@@ -26,6 +26,9 @@ export const folder = pgTable(
 		userId: text("user_id")
 			.notNull()
 			.references(() => user.id, { onDelete: "cascade" }),
+		organizationId: text("organization_id").references(() => organization.id, {
+			onDelete: "cascade",
+		}),
 		parentId: text("parent_id"),
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 		updatedAt: timestamp("updated_at")
@@ -46,6 +49,13 @@ export const folder = pgTable(
 				table.userId,
 				table.parentId,
 			),
+			organizationIdIdx: index("folder_organizationId_idx").on(
+				table.organizationId,
+			),
+			organizationIdParentIdIdx: index("folder_organizationId_parentId_idx").on(
+				table.organizationId,
+				table.parentId,
+			),
 		};
 	},
 );
@@ -54,6 +64,10 @@ export const folderRelations = relations(folder, ({ one, many }) => ({
 	owner: one(user, {
 		fields: [folder.userId],
 		references: [user.id],
+	}),
+	organization: one(organization, {
+		fields: [folder.organizationId],
+		references: [organization.id],
 	}),
 	parent: one(folder, {
 		fields: [folder.parentId],

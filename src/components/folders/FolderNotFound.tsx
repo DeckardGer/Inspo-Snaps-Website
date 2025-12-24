@@ -98,12 +98,9 @@ export function FolderNotFound() {
 			<Button
 				variant="outline"
 				nativeButton={false}
+				size="lg"
 				render={
-					<Link
-						to="/my-folders/{-$folderId}"
-						params={{ folderId: undefined }}
-						className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md border border-border bg-background px-4 text-sm font-medium shadow-xs transition-all hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
-					>
+					<Link to="/my-folders/{-$folderId}" params={{ folderId: undefined }}>
 						Back to My Folders
 					</Link>
 				}
