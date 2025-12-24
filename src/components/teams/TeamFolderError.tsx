@@ -132,9 +132,7 @@ export function TeamFolderError() {
 
 			{/* Content */}
 			<div className="text-center">
-				<h3 className="text-xl font-semibold tracking-tight">
-					Team Not Found
-				</h3>
+				<h3 className="text-xl font-semibold tracking-tight">Team Not Found</h3>
 				<p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">
 					This team doesn't exist or you don't have permission to access it.
 				</p>

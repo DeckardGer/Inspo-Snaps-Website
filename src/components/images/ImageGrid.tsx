@@ -6,7 +6,11 @@ interface FolderImageGridProps {
 	readOnly?: boolean;
 }
 
-export function ImageGrid({ images, folderId, readOnly }: FolderImageGridProps) {
+export function ImageGrid({
+	images,
+	folderId,
+	readOnly,
+}: FolderImageGridProps) {
 	return (
 		<div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
 			{images.map((image) => (

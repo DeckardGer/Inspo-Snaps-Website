@@ -7,11 +7,7 @@ type FolderGridProps = {
 	linkPrefix?: string;
 };
 
-export function FolderGrid({
-	folders,
-	readOnly,
-	linkPrefix,
-}: FolderGridProps) {
+export function FolderGrid({ folders, readOnly, linkPrefix }: FolderGridProps) {
 	return (
 		<div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
 			{folders.map((folder) => (

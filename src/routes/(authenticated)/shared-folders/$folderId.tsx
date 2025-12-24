@@ -145,7 +145,10 @@ function SharedFolderContents({
 									emoji: child.emoji,
 									isFavourited: child.isFavourited,
 								}}
-								sharedBy={{ id: folder.owner?.id ?? "", name: folder.owner?.name ?? null }}
+								sharedBy={{
+									id: folder.owner?.id ?? "",
+									name: folder.owner?.name ?? null,
+								}}
 								showRemoveFromShared={false}
 							/>
 						))}

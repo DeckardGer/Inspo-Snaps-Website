@@ -32,10 +32,7 @@ import {
 	addFolderToFavourites,
 	removeFolderFromFavourites,
 } from "@/lib/folders/functions";
-import {
-	cloneSharedFolder,
-	removeFromShared,
-} from "@/lib/sharing/functions";
+import { cloneSharedFolder, removeFromShared } from "@/lib/sharing/functions";
 
 export type SharedFolderForActions = {
 	id: string;
