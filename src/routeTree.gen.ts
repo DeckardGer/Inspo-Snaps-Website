@@ -22,6 +22,7 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as authenticatedSharedFoldersFolderIdRouteImport } from './routes/(authenticated)/shared-folders/$folderId'
 import { Route as authenticatedShareLinkIdRouteImport } from './routes/(authenticated)/share/$linkId'
 import { Route as authenticatedMyFoldersChar123FolderIdChar125RouteImport } from './routes/(authenticated)/my-folders/{-$folderId}'
+import { Route as authenticatedInviteFolderIdRouteImport } from './routes/(authenticated)/invite/$folderId'
 import { Route as authenticatedTeamFoldersOrgIdChar123FolderIdChar125RouteImport } from './routes/(authenticated)/team-folders/$orgId/{-$folderId}'
 
 const authenticatedRouteRoute = authenticatedRouteRouteImport.update({
@@ -94,6 +95,12 @@ const authenticatedMyFoldersChar123FolderIdChar125Route =
     path: '/my-folders/{-$folderId}',
     getParentRoute: () => authenticatedRouteRoute,
   } as any)
+const authenticatedInviteFolderIdRoute =
+  authenticatedInviteFolderIdRouteImport.update({
+    id: '/invite/$folderId',
+    path: '/invite/$folderId',
+    getParentRoute: () => authenticatedRouteRoute,
+  } as any)
 const authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route =
   authenticatedTeamFoldersOrgIdChar123FolderIdChar125RouteImport.update({
     id: '/team-folders/$orgId/{-$folderId}',
@@ -105,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof authPagesLoginRoute
   '/signup': typeof authPagesSignupRoute
+  '/invite/$folderId': typeof authenticatedInviteFolderIdRoute
   '/my-folders/{-$folderId}': typeof authenticatedMyFoldersChar123FolderIdChar125Route
   '/share/$linkId': typeof authenticatedShareLinkIdRoute
   '/shared-folders/$folderId': typeof authenticatedSharedFoldersFolderIdRoute
@@ -119,6 +127,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof authPagesLoginRoute
   '/signup': typeof authPagesSignupRoute
+  '/invite/$folderId': typeof authenticatedInviteFolderIdRoute
   '/my-folders/{-$folderId}': typeof authenticatedMyFoldersChar123FolderIdChar125Route
   '/share/$linkId': typeof authenticatedShareLinkIdRoute
   '/shared-folders/$folderId': typeof authenticatedSharedFoldersFolderIdRoute
@@ -136,6 +145,7 @@ export interface FileRoutesById {
   '/(authenticated)': typeof authenticatedRouteRouteWithChildren
   '/(auth-pages)/login': typeof authPagesLoginRoute
   '/(auth-pages)/signup': typeof authPagesSignupRoute
+  '/(authenticated)/invite/$folderId': typeof authenticatedInviteFolderIdRoute
   '/(authenticated)/my-folders/{-$folderId}': typeof authenticatedMyFoldersChar123FolderIdChar125Route
   '/(authenticated)/share/$linkId': typeof authenticatedShareLinkIdRoute
   '/(authenticated)/shared-folders/$folderId': typeof authenticatedSharedFoldersFolderIdRoute
@@ -152,6 +162,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/invite/$folderId'
     | '/my-folders/{-$folderId}'
     | '/share/$linkId'
     | '/shared-folders/$folderId'
@@ -166,6 +177,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/invite/$folderId'
     | '/my-folders/{-$folderId}'
     | '/share/$linkId'
     | '/shared-folders/$folderId'
@@ -182,6 +194,7 @@ export interface FileRouteTypes {
     | '/(authenticated)'
     | '/(auth-pages)/login'
     | '/(auth-pages)/signup'
+    | '/(authenticated)/invite/$folderId'
     | '/(authenticated)/my-folders/{-$folderId}'
     | '/(authenticated)/share/$linkId'
     | '/(authenticated)/shared-folders/$folderId'
@@ -293,6 +306,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authenticatedMyFoldersChar123FolderIdChar125RouteImport
       parentRoute: typeof authenticatedRouteRoute
     }
+    '/(authenticated)/invite/$folderId': {
+      id: '/(authenticated)/invite/$folderId'
+      path: '/invite/$folderId'
+      fullPath: '/invite/$folderId'
+      preLoaderRoute: typeof authenticatedInviteFolderIdRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
     '/(authenticated)/team-folders/$orgId/{-$folderId}': {
       id: '/(authenticated)/team-folders/$orgId/{-$folderId}'
       path: '/team-folders/$orgId/{-$folderId}'
@@ -318,6 +338,7 @@ const authPagesRouteRouteWithChildren = authPagesRouteRoute._addFileChildren(
 )
 
 interface authenticatedRouteRouteChildren {
+  authenticatedInviteFolderIdRoute: typeof authenticatedInviteFolderIdRoute
   authenticatedMyFoldersChar123FolderIdChar125Route: typeof authenticatedMyFoldersChar123FolderIdChar125Route
   authenticatedShareLinkIdRoute: typeof authenticatedShareLinkIdRoute
   authenticatedSharedFoldersFolderIdRoute: typeof authenticatedSharedFoldersFolderIdRoute
@@ -329,6 +350,7 @@ interface authenticatedRouteRouteChildren {
 }
 
 const authenticatedRouteRouteChildren: authenticatedRouteRouteChildren = {
+  authenticatedInviteFolderIdRoute: authenticatedInviteFolderIdRoute,
   authenticatedMyFoldersChar123FolderIdChar125Route:
     authenticatedMyFoldersChar123FolderIdChar125Route,
   authenticatedShareLinkIdRoute: authenticatedShareLinkIdRoute,

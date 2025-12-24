@@ -673,6 +673,38 @@ export const getLinkSharedFolderImages = createServerFn({ method: "GET" })
 		return imagesWithUrls;
 	});
 
+// Get details of a specific pending invitation
+export const getInvitationDetails = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.inputValidator(FolderIdInput)
+	.handler(async ({ data, context }) => {
+		const invitation = await db.query.userShare.findFirst({
+			where: and(
+				eq(userShare.folderId, data.folderId),
+				eq(userShare.sharedWithUserId, context.user.id),
+				eq(userShare.status, "pending"),
+			),
+			with: {
+				folder: {
+					with: {
+						owner: { columns: { id: true, name: true, image: true } },
+					},
+				},
+				sharedBy: { columns: { id: true, name: true, image: true } },
+			},
+		});
+
+		if (!invitation) {
+			throw new Error("Invitation not found or already accepted");
+		}
+
+		return {
+			folder: invitation.folder,
+			sharedBy: invitation.sharedBy,
+			invitedAt: invitation.createdAt,
+		};
+	});
+
 // Get pending invitations for the current user
 export const getPendingInvitations = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])

@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import {
 	accessSharedLink,
+	getInvitationDetails,
 	getPendingInvitations,
 	getSharedFolderContentsAuth,
 	getSharedFolderImages,
@@ -37,6 +38,14 @@ export const pendingInvitationsQueryOptions = () =>
 		queryKey: ["pendingInvitations"],
 		queryFn: ({ signal }) => getPendingInvitations({ signal }),
 		staleTime: 1000 * 60 * 2,
+	});
+
+export const invitationDetailsQueryOptions = (folderId: string) =>
+	queryOptions({
+		queryKey: ["invitationDetails", folderId],
+		queryFn: ({ signal }) =>
+			getInvitationDetails({ data: { folderId }, signal }),
+		staleTime: 1000 * 60 * 5,
 	});
 
 // TODO: Not currently used
