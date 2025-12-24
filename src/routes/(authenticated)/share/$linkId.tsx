@@ -2,14 +2,15 @@ import {
 	Cancel01Icon,
 	CheckmarkCircle02Icon,
 	Folder01Icon,
-	Link01Icon,
+	FolderShared02Icon,
 	Loading03Icon,
-	Share08Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { NavBar } from "@/components/navbar/NavBar";
+import { ShareLinkError } from "@/components/sharing/ShareLinkError";
 import { Button } from "@/components/ui/button";
 import { FOLDER_CLASSES } from "@/lib/folders/constants";
 import { acceptShareLinkInvite } from "@/lib/sharing/functions";
@@ -26,6 +27,8 @@ export const Route = createFileRoute("/(authenticated)/share/$linkId")({
 	component: RouteComponent,
 	errorComponent: ShareLinkError,
 });
+
+const BREADCRUMBS = [{ name: "Share Invite", link: "" }];
 
 function RouteComponent() {
 	const { linkId } = Route.useParams();
@@ -59,31 +62,41 @@ function RouteComponent() {
 
 	if (isLoading) {
 		return (
-			<div className="flex flex-1 items-center justify-center">
-				<HugeiconsIcon
-					icon={Loading03Icon}
-					className="size-8 animate-spin text-muted-foreground"
-				/>
-			</div>
+			<>
+				<NavBar breadrumbs={BREADCRUMBS} />
+				<div className="flex flex-1 items-center justify-center">
+					<HugeiconsIcon
+						icon={Loading03Icon}
+						className="size-8 animate-spin text-muted-foreground"
+					/>
+				</div>
+			</>
 		);
 	}
 
 	if (error || !shareAccess) {
-		return <ShareLinkError />;
+		return (
+			<>
+				<NavBar breadrumbs={BREADCRUMBS} />
+				<ShareLinkError />
+			</>
+		);
 	}
 
 	const { folder, expiresAt } = shareAccess;
 	const colors = FOLDER_CLASSES[folder.color];
 
 	return (
-		<div className="flex flex-1 flex-col items-center justify-center p-4">
-			<div className="w-full max-w-md space-y-6">
+		<>
+			<NavBar breadrumbs={BREADCRUMBS} />
+			<div className="flex flex-1 flex-col items-center justify-center p-4">
+				<div className="w-full max-w-md space-y-6">
 				{/* Header */}
 				<div className="text-center space-y-2">
 					<div className="flex justify-center">
 						<div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
 							<HugeiconsIcon
-								icon={Link01Icon}
+								icon={FolderShared02Icon}
 								className="size-8 text-muted-foreground"
 							/>
 						</div>
@@ -166,23 +179,8 @@ function RouteComponent() {
 						Accept Invite
 					</Button>
 				</div>
+				</div>
 			</div>
-		</div>
-	);
-}
-
-function ShareLinkError() {
-	return (
-		<div className="flex flex-1 flex-col items-center justify-center gap-4 text-center p-4">
-			<div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
-				<HugeiconsIcon icon={Share08Icon} className="size-8 text-destructive" />
-			</div>
-			<div>
-				<h3 className="text-lg font-semibold">Link Not Found or Expired</h3>
-				<p className="text-sm text-muted-foreground">
-					This share link is invalid or has expired.
-				</p>
-			</div>
-		</div>
+		</>
 	);
 }

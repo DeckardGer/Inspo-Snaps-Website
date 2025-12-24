@@ -216,6 +216,10 @@ export const revokeUserShare = createServerFn({ method: "POST" })
 		});
 		if (!f) throw new Error("Folder not found or access denied");
 
+		// Get all descendant folder IDs (including the shared folder)
+		const allFolderIds = await getAllDescendantFolderIds(data.folderId);
+
+		// Delete the share entry
 		await db
 			.delete(userShare)
 			.where(
@@ -224,6 +228,18 @@ export const revokeUserShare = createServerFn({ method: "POST" })
 					eq(userShare.sharedWithUserId, data.userId),
 				),
 			);
+
+		// Remove favourites for the folder and all its descendants
+		if (allFolderIds.length > 0) {
+			await db
+				.delete(favouriteFolder)
+				.where(
+					and(
+						inArray(favouriteFolder.folderId, allFolderIds),
+						eq(favouriteFolder.userId, data.userId),
+					),
+				);
+		}
 
 		return { success: true };
 	});

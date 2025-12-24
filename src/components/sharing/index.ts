@@ -8,3 +8,4 @@ export { SharedFolderCard } from "./SharedFolderCard";
 export { SharedFolderEmptyState } from "./SharedFolderEmptyState";
 export { SharedFolderError } from "./SharedFolderError";
 export { SharedFoldersEmptyState } from "./SharedFoldersEmptyState";
+export { ShareLinkError } from "./ShareLinkError";
