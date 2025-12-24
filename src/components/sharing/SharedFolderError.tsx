@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export function SharedFolderError() {
 	return (
-		<div className="flex flex-1 flex-col items-center justify-center gap-8 py-20">
+		<div className="flex flex-col items-center justify-center gap-8 py-20">
 			{/* Shattered connection illustration */}
 			<div className="relative flex h-36 w-72 items-center justify-center">
 				{/* Subtle destructive glow */}

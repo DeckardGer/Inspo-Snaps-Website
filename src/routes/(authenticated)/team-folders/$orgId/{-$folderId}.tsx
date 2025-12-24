@@ -5,9 +5,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Suspense, useEffect } from "react";
 import { FolderNotFound, FoldersGridSkeleton } from "@/components/folders";
 import { NavBar } from "@/components/navbar/NavBar";
-import { TeamFolderGrid } from "@/components/teams/TeamFolderGrid";
-import { TeamFolderModal } from "@/components/teams/TeamFolderModal";
-import { TeamSwitcher } from "@/components/teams/TeamSwitcher";
+import {
+	TeamFolderError,
+	TeamFolderGrid,
+	TeamFolderModal,
+	TeamFoldersEmptyState,
+	TeamSwitcher,
+} from "@/components/teams";
 import { Button } from "@/components/ui/button";
 import authClient from "@/lib/auth/auth-client";
 import {
@@ -22,60 +26,79 @@ export const Route = createFileRoute(
 	beforeLoad: async ({ context, params }) => {
 		const { orgId, folderId } = params;
 
-		// Prefetch organization details
-		const org = await context.queryClient.fetchQuery(
-			organizationByIdQueryOptions(orgId),
-		);
+		try {
+			// Fetch organization details - throws if not found or no permission
+			const org = await context.queryClient.fetchQuery(
+				organizationByIdQueryOptions(orgId),
+			);
 
-		if (folderId) {
-			await Promise.all([
-				context.queryClient.prefetchQuery(
-					teamFoldersQueryOptions(org.id, folderId),
-				),
-				context.queryClient.prefetchQuery(
-					teamFolderPathQueryOptions(org.id, folderId),
-				),
-			]);
-		} else {
-			await context.queryClient.prefetchQuery(teamFoldersQueryOptions(org.id));
+			if (folderId) {
+				await Promise.all([
+					context.queryClient.prefetchQuery(
+						teamFoldersQueryOptions(org.id, folderId),
+					),
+					context.queryClient.prefetchQuery(
+						teamFolderPathQueryOptions(org.id, folderId),
+					),
+				]);
+			} else {
+				await context.queryClient.prefetchQuery(
+					teamFoldersQueryOptions(org.id),
+				);
+			}
+
+			return { organization: org, hasError: false as const };
+		} catch {
+			// Return null organization on error - no sensitive data exposed
+			return { organization: null, hasError: true as const };
 		}
-
-		return { organization: org };
 	},
 	component: RouteComponent,
 });
 
+const BASE_BREADCRUMBS = [{ name: "Team Folders", link: "/team-folders" }];
+
 function RouteComponent() {
 	const { orgId, folderId } = Route.useParams();
-	const { organization } = Route.useRouteContext();
+	const { organization, hasError } = Route.useRouteContext();
 
 	// Set active organization when entering this route
 	useEffect(() => {
-		authClient.organization.setActive({ organizationId: organization.id });
-	}, [organization.id]);
+		if (organization) {
+			authClient.organization.setActive({ organizationId: organization.id });
+		}
+	}, [organization]);
 
-	// Fetch folder path for breadcrumbs
+	// Fetch folder path for breadcrumbs (only if we have a valid org)
 	const { data: path, isLoading } = useQuery({
-		...teamFolderPathQueryOptions(organization.id, folderId ?? ""),
-		enabled: !!folderId,
+		...teamFolderPathQueryOptions(organization?.id ?? "", folderId ?? ""),
+		enabled: !!folderId && !!organization,
 	});
+
+	// Handle error state - render within layout with NavBar
+	if (hasError || !organization) {
+		return (
+			<>
+				<NavBar breadrumbs={BASE_BREADCRUMBS} />
+				<TeamFolderError />
+			</>
+		);
+	}
 
 	// For root, always valid. For nested, valid if path has items
 	const isValidFolder = !folderId || (path && path.length > 0);
 
 	// Build breadcrumbs - simplified since team switcher handles org name
-	const baseBreadcrumbs = [{ name: "Team Folders", link: "/team-folders" }];
-
 	const breadcrumbs =
 		path && path.length > 0
 			? [
-					...baseBreadcrumbs,
+					...BASE_BREADCRUMBS,
 					...path.map((item) => ({
 						name: item.name,
 						link: `/team-folders/${orgId}/${item.id}`,
 					})),
 				]
-			: baseBreadcrumbs;
+			: BASE_BREADCRUMBS;
 
 	// Determine if we're at root level (no folder selected) or in a subfolder
 	const isRootLevel = !folderId;
@@ -160,41 +183,5 @@ function TeamFolderContents({
 			</h2>
 			<TeamFolderGrid folders={folders} orgId={orgId} />
 		</section>
-	);
-}
-
-function TeamFoldersEmptyState({
-	organizationId,
-	parentId,
-}: {
-	organizationId: string;
-	parentId?: string;
-}) {
-	const isNested = !!parentId;
-
-	return (
-		<div className="flex flex-col items-center justify-center gap-8 py-20">
-			<div className="text-center">
-				<h3 className="text-xl font-semibold tracking-tight">
-					{isNested ? "This folder is empty" : "No folders yet"}
-				</h3>
-				<p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-					{isNested
-						? "Add subfolders to organize this folder's content."
-						: "Create your first folder in this team to start organizing content together."}
-				</p>
-			</div>
-
-			<TeamFolderModal
-				organizationId={organizationId}
-				parentId={parentId}
-				trigger={
-					<Button size="lg" className="gap-2">
-						<HugeiconsIcon icon={FolderAddIcon} className="size-5" />
-						{isNested ? "Create Subfolder" : "Create Folder"}
-					</Button>
-				}
-			/>
-		</div>
 	);
 }

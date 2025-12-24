@@ -3,7 +3,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 
 export function SharedFolderEmptyState() {
 	return (
-		<div className="flex flex-1 flex-col items-center justify-center gap-8 py-20">
+		<div className="flex flex-col items-center justify-center gap-8 py-20">
 			{/* Illustration: Open folder with ghost placeholders */}
 			<div className="relative flex h-36 w-72 items-center justify-center">
 				{/* Ambient glow */}
