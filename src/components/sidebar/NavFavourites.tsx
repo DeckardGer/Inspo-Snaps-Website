@@ -22,7 +22,9 @@ import {
 import {
 	DropdownMenu,
 	DropdownMenuContent,
+	DropdownMenuGroup,
 	DropdownMenuItem,
+	DropdownMenuLabel,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -119,20 +121,29 @@ export function NavFavourites({
 							align="start"
 							className="min-w-[200px] max-h-[400px] overflow-y-auto"
 						>
-							{favourites.map((item) => (
-								<DropdownMenuItem
-									key={item.id}
-									render={
-										<Link to={item.url} className="cursor-pointer">
-											<FolderIcon
-												color={item.color as FolderColor}
-												emoji={item.emoji}
-											/>
-											<span className="truncate">{item.name}</span>
-										</Link>
-									}
-								/>
-							))}
+							<DropdownMenuGroup>
+								<DropdownMenuLabel>Favourites</DropdownMenuLabel>
+								{favourites.length > 0 ? (
+									favourites.map((item) => (
+										<DropdownMenuItem
+											key={item.id}
+											render={
+												<Link to={item.url} className="cursor-pointer">
+													<FolderIcon
+														color={item.color as FolderColor}
+														emoji={item.emoji}
+													/>
+													<span className="truncate">{item.name}</span>
+												</Link>
+											}
+										/>
+									))
+								) : (
+									<p className="px-2 py-1.5 text-sm text-muted-foreground">
+										No favourites yet...
+									</p>
+								)}
+							</DropdownMenuGroup>
 						</DropdownMenuContent>
 					</DropdownMenu>
 				) : (
