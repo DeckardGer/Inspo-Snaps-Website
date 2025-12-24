@@ -1,2 +1,2 @@
-export { DropZone } from "./DropZone";
-export { UploadProgress } from "./UploadProgress";
+export { ImageDropPlaceholder } from "./ImageDropPlaceholder";
+export { UploadButton } from "./UploadButton";

@@ -13,7 +13,8 @@ import {
 import { ImageGrid } from "@/components/images";
 import { NavBar } from "@/components/navbar/NavBar";
 import { Button } from "@/components/ui/button";
-import { DropZone } from "@/components/upload";
+import { UploadButton } from "@/components/upload";
+import { useImageUpload } from "@/hooks/use-image-upload";
 import {
 	folderPathQueryOptions,
 	foldersQueryOptions,
@@ -76,15 +77,21 @@ function RouteComponent() {
 							? path[path.length - 1].name
 							: "My Folders"}
 					</h1>
-					<FolderModal
-						parentId={folderId}
-						trigger={
-							<Button>
-								<HugeiconsIcon icon={FolderAddIcon} data-icon="inline-start" />
-								New Folder
-							</Button>
-						}
-					/>
+					<div className="flex items-center gap-2">
+						{folderId && <UploadButton folderId={folderId} />}
+						<FolderModal
+							parentId={folderId}
+							trigger={
+								<Button>
+									<HugeiconsIcon
+										icon={FolderAddIcon}
+										data-icon="inline-start"
+									/>
+									New Folder
+								</Button>
+							}
+						/>
+					</div>
 				</div>
 
 				{/* Folder content */}
@@ -113,16 +120,13 @@ function FolderContents({ folderId }: { folderId?: string }) {
 		enabled: !!folderId,
 	});
 
+	const { uploadFiles } = useImageUpload(folderId ?? "");
+
 	const hasContent = folders.length > 0 || images.length > 0;
 
 	// Empty state - only when no folders AND no images
 	if (!hasContent) {
-		return (
-			<div className="space-y-6">
-				{folderId && <DropZone folderId={folderId} />}
-				<FoldersEmptyState parentId={folderId} />
-			</div>
-		);
+		return <FoldersEmptyState parentId={folderId} />;
 	}
 
 	return (
@@ -137,16 +141,17 @@ function FolderContents({ folderId }: { folderId?: string }) {
 				</section>
 			)}
 
-			{/* Drop Zone - always visible in subfolders */}
-			{folderId && <DropZone folderId={folderId} />}
-
 			{/* Images Section */}
-			{images.length > 0 && folderId && (
+			{folderId && (
 				<section>
 					<h2 className="mb-3 text-sm font-medium text-muted-foreground">
 						Images
 					</h2>
-					<ImageGrid images={images} folderId={folderId} />
+					<ImageGrid
+						images={images}
+						folderId={folderId}
+						onFilesDropped={uploadFiles}
+					/>
 				</section>
 			)}
 		</div>
