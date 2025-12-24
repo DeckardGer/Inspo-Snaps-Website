@@ -1,15 +1,16 @@
 import {
+	ArrowDown01Icon,
 	Copy01Icon,
 	Delete02Icon,
-	Link01Icon,
+	Link04Icon,
 	Loading03Icon,
-	UserAdd01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -18,15 +19,14 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { clientEnv } from "@/config/env/client";
 import {
 	createShareLink,
@@ -38,6 +38,7 @@ import {
 	sharedUsersQueryOptions,
 	shareLinksQueryOptions,
 } from "@/lib/sharing/queries";
+import { cn } from "@/lib/utils";
 
 interface ShareDialogProps {
 	folder: { id: string; name: string };
@@ -47,9 +48,16 @@ interface ShareDialogProps {
 
 type ExpirationOption = "7" | "30" | "90" | "never";
 
+const EXPIRATION_OPTIONS: { value: ExpirationOption; label: string }[] = [
+	{ value: "7", label: "7 days" },
+	{ value: "30", label: "30 days" },
+	{ value: "90", label: "90 days" },
+	{ value: "never", label: "Never expires" },
+];
+
 export function ShareDialog({ folder, open, onOpenChange }: ShareDialogProps) {
-	const [expiration, setExpiration] = useState<ExpirationOption>("30");
 	const [userIdentifier, setUserIdentifier] = useState("");
+	const [isCreatingLink, setIsCreatingLink] = useState(false);
 	const queryClient = useQueryClient();
 
 	// Queries
@@ -66,19 +74,24 @@ export function ShareDialog({ folder, open, onOpenChange }: ShareDialogProps) {
 	// Mutations
 	const createLinkMutation = useMutation({
 		mutationFn: createShareLink,
-		onSuccess: () => {
+		onSuccess: async (data) => {
 			queryClient.invalidateQueries({
 				queryKey: ["shareLinks", folder.id],
 			});
 			queryClient.invalidateQueries({
 				queryKey: ["folders"],
 			});
-			toast.success("Share link created");
+			// Copy the newly created link to clipboard
+			const url = `${clientEnv.VITE_BASE_URL}/share/${data.id}`;
+			await navigator.clipboard.writeText(url);
+			toast.success("Link created and copied to clipboard");
+			setIsCreatingLink(false);
 		},
 		onError: (error) => {
 			toast.error("Failed to create share link", {
 				description: error.message,
 			});
+			setIsCreatingLink(false);
 		},
 	});
 
@@ -137,7 +150,8 @@ export function ShareDialog({ folder, open, onOpenChange }: ShareDialogProps) {
 		},
 	});
 
-	const handleCreateLink = () => {
+	const handleCreateLinkWithExpiration = (expiration: ExpirationOption) => {
+		setIsCreatingLink(true);
 		const expiresAt =
 			expiration === "never"
 				? null
@@ -183,6 +197,9 @@ export function ShareDialog({ folder, open, onOpenChange }: ShareDialogProps) {
 			.slice(0, 2);
 	};
 
+	const hasActiveLinks = shareLinks && shareLinks.length > 0;
+	const hasSharedUsers = sharedUsers && sharedUsers.length > 0;
+
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-md">
@@ -193,185 +210,190 @@ export function ShareDialog({ folder, open, onOpenChange }: ShareDialogProps) {
 					</DialogDescription>
 				</DialogHeader>
 
-				<Tabs defaultValue="link" className="mt-2">
-					<TabsList className="w-full">
-						<TabsTrigger value="link" className="flex-1">
-							<HugeiconsIcon icon={Link01Icon} className="size-4" />
-							Link
-						</TabsTrigger>
-						<TabsTrigger value="users" className="flex-1">
-							<HugeiconsIcon icon={UserAdd01Icon} className="size-4" />
-							Users
-						</TabsTrigger>
-					</TabsList>
-
-					<TabsContent value="link" className="space-y-4 pt-4">
-						{/* Create new link */}
-						<div className="flex gap-2">
-							<Select
-								value={expiration}
-								onValueChange={(v) => setExpiration(v as ExpirationOption)}
-							>
-								<SelectTrigger className="w-[140px]">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="7">7 days</SelectItem>
-									<SelectItem value="30">30 days</SelectItem>
-									<SelectItem value="90">90 days</SelectItem>
-									<SelectItem value="never">Never expires</SelectItem>
-								</SelectContent>
-							</Select>
-							<Button
-								onClick={handleCreateLink}
-								disabled={createLinkMutation.isPending}
-								className="flex-1"
-							>
-								{createLinkMutation.isPending ? (
+				{/* Generate Link Section */}
+				<div className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl overflow-hidden">
+					<div className="flex justify-center items-center size-10 bg-background border rounded-lg shrink-0">
+						<HugeiconsIcon icon={Link04Icon} className="size-5" />
+					</div>
+					<div className="flex-1 min-w-0 overflow-hidden">
+						<p className="text-sm font-medium truncate">Shareable link</p>
+						<p className="text-xs text-muted-foreground truncate">
+							Generate a read-only link to share
+						</p>
+					</div>
+					<DropdownMenu>
+						<DropdownMenuTrigger
+							className="shrink-0"
+							render={
+								<Button size="sm" disabled={isCreatingLink}>
+									Generate
 									<HugeiconsIcon
-										icon={Loading03Icon}
-										className="size-4 animate-spin"
+										icon={ArrowDown01Icon}
+										className="size-4 ml-1"
 									/>
-								) : (
-									<HugeiconsIcon icon={Link01Icon} className="size-4" />
-								)}
-								Create Link
-							</Button>
-						</div>
+								</Button>
+							}
+						/>
+						<DropdownMenuContent align="end">
+							{EXPIRATION_OPTIONS.map((option) => (
+								<DropdownMenuItem
+									key={option.value}
+									onClick={() => handleCreateLinkWithExpiration(option.value)}
+								>
+									{option.label}
+								</DropdownMenuItem>
+							))}
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
 
-						{/* Existing links */}
-						<div className="space-y-2">
-							{linksLoading ? (
-								<div className="flex items-center justify-center py-4">
-									<HugeiconsIcon
-										icon={Loading03Icon}
-										className="size-5 animate-spin text-muted-foreground"
-									/>
-								</div>
-							) : shareLinks && shareLinks.length > 0 ? (
-								shareLinks.map((link) => (
-									<div
-										key={link.id}
-										className="flex items-center gap-2 rounded-lg border p-2"
-									>
-										<div className="flex-1 min-w-0">
-											<p className="text-xs font-mono text-muted-foreground truncate">
-												{clientEnv.VITE_BASE_URL}/share/{link.id.slice(0, 8)}...
-											</p>
-											<p className="text-xs text-muted-foreground">
-												{formatExpiry(link.expiresAt)}
-											</p>
-										</div>
-										<Button
-											size="icon-sm"
-											variant="ghost"
-											onClick={() => handleCopyLink(link.id)}
-										>
-											<HugeiconsIcon icon={Copy01Icon} className="size-4" />
-										</Button>
-										<Button
-											size="icon-sm"
-											variant="ghost"
-											onClick={() =>
-												deleteLinkMutation.mutate({ data: { id: link.id } })
-											}
-											disabled={deleteLinkMutation.isPending}
-										>
-											<HugeiconsIcon icon={Delete02Icon} className="size-4" />
-										</Button>
+				{/* Existing Links */}
+				{linksLoading ? (
+					<div className="flex items-center justify-center py-4">
+						<HugeiconsIcon
+							icon={Loading03Icon}
+							className="size-5 animate-spin text-muted-foreground"
+						/>
+					</div>
+				) : hasActiveLinks ? (
+					<div>
+						<p className="text-xs text-muted-foreground mb-2">
+							{shareLinks.length} active{" "}
+							{shareLinks.length === 1 ? "link" : "links"}
+						</p>
+						<div className="space-y-2 max-h-38 overflow-y-auto">
+							{shareLinks.map((link) => (
+								<div
+									key={link.id}
+									className="group flex items-center gap-2 rounded-lg border p-2.5"
+								>
+									<div className="flex-1 min-w-0">
+										<p className="text-xs font-mono text-accent-foreground truncate">
+											{clientEnv.VITE_BASE_URL}/share/{link.id.slice(0, 8)}...
+										</p>
+										<p className="text-xs text-muted-foreground">
+											{formatExpiry(link.expiresAt)}
+										</p>
 									</div>
-								))
-							) : (
-								<p className="text-sm text-center text-muted-foreground py-4">
-									No share links yet
-								</p>
-							)}
-						</div>
-					</TabsContent>
-
-					<TabsContent value="users" className="space-y-4 pt-4">
-						{/* Add user form */}
-						<form onSubmit={handleShareWithUser} className="flex gap-2">
-							<Input
-								placeholder="Email or username"
-								value={userIdentifier}
-								onChange={(e) => setUserIdentifier(e.target.value)}
-								className="flex-1"
-							/>
-							<Button
-								type="submit"
-								disabled={
-									shareWithUserMutation.isPending || !userIdentifier.trim()
-								}
-							>
-								{shareWithUserMutation.isPending ? (
-									<HugeiconsIcon
-										icon={Loading03Icon}
-										className="size-4 animate-spin"
-									/>
-								) : (
-									"Share"
-								)}
-							</Button>
-						</form>
-
-						{/* Shared users list */}
-						<div className="space-y-2">
-							{usersLoading ? (
-								<div className="flex items-center justify-center py-4">
-									<HugeiconsIcon
-										icon={Loading03Icon}
-										className="size-5 animate-spin text-muted-foreground"
-									/>
-								</div>
-							) : sharedUsers && sharedUsers.length > 0 ? (
-								sharedUsers.map((share) => (
-									<div
-										key={share.sharedWith.id}
-										className="flex items-center gap-3 rounded-lg border p-2"
+									<Button
+										size="icon-xs"
+										variant="ghost"
+										onClick={() => handleCopyLink(link.id)}
+										className="opacity-60 hover:opacity-100"
 									>
-										<Avatar className="size-8">
-											<AvatarImage
-												src={share.sharedWith.image ?? undefined}
-												alt={share.sharedWith.name ?? "User"}
-											/>
-											<AvatarFallback className="text-xs">
-												{getInitials(share.sharedWith.name)}
-											</AvatarFallback>
-										</Avatar>
-										<div className="flex-1 min-w-0">
-											<p className="text-sm font-medium truncate">
-												{share.sharedWith.name}
-											</p>
-											<p className="text-xs text-muted-foreground truncate">
-												{share.sharedWith.email}
-											</p>
-										</div>
-										<Button
-											size="icon-sm"
-											variant="ghost"
-											onClick={() =>
-												revokeShareMutation.mutate({
-													data: {
-														folderId: folder.id,
-														userId: share.sharedWith.id,
-													},
-												})
-											}
-											disabled={revokeShareMutation.isPending}
-										>
-											<HugeiconsIcon icon={Delete02Icon} className="size-4" />
-										</Button>
-									</div>
-								))
-							) : (
-								<p className="text-sm text-center text-muted-foreground py-4">
-									Not shared with anyone yet
-								</p>
-							)}
+										<HugeiconsIcon icon={Copy01Icon} className="size-3.5" />
+									</Button>
+									<Button
+										size="icon-xs"
+										variant="ghost"
+										onClick={() =>
+											deleteLinkMutation.mutate({ data: { id: link.id } })
+										}
+										disabled={deleteLinkMutation.isPending}
+										className="opacity-60 hover:opacity-100 text-muted-foreground hover:text-destructive"
+									>
+										<HugeiconsIcon icon={Delete02Icon} className="size-3.5" />
+									</Button>
+								</div>
+							))}
 						</div>
-					</TabsContent>
-				</Tabs>
+					</div>
+				) : null}
+
+				<Separator />
+
+				{/* Invite Users Section */}
+				<div>
+					<p className="text-sm font-medium mb-2">Invite people</p>
+					<form onSubmit={handleShareWithUser} className="flex gap-2">
+						<Input
+							placeholder="Email or username"
+							value={userIdentifier}
+							onChange={(e) => setUserIdentifier(e.target.value)}
+							className="flex-1"
+						/>
+						<Button
+							type="submit"
+							disabled={
+								shareWithUserMutation.isPending || !userIdentifier.trim()
+							}
+						>
+							Invite
+						</Button>
+					</form>
+				</div>
+
+				{/* Shared Users List */}
+				{usersLoading ? (
+					<div className="flex items-center justify-center py-4">
+						<HugeiconsIcon
+							icon={Loading03Icon}
+							className="size-5 animate-spin text-muted-foreground"
+						/>
+					</div>
+				) : hasSharedUsers ? (
+					<div>
+						<p className="text-xs text-muted-foreground mb-2">
+							{sharedUsers.length}{" "}
+							{sharedUsers.length === 1 ? "person has" : "people have"} access
+						</p>
+						<div className="space-y-2 max-h-48 overflow-y-auto">
+							{sharedUsers.map((share) => (
+								<div
+									key={share.sharedWith.id}
+									className="flex items-center gap-3 rounded-lg border p-2.5"
+								>
+									<Avatar className="size-8">
+										<AvatarImage
+											src={share.sharedWith.image ?? undefined}
+											alt={share.sharedWith.name ?? "User"}
+										/>
+										<AvatarFallback className="text-xs">
+											{getInitials(share.sharedWith.name)}
+										</AvatarFallback>
+									</Avatar>
+									<div className="flex-1 min-w-0">
+										<p className="text-sm font-medium truncate leading-tight">
+											{share.sharedWith.name}
+										</p>
+										<p className="text-xs text-muted-foreground truncate">
+											{share.sharedWith.email}
+										</p>
+									</div>
+									<Badge
+										variant="outline"
+										className={cn(
+											"bg-accent",
+											share.status === "accepted" && "text-green-400",
+										)}
+									>
+										{share.status === "accepted" ? "Accepted" : "Pending"}
+									</Badge>
+									<Button
+										size="icon-xs"
+										variant="ghost"
+										onClick={() =>
+											revokeShareMutation.mutate({
+												data: {
+													folderId: folder.id,
+													userId: share.sharedWith.id,
+												},
+											})
+										}
+										disabled={revokeShareMutation.isPending}
+										className="text-muted-foreground hover:text-destructive"
+									>
+										<HugeiconsIcon icon={Delete02Icon} className="size-3.5" />
+									</Button>
+								</div>
+							))}
+						</div>
+					</div>
+				) : (
+					<p className="text-xs text-muted-foreground text-center py-4">
+						No one has been invited yet
+					</p>
+				)}
 			</DialogContent>
 		</Dialog>
 	);

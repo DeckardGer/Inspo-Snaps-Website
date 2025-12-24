@@ -184,6 +184,7 @@ function RouteComponent() {
 														</FieldLabel>
 														<Button
 															variant="link"
+															tabIndex={-1}
 															className="p-0 h-auto leading-snug text-muted-foreground hover:text-primary"
 														>
 															Forgot Password?

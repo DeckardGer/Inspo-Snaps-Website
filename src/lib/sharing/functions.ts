@@ -25,7 +25,7 @@ const ShareWithUserInput = z.object({
 
 const RevokeShareInput = z.object({
 	folderId: z.uuid(),
-	userId: z.uuid(),
+	userId: z.string().min(1),
 });
 
 const FolderIdInput = z.object({
@@ -46,7 +46,6 @@ const GetSharedFolderContentsInput = z.object({
 	linkId: z.uuid().optional(),
 });
 
-// TODO: Not currently used
 export const createShareLink = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(CreateShareLinkInput)
@@ -90,8 +89,12 @@ export const getShareLinks = createServerFn({ method: "GET" })
 
 		if (!f) throw new Error("Folder not found");
 
+		// Only return non-expired links (null expiresAt = never expires)
 		return db.query.shareLink.findMany({
-			where: eq(shareLink.folderId, data.folderId),
+			where: and(
+				eq(shareLink.folderId, data.folderId),
+				or(isNull(shareLink.expiresAt), gt(shareLink.expiresAt, new Date())),
+			),
 			orderBy: (sl, { desc }) => [desc(sl.createdAt)],
 		});
 	});
@@ -175,7 +178,6 @@ export const shareWithUser = createServerFn({ method: "POST" })
 		return { success: true, sharedWithName: targetUser.name };
 	});
 
-// TODO: Not currently used
 export const getSharedUsers = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
@@ -190,6 +192,9 @@ export const getSharedUsers = createServerFn({ method: "GET" })
 
 		return db.query.userShare.findMany({
 			where: eq(userShare.folderId, data.folderId),
+			columns: {
+				status: true,
+			},
 			with: {
 				sharedWith: {
 					columns: { id: true, name: true, email: true, image: true },

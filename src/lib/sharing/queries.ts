@@ -18,7 +18,6 @@ export const shareLinksQueryOptions = (folderId: string) =>
 		staleTime: 1000 * 60 * 5,
 	});
 
-// TODO: Not currently used
 export const sharedUsersQueryOptions = (folderId: string) =>
 	queryOptions({
 		queryKey: ["sharedUsers", folderId],
