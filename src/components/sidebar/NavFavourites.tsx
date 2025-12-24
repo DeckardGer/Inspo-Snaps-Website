@@ -176,6 +176,7 @@ export function NavFavourites({
 													<SidebarMenuSubItem key={item.id}>
 														<SidebarMenuSubButton
 															isActive={isActive}
+															className="pr-3"
 															render={
 																<Link to={item.url} className="h-8">
 																	<FolderIcon

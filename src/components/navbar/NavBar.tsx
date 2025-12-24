@@ -17,21 +17,21 @@ export function NavBar({ breadrumbs }: NavBarProps) {
 	const isMobile = useIsMobile();
 
 	return (
-		<header className="flex justify-between items-center h-13 shrink-0 border-b px-4 sticky top-0 bg-background z-1">
-			<div className="flex items-center gap-2">
+		<header className="flex items-center gap-4 h-13 shrink-0 border-b px-4 sticky top-0 bg-background z-1">
+			<div className="flex flex-1 items-center gap-2 min-w-0 overflow-hidden">
 				{(state === "collapsed" || isMobile) && (
 					<>
-						<SidebarTrigger />
+						<SidebarTrigger className="shrink-0" />
 						<Separator
 							orientation="vertical"
-							className="mr-2 mt-1.5 data-[orientation=vertical]:h-4"
+							className="mr-2 mt-1.5 data-[orientation=vertical]:h-4 shrink-0"
 						/>
 					</>
 				)}
 
 				<HeaderBreadcrumbs items={breadrumbs} />
 			</div>
-			<div className="flex items-center gap-2">
+			<div className="flex items-center gap-2 shrink-0">
 				<ThemeToggle />
 				<Button>
 					<HugeiconsIcon icon={LinkSquare02Icon} strokeWidth={2} />

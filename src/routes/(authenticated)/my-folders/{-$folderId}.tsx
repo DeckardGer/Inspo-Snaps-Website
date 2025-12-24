@@ -72,12 +72,12 @@ function RouteComponent() {
 			<div className="flex flex-1 flex-col">
 				{/* Toolbar - always visible */}
 				<div className="flex items-center justify-between gap-2 px-4 mt-4 h-9">
-					<h1 className="text-xl font-semibold">
+					<h1 className="min-w-0 truncate text-xl font-semibold">
 						{path && path.length > 0
 							? path[path.length - 1].name
 							: "My Folders"}
 					</h1>
-					<div className="flex items-center gap-2">
+					<div className="flex items-center gap-2 shrink-0">
 						{folderId && <UploadButton folderId={folderId} />}
 						<FolderModal
 							parentId={folderId}

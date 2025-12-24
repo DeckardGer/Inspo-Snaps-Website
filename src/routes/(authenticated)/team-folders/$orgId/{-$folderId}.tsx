@@ -119,18 +119,22 @@ function RouteComponent() {
 							currentOrgName={organization.name}
 						/>
 					) : (
-						<h1 className="text-xl font-semibold">{subfolderTitle}</h1>
+						<h1 className="min-w-0 truncate text-xl font-semibold">
+							{subfolderTitle}
+						</h1>
 					)}
-					<TeamFolderModal
-						organizationId={organization.id}
-						parentId={folderId}
-						trigger={
-							<Button>
-								<HugeiconsIcon icon={FolderAddIcon} data-icon="inline-start" />
-								New Folder
-							</Button>
-						}
-					/>
+					<div className="shrink-0">
+						<TeamFolderModal
+							organizationId={organization.id}
+							parentId={folderId}
+							trigger={
+								<Button>
+									<HugeiconsIcon icon={FolderAddIcon} data-icon="inline-start" />
+									New Folder
+								</Button>
+							}
+						/>
+					</div>
 				</div>
 
 				{/* Content */}

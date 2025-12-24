@@ -66,11 +66,11 @@ function RouteComponent() {
 			<NavBar breadrumbs={breadcrumbs} />
 			<div className="flex flex-1 flex-col">
 				<div className="flex items-center justify-between gap-2 px-4 mt-4 h-9">
-					<div className="flex items-center gap-2">
-						<h1 className="text-xl font-semibold">
+					<div className="flex items-center gap-2 min-w-0">
+						<h1 className="min-w-0 truncate text-xl font-semibold">
 							{folder?.name ?? "Shared Folder"}
 						</h1>
-						<span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+						<span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
 							<HugeiconsIcon icon={Share08Icon} className="size-3" />
 							Read-only
 						</span>
