@@ -7,7 +7,7 @@ export function SharedFoldersEmptyState() {
 			{/* Illustration: Two folder icons with a sharing connection */}
 			<div className="relative flex h-32 w-72 items-center justify-center">
 				{/* Soft ambient glow */}
-				<div className="absolute size-40 rounded-full bg-gradient-to-br from-blue-500/15 to-violet-500/15 blur-3xl" />
+				<div className="absolute size-32 rounded-full bg-gradient-to-br from-blue-500/15 to-violet-500/15 blur-2xl" />
 
 				{/* Left folder (sender) */}
 				<div className="absolute left-[12%] top-1/2 -translate-y-1/2">
