@@ -102,7 +102,9 @@ function ThemeImageOption({
 }) {
 	return (
 		// biome-ignore lint/a11y/noLabelWithoutControl: RadioGroupItem is inside
-		<label className="group cursor-pointer">
+		<label className="group relative cursor-pointer">
+			{/* Position radio to cover parent so browser doesn't scroll when focusing */}
+			<RadioGroupItem value={value} className="absolute inset-0 opacity-0" />
 			<div
 				className={cn(
 					"rounded-xl ring-2 ring-offset-3 ring-offset-background transition-all",
@@ -118,7 +120,6 @@ function ThemeImageOption({
 				/>
 			</div>
 			<div className="mt-2 flex items-center justify-center gap-2">
-				<RadioGroupItem value={value} className="sr-only" />
 				<span
 					className={cn(
 						"text-sm transition-colors",
@@ -182,6 +183,8 @@ export function SettingsModal({
 		extension: null,
 	});
 	const containerRef = useRef<HTMLDivElement | null>(null);
+	// Track intended scroll position to prevent focus-induced scroll jumps
+	const intendedScrollRef = useRef<number>(0);
 
 	const dialogOpen = open ?? internalOpen;
 	const setDialogOpen = onOpenChange ?? setInternalOpen;
@@ -344,17 +347,43 @@ export function SettingsModal({
 				}
 			}
 
+			// Update intended scroll position on user scroll
+			intendedScrollRef.current = container.scrollTop;
 			setActiveSection(current);
+		};
+
+		// When focus moves to sr-only elements, browser may scroll incorrectly
+		// Reset to intended position after browser's focus scroll
+		const handleFocusIn = () => {
+			requestAnimationFrame(() => {
+				if (container.scrollTop !== intendedScrollRef.current) {
+					container.scrollTop = intendedScrollRef.current;
+				}
+			});
 		};
 
 		handleScroll();
 		container.addEventListener("scroll", handleScroll);
+		container.addEventListener("focusin", handleFocusIn);
+
+		return () => {
+			container.removeEventListener("scroll", handleScroll);
+			container.removeEventListener("focusin", handleFocusIn);
+		};
 	}, []);
 
 	const scrollToSection = (sectionId: Section) => {
 		const el = sectionRefs.current[sectionId];
-		if (el && containerRef.current) {
-			el.scrollIntoView({ behavior: "smooth", block: "start" });
+		const container = containerRef.current;
+		if (el && container) {
+			// Set intended position before scrolling so focus handler knows the target
+			intendedScrollRef.current = el.offsetTop;
+			// Use scrollTo on container directly instead of scrollIntoView
+			// to avoid affecting parent scroll containers (which can shift the dialog)
+			container.scrollTo({
+				top: el.offsetTop,
+				behavior: "smooth",
+			});
 		}
 	};
 
@@ -437,7 +466,7 @@ export function SettingsModal({
 				{/* Content - Single scrollable page */}
 				<div
 					ref={scrollContainerRef}
-					className="flex-1 overflow-y-auto scroll-smooth sm:border-l sm:border-border/50"
+					className="flex-1 overflow-y-auto overscroll-contain scroll-smooth sm:border-l sm:border-border/50"
 				>
 					<div className="divide-y divide-border/50">
 						{/* Account Section */}
