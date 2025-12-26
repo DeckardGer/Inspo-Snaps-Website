@@ -1,3 +1,4 @@
+export { TeamFolderActionsMenu } from "./TeamFolderActionsMenu";
 export { TeamFolderCard } from "./TeamFolderCard";
 export { TeamFolderError } from "./TeamFolderError";
 export { TeamFolderGrid } from "./TeamFolderGrid";

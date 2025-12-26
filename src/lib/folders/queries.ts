@@ -7,6 +7,7 @@ import {
 	getFolders,
 	getTeamFolderPath,
 	getTeamFolders,
+	getTeamFolderStats,
 } from "./functions";
 
 export const foldersQueryOptions = (parentId?: string | null) =>
@@ -69,4 +70,15 @@ export const teamFolderPathQueryOptions = (
 			getTeamFolderPath({ data: { organizationId, id: folderId }, signal }),
 		staleTime: 1000 * 60 * 5,
 		enabled: !!organizationId && !!folderId,
+	});
+
+export const teamFolderStatsQueryOptions = (
+	organizationId: string,
+	folderId: string,
+) =>
+	queryOptions({
+		queryKey: ["teamFolderStats", organizationId, folderId],
+		queryFn: ({ signal }) =>
+			getTeamFolderStats({ data: { organizationId, id: folderId }, signal }),
+		staleTime: 1000 * 60 * 2,
 	});

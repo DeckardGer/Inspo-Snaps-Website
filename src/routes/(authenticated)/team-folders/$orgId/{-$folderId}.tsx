@@ -4,6 +4,7 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Suspense, useEffect } from "react";
 import { FolderNotFound, FoldersGridSkeleton } from "@/components/folders";
+import { ImageGrid } from "@/components/images";
 import { NavBar } from "@/components/navbar/NavBar";
 import {
 	TeamFolderError,
@@ -13,11 +14,14 @@ import {
 	TeamSwitcher,
 } from "@/components/teams";
 import { Button } from "@/components/ui/button";
+import { TeamUploadButton } from "@/components/upload";
+import { useTeamImageUpload } from "@/hooks/use-team-image-upload";
 import authClient from "@/lib/auth/auth-client";
 import {
 	teamFolderPathQueryOptions,
 	teamFoldersQueryOptions,
 } from "@/lib/folders/queries";
+import { teamFolderImagesQueryOptions } from "@/lib/images/queries";
 import { organizationByIdQueryOptions } from "@/lib/organizations/queries";
 
 export const Route = createFileRoute(
@@ -39,6 +43,9 @@ export const Route = createFileRoute(
 					),
 					context.queryClient.prefetchQuery(
 						teamFolderPathQueryOptions(org.id, folderId),
+					),
+					context.queryClient.prefetchQuery(
+						teamFolderImagesQueryOptions(org.id, folderId),
 					),
 				]);
 			} else {
@@ -144,7 +151,13 @@ function RouteComponent() {
 							</h1>
 						</div>
 					)}
-					<div className="shrink-0">
+					<div className="flex items-center gap-2 shrink-0">
+						{folderId && (
+							<TeamUploadButton
+								organizationId={organization.id}
+								folderId={folderId}
+							/>
+						)}
 						<TeamFolderModal
 							organizationId={organization.id}
 							parentId={folderId}
@@ -195,7 +208,17 @@ function TeamFolderContents({
 		teamFoldersQueryOptions(organizationId, folderId),
 	);
 
-	if (folders.length === 0) {
+	// Only fetch images for subfolders (not root)
+	const { data: images = [] } = useQuery({
+		...teamFolderImagesQueryOptions(organizationId, folderId ?? ""),
+		enabled: !!folderId,
+	});
+
+	const { uploadFiles } = useTeamImageUpload(organizationId, folderId ?? "");
+
+	const hasContent = folders.length > 0 || images.length > 0;
+
+	if (!hasContent) {
 		return (
 			<TeamFoldersEmptyState
 				organizationId={organizationId}
@@ -205,11 +228,35 @@ function TeamFolderContents({
 	}
 
 	return (
-		<section>
-			<h2 className="mb-3 text-sm font-medium text-muted-foreground">
-				Folders
-			</h2>
-			<TeamFolderGrid folders={folders} orgId={orgId} />
-		</section>
+		<div className="space-y-6">
+			{/* Folders Section */}
+			{folders.length > 0 && (
+				<section>
+					<h2 className="mb-3 text-sm font-medium text-muted-foreground">
+						Folders
+					</h2>
+					<TeamFolderGrid
+						folders={folders}
+						orgId={orgId}
+						organizationId={organizationId}
+					/>
+				</section>
+			)}
+
+			{/* Images Section */}
+			{folderId && (
+				<section>
+					<h2 className="mb-3 text-sm font-medium text-muted-foreground">
+						Images
+					</h2>
+					<ImageGrid
+						images={images}
+						folderId={folderId}
+						organizationId={organizationId}
+						onFilesDropped={uploadFiles}
+					/>
+				</section>
+			)}
+		</div>
 	);
 }

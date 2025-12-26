@@ -65,6 +65,7 @@ export const createFolder = createServerFn({ method: "POST" })
 				where: and(
 					eq(folder.id, data.parentId),
 					eq(folder.userId, context.user.id),
+					isNull(folder.organizationId),
 				),
 			});
 
@@ -95,7 +96,11 @@ export const getFolders = createServerFn({ method: "GET" })
 			: isNull(folder.parentId);
 
 		const folders = await db.query.folder.findMany({
-			where: and(eq(folder.userId, context.user.id), parentCondition),
+			where: and(
+				eq(folder.userId, context.user.id),
+				isNull(folder.organizationId),
+				parentCondition,
+			),
 			orderBy: (folder, { asc }) => [asc(folder.name)],
 			with: {
 				images: { columns: { imageId: true } },
@@ -125,7 +130,11 @@ export const getFolder = createServerFn({ method: "GET" })
 	.inputValidator(FolderIdInput)
 	.handler(async ({ data, context }) => {
 		const result = await db.query.folder.findFirst({
-			where: and(eq(folder.id, data.id), eq(folder.userId, context.user.id)),
+			where: and(
+				eq(folder.id, data.id),
+				eq(folder.userId, context.user.id),
+				isNull(folder.organizationId),
+			),
 			with: {
 				children: true,
 				parent: true,
@@ -146,7 +155,13 @@ export const updateFolder = createServerFn({ method: "POST" })
 		const result = await db
 			.update(folder)
 			.set(updates)
-			.where(and(eq(folder.id, id), eq(folder.userId, context.user.id)))
+			.where(
+				and(
+					eq(folder.id, id),
+					eq(folder.userId, context.user.id),
+					isNull(folder.organizationId),
+				),
+			)
 			.returning();
 
 		if (result.length === 0)
@@ -161,7 +176,11 @@ export const moveFolder = createServerFn({ method: "POST" })
 	.inputValidator(MoveFolderInput)
 	.handler(async ({ data, context }) => {
 		const existingFolder = await db.query.folder.findFirst({
-			where: and(eq(folder.id, data.id), eq(folder.userId, context.user.id)),
+			where: and(
+				eq(folder.id, data.id),
+				eq(folder.userId, context.user.id),
+				isNull(folder.organizationId),
+			),
 		});
 
 		if (!existingFolder) throw new Error("Folder not found");
@@ -176,6 +195,7 @@ export const moveFolder = createServerFn({ method: "POST" })
 				where: and(
 					eq(folder.id, data.newParentId),
 					eq(folder.userId, context.user.id),
+					isNull(folder.organizationId),
 				),
 			});
 
@@ -207,7 +227,13 @@ export const deleteFolder = createServerFn({ method: "POST" })
 
 		await db
 			.delete(folder)
-			.where(and(eq(folder.id, data.id), eq(folder.userId, context.user.id)));
+			.where(
+				and(
+					eq(folder.id, data.id),
+					eq(folder.userId, context.user.id),
+					isNull(folder.organizationId),
+				),
+			);
 
 		if (imageIds.length > 0) {
 			const remainingLinks = await db.query.folderImage.findMany({
@@ -243,7 +269,11 @@ async function getAncestorIds(
 	while (currentId) {
 		const f: { parentId: string | null } | undefined =
 			await db.query.folder.findFirst({
-				where: and(eq(folder.id, currentId), eq(folder.userId, userId)),
+				where: and(
+					eq(folder.id, currentId),
+					eq(folder.userId, userId),
+					isNull(folder.organizationId),
+				),
 				columns: { parentId: true },
 			});
 
@@ -268,7 +298,11 @@ async function getDescendantIds(
 		if (!currentId) continue;
 
 		const children = await db.query.folder.findMany({
-			where: and(eq(folder.parentId, currentId), eq(folder.userId, userId)),
+			where: and(
+				eq(folder.parentId, currentId),
+				eq(folder.userId, userId),
+				isNull(folder.organizationId),
+			),
 			columns: { id: true },
 		});
 
@@ -296,6 +330,7 @@ export const getFolderPath = createServerFn({ method: "GET" })
 				where: and(
 					eq(folder.id, currentId),
 					eq(folder.userId, context.user.id),
+					isNull(folder.organizationId),
 				),
 				columns: { id: true, name: true, parentId: true },
 			});
@@ -395,6 +430,8 @@ export type FavouriteFolder = {
 	url: string;
 	isShared: boolean;
 	isRootShared: boolean;
+	isTeamFolder: boolean;
+	organizationId: string | null;
 };
 
 export const getFavouriteFolders = createServerFn({ method: "GET" })
@@ -411,6 +448,7 @@ export const getFavouriteFolders = createServerFn({ method: "GET" })
 						color: true,
 						emoji: true,
 						userId: true,
+						organizationId: true,
 					},
 				},
 			},
@@ -419,7 +457,11 @@ export const getFavouriteFolders = createServerFn({ method: "GET" })
 
 		// Get all shared folder IDs to check which are root shares
 		const sharedFolderIds = favourites
-			.filter((fav) => fav.folder.userId !== context.user.id)
+			.filter(
+				(fav) =>
+					fav.folder.userId !== context.user.id &&
+					!fav.folder.organizationId,
+			)
 			.map((fav) => fav.folder.id);
 
 		// Find which shared folders have direct userShare entries (are root shares)
@@ -439,18 +481,31 @@ export const getFavouriteFolders = createServerFn({ method: "GET" })
 
 		return favourites.map((fav) => {
 			const isOwned = fav.folder.userId === context.user.id;
-			const isRootShared = !isOwned && rootShareSet.has(fav.folder.id);
+			const isTeamFolder = !!fav.folder.organizationId;
+			const isRootShared =
+				!isOwned && !isTeamFolder && rootShareSet.has(fav.folder.id);
+
+			// Determine the correct URL
+			let url: string;
+			if (isTeamFolder && fav.folder.organizationId) {
+				url = `/team-folders/${fav.folder.organizationId}/${fav.folder.id}`;
+			} else if (isOwned) {
+				url = `/my-folders/${fav.folder.id}`;
+			} else {
+				url = `/shared-folders/${fav.folder.id}`;
+			}
+
 			return {
 				id: fav.folder.id,
 				parentId: fav.folder.parentId,
 				name: fav.folder.name,
 				color: fav.folder.color,
 				emoji: fav.folder.emoji,
-				url: isOwned
-					? `/my-folders/${fav.folder.id}`
-					: `/shared-folders/${fav.folder.id}`,
-				isShared: !isOwned,
+				url,
+				isShared: !isOwned && !isTeamFolder,
 				isRootShared,
+				isTeamFolder,
+				organizationId: fav.folder.organizationId,
 			};
 		}) satisfies FavouriteFolder[];
 	});
@@ -464,9 +519,13 @@ export const getFolderStats = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
 	.handler(async ({ data, context }): Promise<FolderStats> => {
-		// Verify folder belongs to user
+		// Verify folder belongs to user and is not a team folder
 		const f = await db.query.folder.findFirst({
-			where: and(eq(folder.id, data.id), eq(folder.userId, context.user.id)),
+			where: and(
+				eq(folder.id, data.id),
+				eq(folder.userId, context.user.id),
+				isNull(folder.organizationId),
+			),
 		});
 		if (!f) throw new Error("Folder not found or access denied");
 
@@ -814,4 +873,50 @@ export const getTeamFolderPath = createServerFn({ method: "GET" })
 		}
 
 		return path;
+	});
+
+export const getTeamFolderStats = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.inputValidator(TeamFolderIdInput)
+	.handler(async ({ data, context }): Promise<FolderStats> => {
+		// Verify membership
+		const membership = await db.query.member.findFirst({
+			where: and(
+				eq(member.organizationId, data.organizationId),
+				eq(member.userId, context.user.id),
+			),
+		});
+
+		if (!membership) throw new Error("Not a member of this organization");
+
+		// Verify folder belongs to organization
+		const f = await db.query.folder.findFirst({
+			where: and(
+				eq(folder.id, data.id),
+				eq(folder.organizationId, data.organizationId),
+			),
+		});
+
+		if (!f) throw new Error("Folder not found");
+
+		// Get all descendant folder IDs
+		const descendantIds = await getTeamDescendantIds(
+			data.id,
+			data.organizationId,
+		);
+		const allFolderIds = [data.id, ...descendantIds];
+
+		// Count images across all folders
+		const imageResults = await db
+			.select({ imageId: folderImage.imageId })
+			.from(folderImage)
+			.where(inArray(folderImage.folderId, allFolderIds));
+
+		// Use Set to count unique images
+		const uniqueImageIds = new Set(imageResults.map((r) => r.imageId));
+
+		return {
+			nestedFolderCount: descendantIds.length,
+			imageCount: uniqueImageIds.size,
+		};
 	});

@@ -27,7 +27,10 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { removeImageFromFolder } from "@/lib/images/functions";
+import {
+	removeImageFromFolder,
+	removeTeamImageFromFolder,
+} from "@/lib/images/functions";
 
 export interface Image {
 	id: string;
@@ -41,10 +44,16 @@ export interface Image {
 interface FolderImageCardProps {
 	image: Image;
 	folderId: string;
+	organizationId?: string;
 	readOnly?: boolean;
 }
 
-export function ImageCard({ image, folderId, readOnly }: FolderImageCardProps) {
+export function ImageCard({
+	image,
+	folderId,
+	organizationId,
+	readOnly,
+}: FolderImageCardProps) {
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const queryClient = useQueryClient();
@@ -53,16 +62,31 @@ export function ImageCard({ image, folderId, readOnly }: FolderImageCardProps) {
 
 	const deleteMutation = useMutation({
 		mutationFn: () =>
-			removeImageFromFolder({ data: { imageId: image.id, folderId } }),
+			organizationId
+				? removeTeamImageFromFolder({
+						data: { imageId: image.id, folderId, organizationId },
+					})
+				: removeImageFromFolder({ data: { imageId: image.id, folderId } }),
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ["folderImages", folderId],
-				exact: true,
-			});
-			queryClient.invalidateQueries({
-				queryKey: ["folders"],
-				refetchType: "active",
-			});
+			if (organizationId) {
+				queryClient.invalidateQueries({
+					queryKey: ["teamFolderImages", organizationId, folderId],
+					exact: true,
+				});
+				queryClient.invalidateQueries({
+					queryKey: ["teamFolders", organizationId],
+					refetchType: "active",
+				});
+			} else {
+				queryClient.invalidateQueries({
+					queryKey: ["folderImages", folderId],
+					exact: true,
+				});
+				queryClient.invalidateQueries({
+					queryKey: ["folders"],
+					refetchType: "active",
+				});
+			}
 
 			toast.success("Image removed from folder");
 
@@ -93,11 +117,6 @@ export function ImageCard({ image, folderId, readOnly }: FolderImageCardProps) {
 			toast.error("Failed to download image");
 		}
 	};
-
-	// // Extract domain from originUrl if present
-	// const originDomain = image.originUrl
-	// 	? new URL(image.originUrl).hostname.replace("www.", "")
-	// 	: null;
 
 	return (
 		<div

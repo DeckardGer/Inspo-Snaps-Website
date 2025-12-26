@@ -15,6 +15,10 @@ import {
 	type SharedFolderForActions,
 } from "@/components/sharing";
 import {
+	TeamFolderActionsMenu,
+	type TeamFolderForActions,
+} from "@/components/teams/TeamFolderActionsMenu";
+import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
@@ -87,6 +91,17 @@ function toSharedFolderForActions(
 ): SharedFolderForActions {
 	return {
 		id: item.id,
+		name: item.name,
+		color: (item.color ?? "indigo") as FolderColor,
+		emoji: item.emoji,
+		isFavourited: true,
+	};
+}
+
+function toTeamFolderForActions(item: FavouriteFolder): TeamFolderForActions {
+	return {
+		id: item.id,
+		parentId: item.parentId,
 		name: item.name,
 		color: (item.color ?? "indigo") as FolderColor,
 		emoji: item.emoji,
@@ -187,7 +202,17 @@ export function NavFavourites({
 																</Link>
 															}
 														/>
-														{item.isShared ? (
+														{item.isTeamFolder && item.organizationId ? (
+															<TeamFolderActionsMenu
+																folder={toTeamFolderForActions(item)}
+																organizationId={item.organizationId}
+																side="right"
+																align="start"
+																trigger={
+																	<SidebarMenuAction className="peer-data-active/menu-sub-button:text-sidebar-accent-foreground group-focus-within/menu-sub-item:opacity-100 group-hover/menu-sub-item:opacity-100 data-popup-open:opacity-100 md:opacity-0" />
+																}
+															/>
+														) : item.isShared ? (
 															<SharedFolderActionsMenu
 																folder={toSharedFolderForActions(item)}
 																side="right"

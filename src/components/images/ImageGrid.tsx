@@ -4,6 +4,7 @@ import { type Image, ImageCard } from "./ImageCard";
 interface FolderImageGridProps {
 	images: Image[];
 	folderId: string;
+	organizationId?: string;
 	readOnly?: boolean;
 	onFilesDropped?: (files: File[]) => void;
 }
@@ -11,6 +12,7 @@ interface FolderImageGridProps {
 export function ImageGrid({
 	images,
 	folderId,
+	organizationId,
 	readOnly,
 	onFilesDropped,
 }: FolderImageGridProps) {
@@ -24,6 +26,7 @@ export function ImageGrid({
 					key={image.id}
 					image={image}
 					folderId={folderId}
+					organizationId={organizationId}
 					readOnly={readOnly}
 				/>
 			))}

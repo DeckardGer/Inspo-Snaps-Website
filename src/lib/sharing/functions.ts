@@ -54,6 +54,7 @@ export const createShareLink = createServerFn({ method: "POST" })
 			where: and(
 				eq(folder.id, data.folderId),
 				eq(folder.userId, context.user.id),
+				isNull(folder.organizationId),
 			),
 		});
 
@@ -84,6 +85,7 @@ export const getShareLinks = createServerFn({ method: "GET" })
 			where: and(
 				eq(folder.id, data.folderId),
 				eq(folder.userId, context.user.id),
+				isNull(folder.organizationId),
 			),
 		});
 
@@ -126,6 +128,7 @@ export const shareWithUser = createServerFn({ method: "POST" })
 			where: and(
 				eq(folder.id, data.folderId),
 				eq(folder.userId, context.user.id),
+				isNull(folder.organizationId),
 			),
 		});
 
@@ -186,6 +189,7 @@ export const getSharedUsers = createServerFn({ method: "GET" })
 			where: and(
 				eq(folder.id, data.folderId),
 				eq(folder.userId, context.user.id),
+				isNull(folder.organizationId),
 			),
 		});
 		if (!f) throw new Error("Folder not found");
@@ -212,6 +216,7 @@ export const revokeUserShare = createServerFn({ method: "POST" })
 			where: and(
 				eq(folder.id, data.folderId),
 				eq(folder.userId, context.user.id),
+				isNull(folder.organizationId),
 			),
 		});
 		if (!f) throw new Error("Folder not found or access denied");
@@ -247,7 +252,7 @@ export const revokeUserShare = createServerFn({ method: "POST" })
 export const getSharedByMe = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.handler(async ({ context }) => {
-		// Get all folders the user owns that have been shared
+		// Get all folders the user owns that have been shared (excluding team folders)
 		const shares = await db.query.userShare.findMany({
 			where: eq(userShare.sharedByUserId, context.user.id),
 			with: {
@@ -256,12 +261,17 @@ export const getSharedByMe = createServerFn({ method: "GET" })
 			},
 		});
 
-		if (shares.length === 0) {
+		// Filter out team folders
+		const personalShares = shares.filter(
+			(share) => share.folder.organizationId === null,
+		);
+
+		if (personalShares.length === 0) {
 			return [];
 		}
 
 		// Get unique folder IDs
-		const folderIds = [...new Set(shares.map((s) => s.folderId))];
+		const folderIds = [...new Set(personalShares.map((s) => s.folderId))];
 
 		// Get image counts for all folders
 		const imageCounts = await db
@@ -303,7 +313,7 @@ export const getSharedByMe = createServerFn({ method: "GET" })
 			}
 		>();
 
-		for (const share of shares) {
+		for (const share of personalShares) {
 			const existing = folderMap.get(share.folderId);
 			if (existing) {
 				existing.sharedWith.push({
@@ -344,11 +354,16 @@ export const getSharedWithMe = createServerFn({ method: "GET" })
 			},
 		});
 
-		if (shares.length === 0) {
+		// Filter out team folders
+		const personalShares = shares.filter(
+			(share) => share.folder.organizationId === null,
+		);
+
+		if (personalShares.length === 0) {
 			return [];
 		}
 
-		const folderIds = shares.map((s) => s.folderId);
+		const folderIds = personalShares.map((s) => s.folderId);
 
 		// Get all image counts in a single query
 		const imageCounts = await db
@@ -373,7 +388,7 @@ export const getSharedWithMe = createServerFn({ method: "GET" })
 		const countMap = new Map(imageCounts.map((ic) => [ic.folderId, ic.count]));
 		const favouriteSet = new Set(favourites.map((f) => f.folderId));
 
-		return shares.map((s) => ({
+		return personalShares.map((s) => ({
 			folder: {
 				...s.folder,
 				imageCount: countMap.get(s.folderId) ?? 0,
@@ -426,6 +441,11 @@ export const acceptShareLinkInvite = createServerFn({ method: "POST" })
 		});
 
 		if (!link) throw new Error("Share link not found or expired");
+
+		// Can't accept invite to team folders
+		if (link.folder.organizationId) {
+			throw new Error("Team folders cannot be shared externally");
+		}
 
 		// Can't accept invite to your own folder
 		if (link.folder.userId === context.user.id) {
