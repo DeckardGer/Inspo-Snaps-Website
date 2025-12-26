@@ -2,7 +2,6 @@ import {
 	Delete02Icon,
 	FolderFavouriteIcon,
 	FolderRemoveIcon,
-	FolderTransferIcon,
 	Loading03Icon,
 	MoreVerticalIcon,
 	PencilEdit01Icon,
@@ -12,6 +11,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { ShareDialog } from "@/components/sharing";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -36,7 +36,6 @@ import {
 	removeFolderFromFavourites,
 } from "@/lib/folders/functions";
 import { folderStatsQueryOptions } from "@/lib/folders/queries";
-import { ShareDialog } from "@/components/sharing";
 import { FolderModal } from "./FolderModal";
 
 export type FolderForActions = {
@@ -169,10 +168,6 @@ export function FolderActionsMenu({
 					>
 						<HugeiconsIcon icon={Share08Icon} />
 						Share
-					</DropdownMenuItem>
-					<DropdownMenuItem>
-						<HugeiconsIcon icon={FolderTransferIcon} />
-						Move to...
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem
