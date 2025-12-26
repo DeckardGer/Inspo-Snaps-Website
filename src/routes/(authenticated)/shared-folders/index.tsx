@@ -49,14 +49,19 @@ function SharedFoldersContent() {
 	}
 
 	return (
-		<div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
-			{sharedFolders.map((share) => (
-				<SharedFolderCard
-					key={share.folder.id}
-					folder={share.folder}
-					sharedBy={share.sharedBy}
-				/>
-			))}
-		</div>
+		<section>
+			<h2 className="mb-3 text-sm font-medium text-muted-foreground">
+				Folders
+			</h2>
+			<div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
+				{sharedFolders.map((share) => (
+					<SharedFolderCard
+						key={share.folder.id}
+						folder={share.folder}
+						sharedBy={share.sharedBy}
+					/>
+				))}
+			</div>
+		</section>
 	);
 }

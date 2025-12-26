@@ -11,6 +11,7 @@ import {
 	SharedFolderEmptyState,
 	SharedFolderError,
 } from "@/components/sharing";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { FolderColor } from "@/lib/folders/constants";
 import {
@@ -92,10 +93,10 @@ function RouteComponent() {
 						<h1 className="min-w-0 truncate text-xl font-semibold">
 							{folder?.name ?? "Shared Folder"}
 						</h1>
-						<span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+						<Badge variant="secondary" className="text-muted-foreground">
 							<HugeiconsIcon icon={Share08Icon} className="size-3" />
 							Read-only
-						</span>
+						</Badge>
 					</div>
 				</div>
 

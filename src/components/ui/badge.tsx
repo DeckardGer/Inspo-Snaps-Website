@@ -11,7 +11,8 @@ const badgeVariants = cva(
 			variant: {
 				default:
 					"bg-brand-solid text-primary_on-brand [a]:hover:bg-brand-solid_hover",
-				secondary: "bg-secondary text-secondary [a]:hover:bg-secondary_hover",
+				secondary:
+					"bg-secondary text-secondary-foreground [a]:hover:bg-secondary_hover",
 				destructive:
 					"bg-error-secondary [a]:hover:bg-error-secondary/80 focus-visible:ring-error/20 dark:focus-visible:ring-error/40 text-error-primary",
 				outline:
