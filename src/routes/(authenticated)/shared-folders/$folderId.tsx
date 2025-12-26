@@ -1,7 +1,7 @@
-import { Share08Icon } from "@hugeicons/core-free-icons";
+import { ArrowLeft01Icon, Share08Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { FoldersGridSkeleton } from "@/components/folders";
 import { ImageGrid } from "@/components/images";
@@ -11,6 +11,7 @@ import {
 	SharedFolderEmptyState,
 	SharedFolderError,
 } from "@/components/sharing";
+import { Button } from "@/components/ui/button";
 import type { FolderColor } from "@/lib/folders/constants";
 import {
 	sharedFolderContentsQueryOptions,
@@ -67,6 +68,27 @@ function RouteComponent() {
 			<div className="flex flex-1 flex-col">
 				<div className="flex items-center justify-between gap-2 px-4 mt-4 h-9">
 					<div className="flex items-center gap-2 min-w-0">
+						<Button
+							variant="ghost"
+							size="icon"
+							render={
+								<Link
+									to={
+										path && path.length > 1
+											? "/shared-folders/$folderId"
+											: "/shared-folders"
+									}
+									params={
+										path && path.length > 1
+											? { folderId: path[path.length - 2].id }
+											: undefined
+									}
+								/>
+							}
+						>
+							<HugeiconsIcon icon={ArrowLeft01Icon} />
+							<span className="sr-only">Go back</span>
+						</Button>
 						<h1 className="min-w-0 truncate text-xl font-semibold">
 							{folder?.name ?? "Shared Folder"}
 						</h1>

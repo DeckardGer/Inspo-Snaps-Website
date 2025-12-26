@@ -1,7 +1,7 @@
-import { FolderAddIcon } from "@hugeicons/core-free-icons";
+import { ArrowLeft01Icon, FolderAddIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Suspense } from "react";
 import {
 	FolderGrid,
@@ -72,11 +72,33 @@ function RouteComponent() {
 			<div className="flex flex-1 flex-col">
 				{/* Toolbar - always visible */}
 				<div className="flex items-center justify-between gap-2 px-4 mt-4 h-9">
-					<h1 className="min-w-0 truncate text-xl font-semibold">
-						{path && path.length > 0
-							? path[path.length - 1].name
-							: "My Folders"}
-					</h1>
+					<div className="flex items-center gap-2 min-w-0">
+						{folderId && (
+							<Button
+								variant="ghost"
+								size="icon"
+								render={
+									<Link
+										to="/my-folders/{-$folderId}"
+										params={{
+											folderId:
+												path && path.length > 1
+													? path[path.length - 2].id
+													: undefined,
+										}}
+									/>
+								}
+							>
+								<HugeiconsIcon icon={ArrowLeft01Icon} />
+								<span className="sr-only">Go back</span>
+							</Button>
+						)}
+						<h1 className="min-w-0 truncate text-xl font-semibold">
+							{path && path.length > 0
+								? path[path.length - 1].name
+								: "My Folders"}
+						</h1>
+					</div>
 					<div className="flex items-center gap-2 shrink-0">
 						{folderId && <UploadButton folderId={folderId} />}
 						<FolderModal

@@ -1,7 +1,7 @@
-import { FolderAddIcon } from "@hugeicons/core-free-icons";
+import { ArrowLeft01Icon, FolderAddIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Suspense, useEffect } from "react";
 import { FolderNotFound, FoldersGridSkeleton } from "@/components/folders";
 import { NavBar } from "@/components/navbar/NavBar";
@@ -119,9 +119,30 @@ function RouteComponent() {
 							currentOrgName={organization.name}
 						/>
 					) : (
-						<h1 className="min-w-0 truncate text-xl font-semibold">
-							{subfolderTitle}
-						</h1>
+						<div className="flex items-center gap-2 min-w-0">
+							<Button
+								variant="ghost"
+								size="icon"
+								render={
+									<Link
+										to="/team-folders/$orgId/{-$folderId}"
+										params={{
+											orgId,
+											folderId:
+												path && path.length > 1
+													? path[path.length - 2].id
+													: undefined,
+										}}
+									/>
+								}
+							>
+								<HugeiconsIcon icon={ArrowLeft01Icon} />
+								<span className="sr-only">Go back</span>
+							</Button>
+							<h1 className="min-w-0 truncate text-xl font-semibold">
+								{subfolderTitle}
+							</h1>
+						</div>
 					)}
 					<div className="shrink-0">
 						<TeamFolderModal
@@ -129,7 +150,10 @@ function RouteComponent() {
 							parentId={folderId}
 							trigger={
 								<Button>
-									<HugeiconsIcon icon={FolderAddIcon} data-icon="inline-start" />
+									<HugeiconsIcon
+										icon={FolderAddIcon}
+										data-icon="inline-start"
+									/>
 									New Folder
 								</Button>
 							}
