@@ -1,28 +1,55 @@
 import {
 	ArrowUpRight01Icon,
+	AtIcon,
 	BrowserIcon,
+	Loading03Icon,
 	PaintBrush04Icon,
 	Tick02Icon,
 	UserCircle02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useForm } from "@tanstack/react-form";
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
+import { toast } from "sonner";
+import { z } from "zod";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupInput,
+	InputGroupText,
+} from "@/components/ui/input-group";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import type { AuthQueryResult } from "@/lib/auth/queries";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+	checkUsernameAvailability,
+	getAvatarUploadUrl,
+	removeAvatar,
+	updateAvatar,
+	updateUsername,
+} from "@/lib/auth/functions";
+import { authQueryOptions } from "@/lib/auth/queries";
 import { type UserTheme, useTheme } from "@/lib/ThemeProvider";
 import { cn } from "@/lib/utils";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Types
+// Types & Constants
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface SettingsModalProps {
-	user: NonNullable<AuthQueryResult>;
 	trigger?: React.ReactElement;
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
@@ -39,6 +66,20 @@ const SECTIONS: {
 	{ id: "appearance", label: "Appearance", icon: PaintBrush04Icon },
 	{ id: "extension", label: "Extension", icon: BrowserIcon },
 ];
+
+const MAX_FILE_SIZE = 1024 * 1024; // 1MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif"];
+
+const usernameSchema = z.object({
+	username: z
+		.string()
+		.min(3, "Username must be at least 3 characters.")
+		.max(30, "Username must be at most 30 characters.")
+		.regex(
+			/^[a-zA-Z0-9._]+$/,
+			"Username can only contain alphanumeric characters, underscores, and dots.",
+		),
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helper Components
@@ -67,7 +108,7 @@ function ThemeImageOption({
 					"rounded-xl ring-2 ring-offset-3 ring-offset-background transition-all",
 					isSelected
 						? "ring-primary"
-						: "ring-transparent group-hover:ring-border",
+						: "ring-transparent group-hover:ring-border group-has-focus-visible:ring-ring",
 				)}
 			>
 				<img
@@ -77,7 +118,7 @@ function ThemeImageOption({
 				/>
 			</div>
 			<div className="mt-2 flex items-center justify-center gap-2">
-				<RadioGroupItem value={value} className="hidden" />
+				<RadioGroupItem value={value} className="sr-only" />
 				<span
 					className={cn(
 						"text-sm transition-colors",
@@ -120,14 +161,20 @@ function SettingRow({
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function SettingsModal({
-	user,
 	trigger,
 	open,
 	onOpenChange,
 }: SettingsModalProps) {
 	const [internalOpen, setInternalOpen] = useState(false);
 	const [activeSection, setActiveSection] = useState<Section>("account");
+	const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 	const { userTheme, setTheme } = useTheme();
+	const queryClient = useQueryClient();
+
+	// Use query directly for reactive updates when user data changes
+	const { data: user } = useSuspenseQuery(authQueryOptions());
+	if (!user) throw new Error("User not found");
 
 	const sectionRefs = useRef<Record<Section, HTMLElement | null>>({
 		account: null,
@@ -139,7 +186,145 @@ export function SettingsModal({
 	const dialogOpen = open ?? internalOpen;
 	const setDialogOpen = onOpenChange ?? setInternalOpen;
 
-	// Callback ref for scroll container - sets up scroll spy when mounted
+	// ─────────────────────────────────────────────────────────────────────────
+	// Username Form & Mutation
+	// ─────────────────────────────────────────────────────────────────────────
+
+	const usernameMutation = useMutation({
+		mutationFn: updateUsername,
+		onSuccess: (result) => {
+			queryClient.invalidateQueries({ queryKey: ["user"] });
+			toast.success(result.message);
+		},
+		onError: (error) => {
+			toast.error("Failed to update username", {
+				description: error.message,
+			});
+		},
+	});
+
+	const usernameForm = useForm({
+		defaultValues: {
+			username: user.username || "",
+		},
+		validators: {
+			onSubmit: usernameSchema,
+		},
+		onSubmit: async ({ value }) => {
+			usernameMutation.mutate({ data: value });
+		},
+	});
+
+	// ─────────────────────────────────────────────────────────────────────────
+	// Avatar Mutations
+	// ─────────────────────────────────────────────────────────────────────────
+
+	const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+	const updateAvatarMutation = useMutation({
+		mutationFn: updateAvatar,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["user"] });
+			toast.success("Profile photo updated");
+			setAvatarPreview(null);
+		},
+		onError: (error) => {
+			toast.error("Failed to update profile photo", {
+				description: error.message,
+			});
+		},
+	});
+
+	const removeAvatarMutation = useMutation({
+		mutationFn: removeAvatar,
+		onSuccess: () => {
+			// Immediately update cache to show fallback avatar (don't wait for refetch)
+			queryClient.setQueryData(["user"], (oldData: typeof user | undefined) =>
+				oldData ? { ...oldData, image: null } : oldData,
+			);
+			queryClient.invalidateQueries({ queryKey: ["user"] });
+			toast.success("Profile photo removed");
+		},
+		onError: (error) => {
+			toast.error("Failed to remove profile photo", {
+				description: error.message,
+			});
+		},
+	});
+
+	const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+
+		// Validate file type
+		if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+			toast.error("Invalid file type", {
+				description: "Please upload a JPG, PNG, or GIF image.",
+			});
+			return;
+		}
+
+		// Validate file size
+		if (file.size > MAX_FILE_SIZE) {
+			toast.error("File too large", {
+				description: "Please upload an image smaller than 1MB.",
+			});
+			return;
+		}
+
+		// Show preview
+		const previewUrl = URL.createObjectURL(file);
+		setAvatarPreview(previewUrl);
+
+		try {
+			setIsUploadingAvatar(true);
+
+			// Get presigned upload URL
+			const { uploadUrl, storageKey } = await getAvatarUploadUrl({
+				data: {
+					filename: file.name,
+					contentType: file.type,
+				},
+			});
+
+			// Upload file to S3
+			const uploadResponse = await fetch(uploadUrl, {
+				method: "PUT",
+				body: file,
+				headers: {
+					"Content-Type": file.type,
+				},
+			});
+
+			if (!uploadResponse.ok) {
+				throw new Error("Failed to upload image");
+			}
+
+			// Update user avatar
+			updateAvatarMutation.mutate({ data: { storageKey } });
+		} catch (error) {
+			toast.error("Failed to upload image", {
+				description:
+					error instanceof Error ? error.message : "An error occurred",
+			});
+			setAvatarPreview(null);
+		} finally {
+			setIsUploadingAvatar(false);
+			// Reset file input
+			if (fileInputRef.current) {
+				fileInputRef.current.value = "";
+			}
+		}
+	};
+
+	const handleRemoveAvatar = () => {
+		removeAvatarMutation.mutate({});
+	};
+
+	// ─────────────────────────────────────────────────────────────────────────
+	// Scroll Spy
+	// ─────────────────────────────────────────────────────────────────────────
+
 	const scrollContainerRef = useCallback((container: HTMLDivElement | null) => {
 		containerRef.current = container;
 		if (!container) return;
@@ -162,7 +347,6 @@ export function SettingsModal({
 			setActiveSection(current);
 		};
 
-		// Set initial state
 		handleScroll();
 		container.addEventListener("scroll", handleScroll);
 	}, []);
@@ -174,12 +358,21 @@ export function SettingsModal({
 		}
 	};
 
+	// ─────────────────────────────────────────────────────────────────────────
+	// Render
+	// ─────────────────────────────────────────────────────────────────────────
+
+	const isAvatarLoading =
+		isUploadingAvatar ||
+		updateAvatarMutation.isPending ||
+		removeAvatarMutation.isPending;
+
 	return (
 		<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
 			{trigger && <DialogTrigger render={trigger} />}
 			<DialogContent
 				showCloseButton={false}
-				className="flex h-[520px] max-h-[85vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl sm:flex-row w-[calc(100%-2rem)]"
+				className="flex h-[520px] max-h-[85vh] w-[calc(100%-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl sm:flex-row"
 			>
 				{/* Mobile Header + Tabs */}
 				<div className="flex shrink-0 flex-col border-b border-border/50 sm:hidden">
@@ -196,7 +389,7 @@ export function SettingsModal({
 								className={cn(
 									"shrink-0 gap-1.5 rounded-full px-3",
 									activeSection === section.id
-										? "bg-card hover:bg-card! font-medium text-foreground shadow-sm"
+										? "bg-card font-medium text-foreground shadow-sm hover:bg-card!"
 										: "text-muted-foreground hover:bg-background! hover:text-foreground",
 								)}
 							>
@@ -226,7 +419,7 @@ export function SettingsModal({
 								className={cn(
 									"w-full justify-start gap-2",
 									activeSection === section.id
-										? "bg-card hover:bg-card! font-medium text-foreground shadow-sm"
+										? "bg-card font-medium text-foreground shadow-sm hover:bg-card!"
 										: "text-muted-foreground hover:bg-background! hover:text-foreground",
 								)}
 							>
@@ -262,11 +455,22 @@ export function SettingsModal({
 							<div className="space-y-1">
 								{/* Profile Row */}
 								<div className="flex items-center gap-4 py-3">
-									<UserAvatar
-										username={user.username || ""}
-										imageUrl={user.image}
-										size="lg"
-									/>
+									<div className="relative">
+										<UserAvatar
+											username={user.username || ""}
+											imageUrl={avatarPreview || user.image}
+											size="lg"
+										/>
+										{isAvatarLoading && (
+											<div className="absolute inset-0 flex items-center justify-center rounded-full bg-background/80">
+												<HugeiconsIcon
+													icon={Loading03Icon}
+													className="size-5 animate-spin text-muted-foreground"
+													strokeWidth={2}
+												/>
+											</div>
+										)}
+									</div>
 									<div className="min-w-0 flex-1">
 										<p className="text-sm font-medium">Profile photo</p>
 										<p className="text-xs text-muted-foreground">
@@ -274,11 +478,38 @@ export function SettingsModal({
 										</p>
 									</div>
 									<div className="flex gap-2">
-										<Button variant="outline" size="sm" disabled>
-											Upload
+										<input
+											ref={fileInputRef}
+											type="file"
+											accept={ACCEPTED_IMAGE_TYPES.join(",")}
+											onChange={handleFileSelect}
+											className="hidden"
+										/>
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() => fileInputRef.current?.click()}
+											disabled={isAvatarLoading}
+										>
+											{isAvatarLoading ? (
+												<>
+													<HugeiconsIcon
+														icon={Loading03Icon}
+														className="animate-spin"
+														strokeWidth={2}
+													/>
+													Uploading...
+												</>
+											) : (
+												"Upload"
+											)}
 										</Button>
-										{user.image && (
-											<Button variant="ghost" size="sm" disabled>
+										{user.image && !isAvatarLoading && (
+											<Button
+												variant="ghost"
+												size="sm"
+												onClick={handleRemoveAvatar}
+											>
 												Remove
 											</Button>
 										)}
@@ -288,18 +519,141 @@ export function SettingsModal({
 								<div className="h-px bg-border/50" />
 
 								{/* Username */}
-								<SettingRow label="Username" description="Your unique @handle">
-									<div className="relative w-44">
-										<span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-											@
-										</span>
-										<Input
-											defaultValue={user.username || ""}
-											className="h-8 pl-6 text-sm"
-											disabled
+								<form
+									onSubmit={(e) => {
+										e.preventDefault();
+										usernameForm.handleSubmit();
+									}}
+								>
+									<SettingRow
+										label="Username"
+										description="Your unique @handle"
+									>
+										<usernameForm.Field
+											name="username"
+											validators={{
+												onChange: ({ value }) => {
+													// Validate empty field
+													if (!value || value.trim() === "") {
+														return "Username is required.";
+													}
+													return undefined;
+												},
+												onChangeAsyncDebounceMs: 500,
+												onChangeAsync: async ({ value }) => {
+													// Skip if empty (handled by onChange) or same as current
+													if (!value || value === user.username) {
+														return undefined;
+													}
+
+													try {
+														// Backend validates format AND checks availability
+														const result = await checkUsernameAvailability({
+															data: { username: value },
+														});
+
+														if (!result.valid) {
+															return result.message;
+														}
+
+														return undefined;
+													} catch (error) {
+														console.error("Username check error:", error);
+														return "Unable to verify username.";
+													}
+												},
+											}}
+											children={(field) => {
+												const hasChanged =
+													field.state.value !== (user.username || "");
+												const isValidating = field.state.meta.isValidating;
+												const hasErrors =
+													field.state.meta.errors &&
+													field.state.meta.errors.length > 0;
+												const isInvalid =
+													field.state.meta.isTouched &&
+													hasErrors &&
+													!isValidating;
+												const isAvailable =
+													hasChanged &&
+													!hasErrors &&
+													!isValidating &&
+													field.state.meta.isTouched;
+
+												// Get first error message
+												const errorMessage = hasErrors
+													? field.state.meta.errors[0]
+													: null;
+												const errorText =
+													typeof errorMessage === "string"
+														? errorMessage
+														: errorMessage && "message" in errorMessage
+															? errorMessage.message
+															: null;
+
+												return (
+													<Tooltip open={isInvalid && !!errorText}>
+														<TooltipTrigger
+															render={
+																<InputGroup
+																	className={cn(
+																		"h-8 w-44",
+																		isInvalid && "border-destructive",
+																		isAvailable && "border-green-500",
+																	)}
+																>
+																	<InputGroupAddon align="inline-start">
+																		<InputGroupText>
+																			<HugeiconsIcon
+																				icon={AtIcon}
+																				className="size-4"
+																				strokeWidth={2}
+																			/>
+																		</InputGroupText>
+																	</InputGroupAddon>
+																	<InputGroupInput
+																		id={field.name}
+																		name={field.name}
+																		value={field.state.value}
+																		onBlur={field.handleBlur}
+																		onChange={(e) =>
+																			field.handleChange(e.target.value)
+																		}
+																		aria-invalid={isInvalid}
+																		className="text-sm"
+																		autoComplete="username"
+																		spellCheck={false}
+																	/>
+																	<InputGroupAddon align="inline-end">
+																		<InputGroupText>
+																			{isValidating && (
+																				<HugeiconsIcon
+																					icon={Loading03Icon}
+																					className="size-4 animate-spin"
+																					strokeWidth={2}
+																				/>
+																			)}
+																			{isAvailable && (
+																				<HugeiconsIcon
+																					icon={Tick02Icon}
+																					className="size-4 text-green-600"
+																					strokeWidth={2}
+																				/>
+																			)}
+																		</InputGroupText>
+																	</InputGroupAddon>
+																</InputGroup>
+															}
+														/>
+														<TooltipContent side="bottom" variant="destructive">
+															{errorText}
+														</TooltipContent>
+													</Tooltip>
+												);
+											}}
 										/>
-									</div>
-								</SettingRow>
+									</SettingRow>
+								</form>
 
 								<div className="h-px bg-border/50" />
 
@@ -331,10 +685,7 @@ export function SettingsModal({
 								<div className="h-px bg-border/50" />
 
 								{/* Password */}
-								<SettingRow
-									label="Password"
-									description="Last changed 3 months ago"
-								>
+								<SettingRow label="Password" description="Secure your account">
 									<Button variant="outline" size="sm" disabled>
 										Change
 									</Button>

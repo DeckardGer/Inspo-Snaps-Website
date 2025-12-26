@@ -6,7 +6,7 @@ import {
 	UserAccountIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { UserAvatar } from "@/components/UserAvatar";
 import {
@@ -25,17 +25,17 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import authClient from "@/lib/auth/auth-client";
-import type { AuthQueryResult } from "@/lib/auth/queries";
+import { authQueryOptions } from "@/lib/auth/queries";
 import { cn } from "@/lib/utils";
 
-export function SidebarAppFooter({
-	user,
-}: {
-	user: NonNullable<AuthQueryResult>;
-}) {
+export function SidebarAppFooter() {
 	const queryClient = useQueryClient();
 	const router = useRouter();
 	const { isMobile, state } = useSidebar();
+
+	// Use query directly for reactive updates when user data changes
+	const { data: user } = useSuspenseQuery(authQueryOptions());
+	if (!user) throw new Error("User not found");
 
 	return (
 		<SidebarMenu>

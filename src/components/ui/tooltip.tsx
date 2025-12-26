@@ -33,13 +33,16 @@ function TooltipContent({
 	sideOffset = 4,
 	align = "center",
 	alignOffset = 0,
+	variant = "default",
 	children,
 	...props
 }: TooltipPrimitive.Popup.Props &
 	Pick<
 		TooltipPrimitive.Positioner.Props,
 		"align" | "alignOffset" | "side" | "sideOffset"
-	>) {
+	> & {
+		variant?: "default" | "destructive";
+	}) {
 	return (
 		<TooltipPrimitive.Portal>
 			<TooltipPrimitive.Positioner
@@ -52,13 +55,23 @@ function TooltipContent({
 				<TooltipPrimitive.Popup
 					data-slot="tooltip-content"
 					className={cn(
-						"data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 rounded-md px-3 py-1.5 text-xs bg-foreground text-background z-50 w-fit max-w-xs origin-(--transform-origin)",
+						"data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 rounded-md px-3 py-1.5 text-xs z-50 w-fit max-w-xs origin-(--transform-origin)",
+						variant === "destructive"
+							? "bg-destructive text-destructive-foreground"
+							: "bg-foreground text-background",
 						className,
 					)}
 					{...props}
 				>
 					{children}
-					<TooltipPrimitive.Arrow className="size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-foreground fill-foreground z-50 data-[side=bottom]:top-1 data-[side=left]:top-1/2! data-[side=left]:-right-1 data-[side=left]:-translate-y-1/2 data-[side=right]:top-1/2! data-[side=right]:-left-1 data-[side=right]:-translate-y-1/2 data-[side=top]:-bottom-2.5" />
+					<TooltipPrimitive.Arrow
+						className={cn(
+							"size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] z-50 data-[side=bottom]:top-1 data-[side=left]:top-1/2! data-[side=left]:-right-1 data-[side=left]:-translate-y-1/2 data-[side=right]:top-1/2! data-[side=right]:-left-1 data-[side=right]:-translate-y-1/2 data-[side=top]:-bottom-2.5",
+							variant === "destructive"
+								? "bg-destructive fill-destructive"
+								: "bg-foreground fill-foreground",
+						)}
+					/>
 				</TooltipPrimitive.Popup>
 			</TooltipPrimitive.Positioner>
 		</TooltipPrimitive.Portal>

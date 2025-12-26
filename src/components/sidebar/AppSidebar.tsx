@@ -23,7 +23,6 @@ import {
 	SidebarRail,
 } from "@/components/ui/sidebar";
 import { favouriteFoldersQueryOptions } from "@/lib/folders/queries";
-import { Route } from "@/routes/(authenticated)/route";
 
 function FavouritesFallback() {
 	return (
@@ -46,7 +45,6 @@ function FavouritesContent() {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-	const { user } = Route.useRouteContext();
 	const [settingsOpen, setSettingsOpen] = useState(false);
 
 	return (
@@ -66,16 +64,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					/>
 				</SidebarContent>
 				<SidebarFooter>
-					<SidebarAppFooter user={user} />
+					<SidebarAppFooter />
 				</SidebarFooter>
 				<SidebarRail />
 			</Sidebar>
 
-			<SettingsModal
-				user={user}
-				open={settingsOpen}
-				onOpenChange={setSettingsOpen}
-			/>
+			<SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
 		</>
 	);
 }

@@ -30,8 +30,12 @@ export const UserAvatar = memo(function UserAvatar({
 		[size, className],
 	);
 
+	// Key forces remount when image presence changes, resetting Avatar's internal state
+	// This is needed because Base UI Avatar tracks image load status internally
+	const avatarKey = imageUrl ? "has-image" : "no-image";
+
 	return (
-		<Avatar className={avatarClassName}>
+		<Avatar key={avatarKey} className={avatarClassName}>
 			{imageUrl && <AvatarImage src={imageUrl} alt={username} />}
 			<AvatarFallback
 				style={{
