@@ -1,4 +1,8 @@
-import { Moon02Icon, Sun03Icon } from "@hugeicons/core-free-icons";
+import {
+	ComputerIcon,
+	Moon02Icon,
+	Sun03Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,12 +37,15 @@ export function ThemeToggle() {
 			/>
 			<DropdownMenuContent align="end">
 				<DropdownMenuItem onClick={() => setTheme("light")}>
+					<HugeiconsIcon icon={Sun03Icon} className="size-4" strokeWidth={2} />
 					Light
 				</DropdownMenuItem>
 				<DropdownMenuItem onClick={() => setTheme("dark")}>
+					<HugeiconsIcon icon={Moon02Icon} className="size-4" strokeWidth={2} />
 					Dark
 				</DropdownMenuItem>
 				<DropdownMenuItem onClick={() => setTheme("system")}>
+					<HugeiconsIcon icon={ComputerIcon} className="size-4" strokeWidth={2} />
 					System
 				</DropdownMenuItem>
 			</DropdownMenuContent>

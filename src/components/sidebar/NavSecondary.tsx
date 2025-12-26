@@ -1,6 +1,5 @@
 import { Comment01Icon, Settings01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Link, useLocation } from "@tanstack/react-router";
 import {
 	SidebarGroup,
 	SidebarGroupContent,
@@ -10,33 +9,32 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 
-export function NavSecondary({
-	...props
-}: React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+interface NavSecondaryProps
+	extends React.ComponentPropsWithoutRef<typeof SidebarGroup> {
+	onOpenSettings?: () => void;
+}
+
+export function NavSecondary({ onOpenSettings, ...props }: NavSecondaryProps) {
 	const { setOpenMobile, isMobile } = useSidebar();
-	const location = useLocation();
 
 	const handleLinkClick = () => {
 		if (isMobile) setOpenMobile(false);
 	};
 
-	const isSettingsActive = location.pathname === "/settings";
+	const handleSettingsClick = () => {
+		if (isMobile) setOpenMobile(false);
+		onOpenSettings?.();
+	};
 
 	return (
 		<SidebarGroup {...props}>
 			<SidebarGroupContent>
 				<SidebarMenu>
 					<SidebarMenuItem>
-						<SidebarMenuButton
-							isActive={isSettingsActive}
-							tooltip="Settings"
-							render={
-								<Link to="/settings">
-									<HugeiconsIcon icon={Settings01Icon} />
-									<span>Settings</span>
-								</Link>
-							}
-						/>
+						<SidebarMenuButton tooltip="Settings" onClick={handleSettingsClick}>
+							<HugeiconsIcon icon={Settings01Icon} />
+							<span>Settings</span>
+						</SidebarMenuButton>
 					</SidebarMenuItem>
 					<SidebarMenuItem>
 						<SidebarMenuButton

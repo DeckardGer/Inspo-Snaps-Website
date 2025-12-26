@@ -5,7 +5,8 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type * as React from "react";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
+import { SettingsModal } from "@/components/settings/SettingsModal";
 import { NavFavourites } from "@/components/sidebar/NavFavourites";
 import { NavMain } from "@/components/sidebar/NavMain";
 import { NavSecondary } from "@/components/sidebar/NavSecondary";
@@ -44,26 +45,37 @@ function FavouritesContent() {
 	return <NavFavourites favourites={folders} />;
 }
 
-// TODO: Don't import user and instead use route context
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const { user } = Route.useRouteContext();
+	const [settingsOpen, setSettingsOpen] = useState(false);
 
 	return (
-		<Sidebar {...props} collapsible="icon">
-			<SidebarHeader className="flex-row items-center pr-0">
-				<SidebarAppHeader />
-			</SidebarHeader>
-			<SidebarContent>
-				<NavMain />
-				<Suspense fallback={<FavouritesFallback />}>
-					<FavouritesContent />
-				</Suspense>
-				<NavSecondary className="mt-auto" />
-			</SidebarContent>
-			<SidebarFooter>
-				<SidebarAppFooter user={user} />
-			</SidebarFooter>
-			<SidebarRail />
-		</Sidebar>
+		<>
+			<Sidebar {...props} collapsible="icon">
+				<SidebarHeader className="flex-row items-center pr-0">
+					<SidebarAppHeader />
+				</SidebarHeader>
+				<SidebarContent>
+					<NavMain />
+					<Suspense fallback={<FavouritesFallback />}>
+						<FavouritesContent />
+					</Suspense>
+					<NavSecondary
+						className="mt-auto"
+						onOpenSettings={() => setSettingsOpen(true)}
+					/>
+				</SidebarContent>
+				<SidebarFooter>
+					<SidebarAppFooter user={user} />
+				</SidebarFooter>
+				<SidebarRail />
+			</Sidebar>
+
+			<SettingsModal
+				user={user}
+				open={settingsOpen}
+				onOpenChange={setSettingsOpen}
+			/>
+		</>
 	);
 }

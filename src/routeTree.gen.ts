@@ -16,7 +16,6 @@ import { Route as authPagesSignupRouteImport } from './routes/(auth-pages)/signu
 import { Route as authPagesLoginRouteImport } from './routes/(auth-pages)/login'
 import { Route as authenticatedTeamFoldersIndexRouteImport } from './routes/(authenticated)/team-folders/index'
 import { Route as authenticatedSharedFoldersIndexRouteImport } from './routes/(authenticated)/shared-folders/index'
-import { Route as authenticatedSettingsIndexRouteImport } from './routes/(authenticated)/settings/index'
 import { Route as authenticatedOverviewIndexRouteImport } from './routes/(authenticated)/overview/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as authenticatedSharedFoldersFolderIdRouteImport } from './routes/(authenticated)/shared-folders/$folderId'
@@ -58,12 +57,6 @@ const authenticatedSharedFoldersIndexRoute =
   authenticatedSharedFoldersIndexRouteImport.update({
     id: '/shared-folders/',
     path: '/shared-folders/',
-    getParentRoute: () => authenticatedRouteRoute,
-  } as any)
-const authenticatedSettingsIndexRoute =
-  authenticatedSettingsIndexRouteImport.update({
-    id: '/settings/',
-    path: '/settings/',
     getParentRoute: () => authenticatedRouteRoute,
   } as any)
 const authenticatedOverviewIndexRoute =
@@ -118,7 +111,6 @@ export interface FileRoutesByFullPath {
   '/shared-folders/$folderId': typeof authenticatedSharedFoldersFolderIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/overview': typeof authenticatedOverviewIndexRoute
-  '/settings': typeof authenticatedSettingsIndexRoute
   '/shared-folders': typeof authenticatedSharedFoldersIndexRoute
   '/team-folders': typeof authenticatedTeamFoldersIndexRoute
   '/team-folders/$orgId/{-$folderId}': typeof authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route
@@ -133,7 +125,6 @@ export interface FileRoutesByTo {
   '/shared-folders/$folderId': typeof authenticatedSharedFoldersFolderIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/overview': typeof authenticatedOverviewIndexRoute
-  '/settings': typeof authenticatedSettingsIndexRoute
   '/shared-folders': typeof authenticatedSharedFoldersIndexRoute
   '/team-folders': typeof authenticatedTeamFoldersIndexRoute
   '/team-folders/$orgId/{-$folderId}': typeof authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route
@@ -151,7 +142,6 @@ export interface FileRoutesById {
   '/(authenticated)/shared-folders/$folderId': typeof authenticatedSharedFoldersFolderIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/(authenticated)/overview/': typeof authenticatedOverviewIndexRoute
-  '/(authenticated)/settings/': typeof authenticatedSettingsIndexRoute
   '/(authenticated)/shared-folders/': typeof authenticatedSharedFoldersIndexRoute
   '/(authenticated)/team-folders/': typeof authenticatedTeamFoldersIndexRoute
   '/(authenticated)/team-folders/$orgId/{-$folderId}': typeof authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route
@@ -168,7 +158,6 @@ export interface FileRouteTypes {
     | '/shared-folders/$folderId'
     | '/api/auth/$'
     | '/overview'
-    | '/settings'
     | '/shared-folders'
     | '/team-folders'
     | '/team-folders/$orgId/{-$folderId}'
@@ -183,7 +172,6 @@ export interface FileRouteTypes {
     | '/shared-folders/$folderId'
     | '/api/auth/$'
     | '/overview'
-    | '/settings'
     | '/shared-folders'
     | '/team-folders'
     | '/team-folders/$orgId/{-$folderId}'
@@ -200,7 +188,6 @@ export interface FileRouteTypes {
     | '/(authenticated)/shared-folders/$folderId'
     | '/api/auth/$'
     | '/(authenticated)/overview/'
-    | '/(authenticated)/settings/'
     | '/(authenticated)/shared-folders/'
     | '/(authenticated)/team-folders/'
     | '/(authenticated)/team-folders/$orgId/{-$folderId}'
@@ -262,13 +249,6 @@ declare module '@tanstack/react-router' {
       path: '/shared-folders'
       fullPath: '/shared-folders'
       preLoaderRoute: typeof authenticatedSharedFoldersIndexRouteImport
-      parentRoute: typeof authenticatedRouteRoute
-    }
-    '/(authenticated)/settings/': {
-      id: '/(authenticated)/settings/'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof authenticatedSettingsIndexRouteImport
       parentRoute: typeof authenticatedRouteRoute
     }
     '/(authenticated)/overview/': {
@@ -343,7 +323,6 @@ interface authenticatedRouteRouteChildren {
   authenticatedShareLinkIdRoute: typeof authenticatedShareLinkIdRoute
   authenticatedSharedFoldersFolderIdRoute: typeof authenticatedSharedFoldersFolderIdRoute
   authenticatedOverviewIndexRoute: typeof authenticatedOverviewIndexRoute
-  authenticatedSettingsIndexRoute: typeof authenticatedSettingsIndexRoute
   authenticatedSharedFoldersIndexRoute: typeof authenticatedSharedFoldersIndexRoute
   authenticatedTeamFoldersIndexRoute: typeof authenticatedTeamFoldersIndexRoute
   authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route: typeof authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route
@@ -357,7 +336,6 @@ const authenticatedRouteRouteChildren: authenticatedRouteRouteChildren = {
   authenticatedSharedFoldersFolderIdRoute:
     authenticatedSharedFoldersFolderIdRoute,
   authenticatedOverviewIndexRoute: authenticatedOverviewIndexRoute,
-  authenticatedSettingsIndexRoute: authenticatedSettingsIndexRoute,
   authenticatedSharedFoldersIndexRoute: authenticatedSharedFoldersIndexRoute,
   authenticatedTeamFoldersIndexRoute: authenticatedTeamFoldersIndexRoute,
   authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route:
