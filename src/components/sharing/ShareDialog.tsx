@@ -81,10 +81,17 @@ export function ShareDialog({ folder, open, onOpenChange }: ShareDialogProps) {
 			queryClient.invalidateQueries({
 				queryKey: ["folders"],
 			});
-			// Copy the newly created link to clipboard
+			// Try to copy the newly created link to clipboard
 			const url = `${clientEnv.VITE_BASE_URL}/share/${data.id}`;
-			await navigator.clipboard.writeText(url);
-			toast.success("Link created and copied to clipboard");
+			try {
+				await navigator.clipboard.writeText(url);
+				toast.success("Link created and copied to clipboard");
+			} catch {
+				// Clipboard access denied - user can manually copy
+				toast.success("Link created", {
+					description: "Click the copy button to copy the link",
+				});
+			}
 			setIsCreatingLink(false);
 		},
 		onError: (error) => {
@@ -164,8 +171,14 @@ export function ShareDialog({ folder, open, onOpenChange }: ShareDialogProps) {
 
 	const handleCopyLink = async (linkId: string) => {
 		const url = `${clientEnv.VITE_BASE_URL}/share/${linkId}`;
-		await navigator.clipboard.writeText(url);
-		toast.success("Link copied to clipboard");
+		try {
+			await navigator.clipboard.writeText(url);
+			toast.success("Link copied to clipboard");
+		} catch {
+			toast.error("Failed to copy link", {
+				description: "Please copy the link manually",
+			});
+		}
 	};
 
 	const handleShareWithUser = (e: React.FormEvent) => {

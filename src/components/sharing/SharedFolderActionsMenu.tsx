@@ -78,6 +78,9 @@ export function SharedFolderActionsMenu({
 				queryKey: ["sharedWithMe"],
 			});
 			queryClient.invalidateQueries({
+				queryKey: ["sharedFolderContents"],
+			});
+			queryClient.invalidateQueries({
 				queryKey: ["favouriteFolders"],
 				exact: true,
 			});

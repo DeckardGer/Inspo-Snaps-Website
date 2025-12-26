@@ -3,6 +3,7 @@ import {
 	accessSharedLink,
 	getInvitationDetails,
 	getPendingInvitations,
+	getSharedByMe,
 	getSharedFolderContentsAuth,
 	getSharedFolderImages,
 	getSharedFolderPath,
@@ -30,6 +31,13 @@ export const sharedWithMeQueryOptions = () =>
 	queryOptions({
 		queryKey: ["sharedWithMe"],
 		queryFn: ({ signal }) => getSharedWithMe({ signal }),
+		staleTime: 1000 * 60 * 5,
+	});
+
+export const sharedByMeQueryOptions = () =>
+	queryOptions({
+		queryKey: ["sharedByMe"],
+		queryFn: ({ signal }) => getSharedByMe({ signal }),
 		staleTime: 1000 * 60 * 5,
 	});
 

@@ -244,6 +244,88 @@ export const revokeUserShare = createServerFn({ method: "POST" })
 		return { success: true };
 	});
 
+export const getSharedByMe = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.handler(async ({ context }) => {
+		// Get all folders the user owns that have been shared
+		const shares = await db.query.userShare.findMany({
+			where: eq(userShare.sharedByUserId, context.user.id),
+			with: {
+				folder: true,
+				sharedWith: { columns: { id: true, name: true, image: true } },
+			},
+		});
+
+		if (shares.length === 0) {
+			return [];
+		}
+
+		// Get unique folder IDs
+		const folderIds = [...new Set(shares.map((s) => s.folderId))];
+
+		// Get image counts for all folders
+		const imageCounts = await db
+			.select({
+				folderId: folderImage.folderId,
+				count: count(),
+			})
+			.from(folderImage)
+			.where(inArray(folderImage.folderId, folderIds))
+			.groupBy(folderImage.folderId);
+
+		// Get favourites for these folders
+		const favourites = await db.query.favouriteFolder.findMany({
+			where: and(
+				eq(favouriteFolder.userId, context.user.id),
+				inArray(favouriteFolder.folderId, folderIds),
+			),
+			columns: { folderId: true },
+		});
+
+		const countMap = new Map(imageCounts.map((ic) => [ic.folderId, ic.count]));
+		const favouriteSet = new Set(favourites.map((f) => f.folderId));
+
+		// Group shares by folder to get all recipients for each folder
+		const folderMap = new Map<
+			string,
+			{
+				folder: (typeof shares)[0]["folder"] & {
+					imageCount: number;
+					isShared: boolean;
+					isFavourited: boolean;
+				};
+				sharedWith: Array<{
+					id: string;
+					name: string | null;
+					image: string | null;
+					status: string;
+				}>;
+			}
+		>();
+
+		for (const share of shares) {
+			const existing = folderMap.get(share.folderId);
+			if (existing) {
+				existing.sharedWith.push({
+					...share.sharedWith,
+					status: share.status,
+				});
+			} else {
+				folderMap.set(share.folderId, {
+					folder: {
+						...share.folder,
+						imageCount: countMap.get(share.folderId) ?? 0,
+						isShared: true,
+						isFavourited: favouriteSet.has(share.folderId),
+					},
+					sharedWith: [{ ...share.sharedWith, status: share.status }],
+				});
+			}
+		}
+
+		return Array.from(folderMap.values());
+	});
+
 export const getSharedWithMe = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.handler(async ({ context }) => {

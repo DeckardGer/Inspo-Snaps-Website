@@ -93,6 +93,9 @@ export function FolderActionsMenu({
 				queryKey: ["favouriteFolders"],
 				exact: true,
 			});
+			queryClient.invalidateQueries({
+				queryKey: ["sharedByMe"],
+			});
 			toast.success(
 				folder.isFavourited ? "Removed from favourites" : "Added to favourites",
 			);
@@ -117,6 +120,9 @@ export function FolderActionsMenu({
 			queryClient.invalidateQueries({
 				queryKey: ["favouriteFolders"],
 				exact: true,
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["sharedByMe"],
 			});
 			toast.success("Folder deleted", {
 				description: `"${folder.name}" has been permanently deleted.`,
