@@ -459,8 +459,7 @@ export const getFavouriteFolders = createServerFn({ method: "GET" })
 		const sharedFolderIds = favourites
 			.filter(
 				(fav) =>
-					fav.folder.userId !== context.user.id &&
-					!fav.folder.organizationId,
+					fav.folder.userId !== context.user.id && !fav.folder.organizationId,
 			)
 			.map((fav) => fav.folder.id);
 

@@ -46,7 +46,9 @@ function RouteComponent() {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["pendingInvitations"] });
 			queryClient.invalidateQueries({ queryKey: ["sharedWithMe"] });
-			toast.success("Invitation accepted! Folder added to your shared folders.");
+			toast.success(
+				"Invitation accepted! Folder added to your shared folders.",
+			);
 			navigate({
 				to: "/shared-folders/$folderId",
 				params: { folderId },

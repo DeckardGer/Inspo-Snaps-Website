@@ -121,6 +121,7 @@ export function TeamSwitcher({
 							>
 								<DropdownMenuSubTrigger
 									showArrow={false}
+									delay={300}
 									onClick={() => handleTeamSelect(org.id)}
 									className={cn(
 										"group/team-item gap-2 p-2",
@@ -140,7 +141,8 @@ export function TeamSwitcher({
 												icon={UserGroupIcon}
 												className={cn(
 													"size-3.5 text-muted-foreground",
-													(isActive || isSubMenuOpen) && "text-accent-foreground",
+													(isActive || isSubMenuOpen) &&
+														"text-accent-foreground",
 												)}
 											/>
 										)}

@@ -45,7 +45,11 @@ export function ThemeToggle() {
 					Dark
 				</DropdownMenuItem>
 				<DropdownMenuItem onClick={() => setTheme("system")}>
-					<HugeiconsIcon icon={ComputerIcon} className="size-4" strokeWidth={2} />
+					<HugeiconsIcon
+						icon={ComputerIcon}
+						className="size-4"
+						strokeWidth={2}
+					/>
 					System
 				</DropdownMenuItem>
 			</DropdownMenuContent>
