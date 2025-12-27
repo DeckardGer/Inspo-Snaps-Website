@@ -5,7 +5,6 @@ import {
 	Delete02Icon,
 	PencilEdit01Icon,
 	Tick02Icon,
-	UserAdd02Icon,
 	UserGroupIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -31,6 +30,7 @@ import {
 	userOrganizationsWithActiveQueryOptions,
 } from "@/lib/organizations/queries";
 import { cn } from "@/lib/utils";
+import { TeamMembersModal } from "./TeamMembersModal";
 import { TeamModal } from "./TeamModal";
 
 type TeamSwitcherProps = {
@@ -45,6 +45,10 @@ export function TeamSwitcher({
 	const [dropdownOpen, setDropdownOpen] = useState(false);
 	const [openSubMenuId, setOpenSubMenuId] = useState<string | null>(null);
 	const [teamModalOpen, setTeamModalOpen] = useState(false);
+	const [membersModalOrg, setMembersModalOrg] = useState<{
+		id: string;
+		name: string;
+	} | null>(null);
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
@@ -168,9 +172,14 @@ export function TeamSwitcher({
 										<HugeiconsIcon icon={PencilEdit01Icon} />
 										Edit Team
 									</DropdownMenuItem>
-									<DropdownMenuItem>
-										<HugeiconsIcon icon={UserAdd02Icon} />
-										Invite Members
+									<DropdownMenuItem
+										onClick={() => {
+											setDropdownOpen(false);
+											setMembersModalOrg({ id: org.id, name: org.name });
+										}}
+									>
+										<HugeiconsIcon icon={UserGroupIcon} />
+										Manage Team
 									</DropdownMenuItem>
 									<DropdownMenuSeparator />
 									<DropdownMenuItem variant="destructive">
@@ -200,6 +209,17 @@ export function TeamSwitcher({
 			</DropdownMenuContent>
 
 			<TeamModal open={teamModalOpen} onOpenChange={setTeamModalOpen} />
+
+			{membersModalOrg && (
+				<TeamMembersModal
+					organizationId={membersModalOrg.id}
+					organizationName={membersModalOrg.name}
+					open={!!membersModalOrg}
+					onOpenChange={(open) => {
+						if (!open) setMembersModalOrg(null);
+					}}
+				/>
+			)}
 		</DropdownMenu>
 	);
 }

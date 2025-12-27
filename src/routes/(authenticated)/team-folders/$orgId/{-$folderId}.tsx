@@ -1,4 +1,8 @@
-import { ArrowLeft01Icon, FolderAddIcon } from "@hugeicons/core-free-icons";
+import {
+	ArrowLeft01Icon,
+	FolderAddIcon,
+	UserGroupIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -11,9 +15,11 @@ import {
 	TeamFolderGrid,
 	TeamFolderModal,
 	TeamFoldersEmptyState,
+	TeamMembersModal,
 	TeamSwitcher,
 } from "@/components/teams";
 import { Button } from "@/components/ui/button";
+import { DialogTrigger } from "@/components/ui/dialog";
 import { TeamUploadButton } from "@/components/upload";
 import { useTeamImageUpload } from "@/hooks/use-team-image-upload";
 import authClient from "@/lib/auth/auth-client";
@@ -158,6 +164,23 @@ function RouteComponent() {
 								folderId={folderId}
 							/>
 						)}
+						<TeamMembersModal
+							organizationId={organization.id}
+							organizationName={organization.name}
+							trigger={
+								<DialogTrigger
+									render={
+										<Button variant="outline">
+											<HugeiconsIcon
+												icon={UserGroupIcon}
+												data-icon="inline-start"
+											/>
+											Manage Team
+										</Button>
+									}
+								/>
+							}
+						/>
 						<TeamFolderModal
 							organizationId={organization.id}
 							parentId={folderId}
