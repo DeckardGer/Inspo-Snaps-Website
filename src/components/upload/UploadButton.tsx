@@ -1,4 +1,4 @@
-import { ImageAdd02Icon } from "@hugeicons/core-free-icons";
+import { CloudUploadIcon, ImageAdd02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -113,13 +113,16 @@ export function UploadButton({ folderId }: UploadButtonProps) {
 				onDrop={handleDrop}
 				disabled={isUploading}
 				className={cn(
-					"transition-all",
+					"transition-all duration-200 w-[121.5px]",
 					isDragOver &&
-						"ring-2 ring-primary ring-offset-2 bg-primary/10 border-primary",
+						"ring-2 ring-primary ring-offset-2 bg-primary/10 border-primary ring-offset-background",
 				)}
 			>
-				<HugeiconsIcon icon={ImageAdd02Icon} data-icon="inline-start" />
-				{isUploading ? "Uploading..." : "Add Images"}
+				<HugeiconsIcon
+					icon={isDragOver ? CloudUploadIcon : ImageAdd02Icon}
+					data-icon="inline-start"
+				/>
+				{isUploading ? "Uploading..." : isDragOver ? "Drop here" : "Add Images"}
 			</Button>
 		</>
 	);

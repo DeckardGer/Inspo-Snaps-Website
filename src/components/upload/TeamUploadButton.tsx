@@ -1,9 +1,9 @@
-import { ImageAdd02Icon } from "@hugeicons/core-free-icons";
+import { CloudUploadIcon, ImageAdd02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useTeamImageUpload } from "@/hooks/use-team-image-upload";
 import { validateFile } from "@/hooks/use-image-upload";
+import { useTeamImageUpload } from "@/hooks/use-team-image-upload";
 import { cn } from "@/lib/utils";
 
 interface TeamUploadButtonProps {
@@ -121,13 +121,16 @@ export function TeamUploadButton({
 				onDrop={handleDrop}
 				disabled={isUploading}
 				className={cn(
-					"transition-all",
+					"transition-all duration-200",
 					isDragOver &&
-						"ring-2 ring-primary ring-offset-2 bg-primary/10 border-primary",
+						"ring-2 ring-primary ring-offset-2 bg-primary/10 border-primary scale-105",
 				)}
 			>
-				<HugeiconsIcon icon={ImageAdd02Icon} data-icon="inline-start" />
-				{isUploading ? "Uploading..." : "Add Images"}
+				<HugeiconsIcon
+					icon={isDragOver ? CloudUploadIcon : ImageAdd02Icon}
+					data-icon="inline-start"
+				/>
+				{isUploading ? "Uploading..." : isDragOver ? "Drop here" : "Add Images"}
 			</Button>
 		</>
 	);

@@ -223,6 +223,7 @@ function TeamFolderContents({
 			<TeamFoldersEmptyState
 				organizationId={organizationId}
 				parentId={folderId}
+				onFilesDropped={uploadFiles}
 			/>
 		);
 	}
