@@ -650,7 +650,9 @@ export function SettingsModal({
 																		}
 																		aria-invalid={isInvalid}
 																		className="text-sm"
-																		autoComplete="username"
+																		autoComplete="off"
+																		autoCorrect="off"
+																		autoCapitalize="off"
 																		spellCheck={false}
 																	/>
 																	<InputGroupAddon align="inline-end">
