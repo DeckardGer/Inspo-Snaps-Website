@@ -2,7 +2,7 @@ import { LinkSquare02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { BreadcrumbItemPath } from "@/components/navbar/HeaderBreadcrumbs";
 import { HeaderBreadcrumbs } from "@/components/navbar/HeaderBreadcrumbs";
-import { InvitationsDropdown } from "@/components/navbar/InvitationsDropdown";
+import { NotificationsDropdown } from "@/components/notifications/NotificationsDropdown";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -33,7 +33,7 @@ export function NavBar({ breadrumbs }: NavBarProps) {
 				<HeaderBreadcrumbs items={breadrumbs} />
 			</div>
 			<div className="flex items-center gap-2 shrink-0">
-				<InvitationsDropdown />
+				<NotificationsDropdown />
 				<ThemeToggle />
 				<Button>
 					<HugeiconsIcon icon={LinkSquare02Icon} strokeWidth={2} />

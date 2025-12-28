@@ -129,6 +129,9 @@ export function ShareDialog({ folder, open, onOpenChange }: ShareDialogProps) {
 			queryClient.invalidateQueries({
 				queryKey: ["folders"],
 			});
+			queryClient.invalidateQueries({
+				queryKey: ["notifications"],
+			});
 			setUserIdentifier("");
 			toast.success(`Shared with ${data.sharedWithName}`);
 		},
@@ -147,6 +150,9 @@ export function ShareDialog({ folder, open, onOpenChange }: ShareDialogProps) {
 			});
 			queryClient.invalidateQueries({
 				queryKey: ["folders"],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["notifications"],
 			});
 			toast.success("Access revoked");
 		},

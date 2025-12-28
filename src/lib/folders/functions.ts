@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { and, eq, inArray, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNull, or } from "drizzle-orm";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { db } from "@/lib/db";
@@ -12,6 +12,7 @@ import {
 	userShare,
 } from "@/lib/db/schema";
 import { FOLDER_COLORS, type FolderColor } from "@/lib/folders/constants";
+import { createFolderAccessRevokedNotification } from "@/lib/notifications/create";
 import { deleteStorageObjects } from "@/lib/storage/functions";
 
 const CreateFolderInput = z.object({
@@ -211,7 +212,6 @@ export const moveFolder = createServerFn({ method: "POST" })
 		return result[0];
 	});
 
-// TODO: Not currently used
 export const deleteFolder = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
@@ -219,12 +219,39 @@ export const deleteFolder = createServerFn({ method: "POST" })
 		const allFolderIds = await getDescendantIds(data.id, context.user.id);
 		allFolderIds.push(data.id);
 
+		// Before deletion, get the folder name and all shared users to notify them
+		const folderToDelete = await db.query.folder.findFirst({
+			where: and(
+				eq(folder.id, data.id),
+				eq(folder.userId, context.user.id),
+				isNull(folder.organizationId),
+			),
+			columns: { id: true, name: true },
+		});
+
+		if (!folderToDelete) {
+			throw new Error("Folder not found");
+		}
+
+		// Get all users who have access to this folder or its descendants
+		const sharedUsers = await db.query.userShare.findMany({
+			where: and(
+				inArray(userShare.folderId, allFolderIds),
+				or(eq(userShare.status, "pending"), eq(userShare.status, "accepted")),
+			),
+			columns: { sharedWithUserId: true, folderId: true },
+			with: {
+				folder: { columns: { name: true } },
+			},
+		});
+
 		const affectedImages = await db.query.folderImage.findMany({
 			where: inArray(folderImage.folderId, allFolderIds),
 			columns: { imageId: true },
 		});
 		const imageIds = [...new Set(affectedImages.map((fi) => fi.imageId))];
 
+		// Delete the folder (cascades to userShare and shareLink)
 		await db
 			.delete(folder)
 			.where(
@@ -235,6 +262,7 @@ export const deleteFolder = createServerFn({ method: "POST" })
 				),
 			);
 
+		// Clean up orphaned images
 		if (imageIds.length > 0) {
 			const remainingLinks = await db.query.folderImage.findMany({
 				where: inArray(folderImage.imageId, imageIds),
@@ -255,6 +283,26 @@ export const deleteFolder = createServerFn({ method: "POST" })
 				await deleteStorageObjects(orphanedImages.map((i) => i.storageKey));
 			}
 		}
+
+		// Notify all shared users that their access was revoked
+		// Use a Map to avoid duplicate notifications per user (they might have access to multiple subfolders)
+		const userFolderMap = new Map<string, string>();
+		for (const share of sharedUsers) {
+			// Only notify once per user, using the first folder name they had access to
+			if (!userFolderMap.has(share.sharedWithUserId)) {
+				userFolderMap.set(share.sharedWithUserId, share.folder.name);
+			}
+		}
+
+		await Promise.all(
+			Array.from(userFolderMap.entries()).map(([userId, folderName]) =>
+				createFolderAccessRevokedNotification({
+					recipientId: userId,
+					actorId: context.user.id,
+					folderName,
+				}),
+			),
+		);
 
 		return { success: true };
 	});
@@ -315,7 +363,6 @@ async function getDescendantIds(
 	return descendants;
 }
 
-// TODO: Not currently used
 export const getFolderPath = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)

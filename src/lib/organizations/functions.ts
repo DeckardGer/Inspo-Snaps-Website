@@ -7,6 +7,12 @@ import { authMiddleware } from "@/lib/auth/middleware";
 import { ASSIGNABLE_ROLES } from "@/lib/auth/permissions";
 import { db } from "@/lib/db";
 import { invitation, member, organization, user } from "@/lib/db/schema";
+import {
+	createTeamInviteAcceptedNotification,
+	createTeamInviteNotification,
+	createTeamMemberRemovedNotification,
+	createTeamRoleChangedNotification,
+} from "@/lib/notifications/create";
 
 const OrganizationIdInput = z.object({
 	organizationId: z.string(),
@@ -323,7 +329,7 @@ export const getInviteDetails = createServerFn({ method: "GET" })
 export const acceptInviteLink = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(InviteCodeInput)
-	.handler(async ({ data }) => {
+	.handler(async ({ data, context }) => {
 		const headers = getRequest().headers;
 
 		// Get invitation details first to return org info
@@ -347,6 +353,14 @@ export const acceptInviteLink = createServerFn({ method: "POST" })
 			},
 		});
 
+		// Notify the person who created the invite
+		await createTeamInviteAcceptedNotification({
+			recipientId: inv.inviterId,
+			actorId: context.user.id,
+			organizationId: inv.organizationId,
+			organizationName: inv.organization.name,
+		});
+
 		return {
 			success: true,
 			alreadyMember: false,
@@ -359,8 +373,23 @@ export const acceptInviteLink = createServerFn({ method: "POST" })
 export const removeMember = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(RemoveMemberInput)
-	.handler(async ({ data }) => {
+	.handler(async ({ data, context }) => {
 		const headers = getRequest().headers;
+
+		// Get member and org details before removal for notification
+		const memberToRemove = await db.query.member.findFirst({
+			where: and(
+				eq(member.id, data.memberId),
+				eq(member.organizationId, data.organizationId),
+			),
+			with: {
+				organization: {
+					columns: { name: true },
+				},
+			},
+		});
+
+		if (!memberToRemove) throw new Error("Member not found");
 
 		await auth.api.removeMember({
 			headers,
@@ -370,14 +399,38 @@ export const removeMember = createServerFn({ method: "POST" })
 			},
 		});
 
+		// Notify the removed user
+		await createTeamMemberRemovedNotification({
+			recipientId: memberToRemove.userId,
+			actorId: context.user.id,
+			organizationName: memberToRemove.organization.name,
+		});
+
 		return { success: true };
 	});
 
 export const updateMemberRole = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(UpdateMemberRoleInput)
-	.handler(async ({ data }) => {
+	.handler(async ({ data, context }) => {
 		const headers = getRequest().headers;
+
+		// Get member details before update for notification
+		const memberToUpdate = await db.query.member.findFirst({
+			where: and(
+				eq(member.id, data.memberId),
+				eq(member.organizationId, data.organizationId),
+			),
+			with: {
+				organization: {
+					columns: { name: true },
+				},
+			},
+		});
+
+		if (!memberToUpdate) throw new Error("Member not found");
+
+		const oldRole = memberToUpdate.role;
 
 		await auth.api.updateMemberRole({
 			headers,
@@ -387,6 +440,18 @@ export const updateMemberRole = createServerFn({ method: "POST" })
 				organizationId: data.organizationId,
 			},
 		});
+
+		// Notify the user whose role changed (only if it's not themselves)
+		if (memberToUpdate.userId !== context.user.id) {
+			await createTeamRoleChangedNotification({
+				recipientId: memberToUpdate.userId,
+				actorId: context.user.id,
+				organizationId: data.organizationId,
+				organizationName: memberToUpdate.organization.name,
+				oldRole,
+				newRole: data.newRole,
+			});
+		}
 
 		return { success: true };
 	});
@@ -410,12 +475,13 @@ export const leaveOrganization = createServerFn({ method: "POST" })
 export const createInvitation = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(CreateInvitationInput)
-	.handler(async ({ data }) => {
+	.handler(async ({ data, context }) => {
 		const headers = getRequest().headers;
 
 		// Determine if input is email or username
 		const isEmail = data.emailOrUsername.includes("@");
 		let targetEmail = data.emailOrUsername;
+		let targetUserId: string | null = null;
 
 		if (!isEmail) {
 			// Search by username (case-insensitive)
@@ -431,7 +497,22 @@ export const createInvitation = createServerFn({ method: "POST" })
 			}
 
 			targetEmail = targetUser.email;
+			targetUserId = targetUser.id;
+		} else {
+			// Find user by email to get their ID for notification
+			const targetUser = await db.query.user.findFirst({
+				where: eq(user.email, targetEmail),
+			});
+			targetUserId = targetUser?.id ?? null;
 		}
+
+		// Get organization name for notification
+		const org = await db.query.organization.findFirst({
+			where: eq(organization.id, data.organizationId),
+			columns: { name: true },
+		});
+
+		if (!org) throw new Error("Organization not found");
 
 		// Use Better Auth API - handles permission checks, duplicate detection, email sending
 		const result = await auth.api.createInvitation({
@@ -442,6 +523,17 @@ export const createInvitation = createServerFn({ method: "POST" })
 				organizationId: data.organizationId,
 			},
 		});
+
+		// Notify the invited user if they exist in the system
+		if (targetUserId) {
+			await createTeamInviteNotification({
+				recipientId: targetUserId,
+				actorId: context.user.id,
+				organizationId: data.organizationId,
+				organizationName: org.name,
+				role: data.role,
+			});
+		}
 
 		return {
 			id: result.id,

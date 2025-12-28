@@ -46,6 +46,9 @@ function RouteComponent() {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["pendingInvitations"] });
 			queryClient.invalidateQueries({ queryKey: ["sharedWithMe"] });
+			queryClient.invalidateQueries({ queryKey: ["notifications"] });
+			// Remove from cache instead of invalidating - refetching would fail since status is no longer "pending"
+			queryClient.removeQueries({ queryKey: ["invitationDetails", folderId] });
 			toast.success(
 				"Invitation accepted! Folder added to your shared folders.",
 			);
@@ -63,6 +66,9 @@ function RouteComponent() {
 		mutationFn: () => cancelInvitation({ data: { folderId } }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["pendingInvitations"] });
+			queryClient.invalidateQueries({ queryKey: ["notifications"] });
+			// Remove from cache instead of invalidating - refetching would fail since status is no longer "pending"
+			queryClient.removeQueries({ queryKey: ["invitationDetails", folderId] });
 			toast.success("Invitation declined");
 			navigate({ to: "/shared-folders" });
 		},

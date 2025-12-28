@@ -39,7 +39,7 @@ export function SharedFolderCard({
 		<div
 			data-menu-open={menuOpen || undefined}
 			className={cn(
-				"group relative bg-card rounded-xl shadow-md transition-[scale,box-shadow] duration-200 ease-out hover:scale-[1.02] hover:shadow-lg",
+				"group relative bg-card rounded-xl shadow-md transition-[scale,box-shadow] duration-200 ease-out hover:scale-[1.02] hover:shadow-lg data-[menu-open]:scale-[1.02] data-[menu-open]:shadow-lg",
 				colors.glow,
 			)}
 		>

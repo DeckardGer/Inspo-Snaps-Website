@@ -11,6 +11,12 @@ import {
 	user,
 	userShare,
 } from "@/lib/db/schema";
+import {
+	createFolderAccessRevokedNotification,
+	createFolderInviteAcceptedNotification,
+	createFolderInviteDeclinedNotification,
+	createFolderInviteNotification,
+} from "@/lib/notifications/create";
 import { createPresignedDownloadUrl } from "@/lib/storage/functions";
 
 const CreateShareLinkInput = z.object({
@@ -164,6 +170,17 @@ export const shareWithUser = createServerFn({ method: "POST" })
 							eq(userShare.sharedWithUserId, targetUser.id),
 						),
 					);
+
+				// Create notification for the recipient
+				await createFolderInviteNotification({
+					recipientId: targetUser.id,
+					actorId: context.user.id,
+					folderId: f.id,
+					folderName: f.name,
+					folderColor: f.color,
+					folderEmoji: f.emoji ?? undefined,
+				});
+
 				return { success: true, sharedWithName: targetUser.name };
 			}
 			// Already pending or accepted
@@ -176,6 +193,16 @@ export const shareWithUser = createServerFn({ method: "POST" })
 			sharedWithUserId: targetUser.id,
 			sharedByUserId: context.user.id,
 			status: "pending",
+		});
+
+		// Create notification for the recipient
+		await createFolderInviteNotification({
+			recipientId: targetUser.id,
+			actorId: context.user.id,
+			folderId: f.id,
+			folderName: f.name,
+			folderColor: f.color,
+			folderEmoji: f.emoji ?? undefined,
 		});
 
 		return { success: true, sharedWithName: targetUser.name };
@@ -194,8 +221,12 @@ export const getSharedUsers = createServerFn({ method: "GET" })
 		});
 		if (!f) throw new Error("Folder not found");
 
+		// Only return pending and accepted shares (not cancelled/declined)
 		return db.query.userShare.findMany({
-			where: eq(userShare.folderId, data.folderId),
+			where: and(
+				eq(userShare.folderId, data.folderId),
+				or(eq(userShare.status, "pending"), eq(userShare.status, "accepted")),
+			),
 			columns: {
 				status: true,
 			},
@@ -245,6 +276,13 @@ export const revokeUserShare = createServerFn({ method: "POST" })
 					),
 				);
 		}
+
+		// Notify the user who lost access
+		await createFolderAccessRevokedNotification({
+			recipientId: data.userId,
+			actorId: context.user.id,
+			folderName: f.name,
+		});
 
 		return { success: true };
 	});
@@ -796,8 +834,9 @@ export const getInvitationDetails = createServerFn({ method: "GET" })
 			},
 		});
 
+		// Return null if no pending invitation found - the UI handles this gracefully
 		if (!invitation) {
-			throw new Error("Invitation not found or already accepted");
+			return null;
 		}
 
 		return {
@@ -846,6 +885,11 @@ export const acceptInvitation = createServerFn({ method: "POST" })
 				eq(userShare.sharedWithUserId, context.user.id),
 				eq(userShare.status, "pending"),
 			),
+			with: {
+				folder: {
+					columns: { id: true, name: true },
+				},
+			},
 		});
 
 		if (!invitation) {
@@ -862,6 +906,14 @@ export const acceptInvitation = createServerFn({ method: "POST" })
 				),
 			);
 
+		// Notify the person who shared the folder
+		await createFolderInviteAcceptedNotification({
+			recipientId: invitation.sharedByUserId,
+			actorId: context.user.id,
+			folderId: invitation.folder.id,
+			folderName: invitation.folder.name,
+		});
+
 		return { success: true };
 	});
 
@@ -876,6 +928,11 @@ export const cancelInvitation = createServerFn({ method: "POST" })
 				eq(userShare.sharedWithUserId, context.user.id),
 				eq(userShare.status, "pending"),
 			),
+			with: {
+				folder: {
+					columns: { id: true, name: true },
+				},
+			},
 		});
 
 		if (!invitation) {
@@ -891,6 +948,14 @@ export const cancelInvitation = createServerFn({ method: "POST" })
 					eq(userShare.sharedWithUserId, context.user.id),
 				),
 			);
+
+		// Notify the person who shared the folder
+		await createFolderInviteDeclinedNotification({
+			recipientId: invitation.sharedByUserId,
+			actorId: context.user.id,
+			folderId: invitation.folder.id,
+			folderName: invitation.folder.name,
+		});
 
 		return { success: true };
 	});

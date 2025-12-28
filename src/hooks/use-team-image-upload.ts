@@ -1,10 +1,10 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { validateFile } from "./use-image-upload";
 import { saveTeamImage } from "@/lib/images/functions";
 import { getImageDimensions } from "@/lib/images/utils";
 import { getUploadUrl } from "@/lib/storage/functions";
+import { validateFile } from "./use-image-upload";
 
 export function useTeamImageUpload(organizationId: string, folderId: string) {
 	const queryClient = useQueryClient();

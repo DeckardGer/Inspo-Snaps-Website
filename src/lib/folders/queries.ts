@@ -6,8 +6,8 @@ import {
 	getFolderStats,
 	getFolders,
 	getTeamFolderPath,
-	getTeamFolders,
 	getTeamFolderStats,
+	getTeamFolders,
 } from "./functions";
 
 export const foldersQueryOptions = (parentId?: string | null) =>
@@ -25,7 +25,6 @@ export const folderQueryOptions = (id: string) =>
 		staleTime: 1000 * 60 * 5,
 	});
 
-// TODO: Not currently used
 export const folderPathQueryOptions = (id: string) =>
 	queryOptions({
 		queryKey: ["folderPath", id],

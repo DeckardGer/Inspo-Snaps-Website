@@ -1,4 +1,3 @@
-export { InvitationCard } from "./InvitationCard";
 export { InvitationError } from "./InvitationError";
 export { ShareDialog } from "./ShareDialog";
 export {

@@ -130,6 +130,9 @@ export function TeamMembersModal({
 			queryClient.invalidateQueries({
 				queryKey: ["organization", organizationId],
 			});
+			queryClient.invalidateQueries({
+				queryKey: ["notifications"],
+			});
 		},
 		onError: (error: Error) => {
 			toast.error(error.message);
@@ -291,6 +294,9 @@ function MemberRow({
 			queryClient.invalidateQueries({
 				queryKey: ["organization", organizationId],
 			});
+			queryClient.invalidateQueries({
+				queryKey: ["notifications"],
+			});
 		},
 		onError: (error: Error) => {
 			toast.error(error.message);
@@ -306,6 +312,9 @@ function MemberRow({
 			toast.success("Role updated");
 			queryClient.invalidateQueries({
 				queryKey: ["organization", organizationId],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["notifications"],
 			});
 		},
 		onError: (error: Error) => {
