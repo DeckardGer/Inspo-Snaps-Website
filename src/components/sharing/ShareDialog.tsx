@@ -9,7 +9,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -206,16 +206,6 @@ export function ShareDialog({ folder, open, onOpenChange }: ShareDialogProps) {
 		return `Expires in ${days} days`;
 	};
 
-	const getInitials = (name: string | null) => {
-		if (!name) return "?";
-		return name
-			.split(" ")
-			.map((n) => n[0])
-			.join("")
-			.toUpperCase()
-			.slice(0, 2);
-	};
-
 	const hasActiveLinks = shareLinks && shareLinks.length > 0;
 	const hasSharedUsers = sharedUsers && sharedUsers.length > 0;
 
@@ -362,15 +352,11 @@ export function ShareDialog({ folder, open, onOpenChange }: ShareDialogProps) {
 									key={share.sharedWith.id}
 									className="flex items-center gap-3 rounded-lg border p-2.5"
 								>
-									<Avatar className="size-8">
-										<AvatarImage
-											src={share.sharedWith.image ?? undefined}
-											alt={share.sharedWith.name ?? "User"}
-										/>
-										<AvatarFallback className="text-xs">
-											{getInitials(share.sharedWith.name)}
-										</AvatarFallback>
-									</Avatar>
+									<UserAvatar
+										username={share.sharedWith.name ?? share.sharedWith.email}
+										imageUrl={share.sharedWith.image}
+										size="sm"
+									/>
 									<div className="flex-1 min-w-0">
 										<p className="text-sm font-medium truncate leading-tight">
 											{share.sharedWith.name}
