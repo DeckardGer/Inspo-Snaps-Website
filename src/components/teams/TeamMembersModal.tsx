@@ -444,6 +444,9 @@ function InvitationsTab({
 							}}
 							className="flex-1"
 							disabled={isInviting}
+							autoComplete="off"
+							autoCorrect="off"
+							autoCapitalize="off"
 						/>
 						<Select
 							value={inviteRole}

@@ -128,6 +128,7 @@ export async function createFolderAccessRevokedNotification(params: {
 export async function createTeamInviteNotification(params: {
 	recipientId: string;
 	actorId: string;
+	invitationId: string;
 	organizationId: string;
 	organizationName: string;
 	role: string;
@@ -138,6 +139,7 @@ export async function createTeamInviteNotification(params: {
 		actorId: params.actorId,
 		data: {
 			type: "team_invite",
+			invitationId: params.invitationId,
 			organizationId: params.organizationId,
 			organizationName: params.organizationName,
 			role: params.role,

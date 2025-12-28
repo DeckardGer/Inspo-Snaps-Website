@@ -9,6 +9,7 @@ import { db } from "@/lib/db";
 import { invitation, member, organization, user } from "@/lib/db/schema";
 import {
 	createTeamInviteAcceptedNotification,
+	createTeamInviteDeclinedNotification,
 	createTeamInviteNotification,
 	createTeamMemberRemovedNotification,
 	createTeamRoleChangedNotification,
@@ -529,6 +530,7 @@ export const createInvitation = createServerFn({ method: "POST" })
 			await createTeamInviteNotification({
 				recipientId: targetUserId,
 				actorId: context.user.id,
+				invitationId: result.id,
 				organizationId: data.organizationId,
 				organizationName: org.name,
 				role: data.role,
@@ -609,4 +611,167 @@ export const resendInvitation = createServerFn({ method: "POST" })
 			success: true,
 			expiresAt: result.expiresAt,
 		};
+	});
+
+const UserInvitationIdInput = z.object({
+	invitationId: z.string(),
+});
+
+/**
+ * Get details of a team invitation for the current user.
+ * Used for the accept/decline invitation page.
+ */
+export const getTeamInvitationDetails = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.inputValidator(UserInvitationIdInput)
+	.handler(async ({ data, context }) => {
+		const inv = await db.query.invitation.findFirst({
+			where: and(
+				eq(invitation.id, data.invitationId),
+				eq(invitation.status, "pending"),
+			),
+			with: {
+				organization: {
+					columns: { id: true, name: true, slug: true, logo: true },
+				},
+				user: {
+					columns: { id: true, name: true, image: true },
+				},
+			},
+		});
+
+		// Return null if not found - UI handles this gracefully
+		if (!inv) {
+			return null;
+		}
+
+		// Check if invitation has expired
+		if (inv.expiresAt < new Date()) {
+			return null;
+		}
+
+		// Verify this invitation is for the current user (by email)
+		if (inv.email !== context.user.email) {
+			return null;
+		}
+
+		// Check if user is already a member
+		const existingMember = await db.query.member.findFirst({
+			where: and(
+				eq(member.organizationId, inv.organizationId),
+				eq(member.userId, context.user.id),
+			),
+		});
+
+		if (existingMember) {
+			return null;
+		}
+
+		return {
+			id: inv.id,
+			organization: inv.organization,
+			role: inv.role ?? "member",
+			invitedBy: inv.user,
+			expiresAt: inv.expiresAt,
+			createdAt: inv.createdAt,
+		};
+	});
+
+/**
+ * Accept a direct team invitation (sent to user by email/username).
+ */
+export const acceptTeamInvitation = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(UserInvitationIdInput)
+	.handler(async ({ data, context }) => {
+		const headers = getRequest().headers;
+
+		// Get invitation details before accepting for notification
+		const inv = await db.query.invitation.findFirst({
+			where: and(
+				eq(invitation.id, data.invitationId),
+				eq(invitation.status, "pending"),
+			),
+			with: {
+				organization: {
+					columns: { id: true, name: true, slug: true },
+				},
+			},
+		});
+
+		if (!inv) {
+			throw new Error("Invitation not found or already processed");
+		}
+
+		if (inv.expiresAt < new Date()) {
+			throw new Error("Invitation has expired");
+		}
+
+		// Accept the invitation using Better Auth API
+		await auth.api.acceptInvitation({
+			headers,
+			body: {
+				invitationId: data.invitationId,
+			},
+		});
+
+		// Notify the person who created the invite
+		await createTeamInviteAcceptedNotification({
+			recipientId: inv.inviterId,
+			actorId: context.user.id,
+			organizationId: inv.organizationId,
+			organizationName: inv.organization.name,
+		});
+
+		return {
+			success: true,
+			organizationId: inv.organizationId,
+			organizationName: inv.organization.name,
+			organizationSlug: inv.organization.slug,
+		};
+	});
+
+/**
+ * Reject/decline a direct team invitation.
+ */
+export const rejectTeamInvitation = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(UserInvitationIdInput)
+	.handler(async ({ data, context }) => {
+		const headers = getRequest().headers;
+
+		// Get invitation details before rejecting for notification
+		const inv = await db.query.invitation.findFirst({
+			where: and(
+				eq(invitation.id, data.invitationId),
+				eq(invitation.status, "pending"),
+			),
+			with: {
+				organization: {
+					columns: { id: true, name: true },
+				},
+			},
+		});
+
+		if (!inv) {
+			throw new Error("Invitation not found or already processed");
+		}
+
+		// Reject the invitation using Better Auth API
+		await auth.api.rejectInvitation({
+			headers,
+			body: {
+				invitationId: data.invitationId,
+			},
+		});
+
+		// Notify the person who created the invite
+		await createTeamInviteDeclinedNotification({
+			recipientId: inv.inviterId,
+			actorId: context.user.id,
+			organizationId: inv.organizationId,
+			organizationName: inv.organization.name,
+		});
+
+		return { success: true };
 	});

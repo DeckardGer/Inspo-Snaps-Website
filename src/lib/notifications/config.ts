@@ -90,7 +90,7 @@ export const NOTIFICATION_CONFIG: Record<
 		},
 		getActionUrl: (data) => {
 			if (data.type !== "team_invite") return null;
-			return `/teams/${data.organizationId}`;
+			return `/team-invite/${data.invitationId}`;
 		},
 		actionable: true,
 	},
@@ -102,10 +102,7 @@ export const NOTIFICATION_CONFIG: Record<
 			if (data.type !== "team_invite_accepted") return "";
 			return `They are now a member of "${data.organizationName}"`;
 		},
-		getActionUrl: (data) => {
-			if (data.type !== "team_invite_accepted") return null;
-			return `/teams/${data.organizationId}`;
-		},
+		getActionUrl: () => "/team-folders",
 		actionable: true,
 	},
 
@@ -140,10 +137,7 @@ export const NOTIFICATION_CONFIG: Record<
 			if (data.type !== "team_role_changed") return "";
 			return `Your role in "${data.organizationName}" changed from ${data.oldRole} to ${data.newRole}`;
 		},
-		getActionUrl: (data) => {
-			if (data.type !== "team_role_changed") return null;
-			return `/teams/${data.organizationId}`;
-		},
+		getActionUrl: () => "/team-folders",
 		actionable: true,
 	},
 };

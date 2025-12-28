@@ -1,13 +1,20 @@
 import { Folder01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import authClient from "@/lib/auth/auth-client";
 import { FOLDER_CLASSES, type FolderColor } from "@/lib/folders/constants";
 import { getNotificationConfig } from "@/lib/notifications/config";
 import { markAsRead } from "@/lib/notifications/functions";
 import type { NotificationWithActor } from "@/lib/notifications/types";
 import { cn } from "@/lib/utils";
+
+// Team notification types that should set active organization before navigating
+const TEAM_ORG_NOTIFICATION_TYPES = [
+	"team_invite_accepted",
+	"team_role_changed",
+] as const;
 
 type NotificationItemProps = {
 	notification: NotificationWithActor;
@@ -35,6 +42,7 @@ export function NotificationItem({
 	onClose,
 }: NotificationItemProps) {
 	const queryClient = useQueryClient();
+	const navigate = useNavigate();
 	const config = getNotificationConfig(notification.type);
 
 	const markAsReadMutation = useMutation({
@@ -44,11 +52,44 @@ export function NotificationItem({
 		},
 	});
 
-	const handleClick = () => {
+	// Check if this is a team notification that needs to set active org
+	const isTeamOrgNotification = TEAM_ORG_NOTIFICATION_TYPES.includes(
+		notification.type as (typeof TEAM_ORG_NOTIFICATION_TYPES)[number],
+	);
+
+	const getOrganizationId = (): string | null => {
+		const { data } = notification;
+		if (
+			data.type === "team_invite_accepted" ||
+			data.type === "team_role_changed"
+		) {
+			return data.organizationId;
+		}
+		return null;
+	};
+
+	const handleClick = async () => {
 		if (!notification.read) {
 			markAsReadMutation.mutate();
 		}
 		onClose?.();
+	};
+
+	const handleTeamNotificationClick = async () => {
+		const orgId = getOrganizationId();
+		if (orgId) {
+			// Set active organization before navigating
+			await authClient.organization.setActive({ organizationId: orgId });
+			queryClient.invalidateQueries({ queryKey: ["organizations"] });
+		}
+
+		if (!notification.read) {
+			markAsReadMutation.mutate();
+		}
+		onClose?.();
+
+		// Navigate to team folders
+		navigate({ to: "/team-folders" });
 	};
 
 	const actionUrl = config.getActionUrl(notification.data);
@@ -120,6 +161,19 @@ export function NotificationItem({
 			)}
 		</div>
 	);
+
+	// Team notifications that set active org use a button with programmatic navigation
+	if (isTeamOrgNotification) {
+		return (
+			<DropdownMenuItem
+				className="p-0 cursor-pointer"
+				preserveColors
+				onClick={handleTeamNotificationClick}
+			>
+				{content}
+			</DropdownMenuItem>
+		);
+	}
 
 	if (actionUrl) {
 		return (

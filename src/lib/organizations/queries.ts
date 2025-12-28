@@ -3,6 +3,7 @@ import {
 	getInviteDetails,
 	getOrganizationById,
 	getOrganizationDetails,
+	getTeamInvitationDetails,
 	getUserOrganizations,
 	getUserOrganizationsWithActive,
 } from "./functions";
@@ -45,4 +46,13 @@ export const inviteDetailsQueryOptions = (inviteCode: string) =>
 		queryFn: ({ signal }) => getInviteDetails({ data: { inviteCode }, signal }),
 		staleTime: 1000 * 60 * 2,
 		enabled: !!inviteCode,
+	});
+
+export const teamInvitationDetailsQueryOptions = (invitationId: string) =>
+	queryOptions({
+		queryKey: ["teamInvitation", invitationId],
+		queryFn: ({ signal }) =>
+			getTeamInvitationDetails({ data: { invitationId }, signal }),
+		staleTime: 1000 * 60 * 5,
+		enabled: !!invitationId,
 	});

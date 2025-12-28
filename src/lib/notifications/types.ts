@@ -28,6 +28,7 @@ export type FolderAccessRevokedData = {
 
 export type TeamInviteData = {
 	type: "team_invite";
+	invitationId: string;
 	organizationId: string;
 	organizationName: string;
 	role: string;
