@@ -1,9 +1,10 @@
 import {
 	Cancel01Icon,
-	Folder01Icon,
+	CheckmarkCircle02Icon,
 	FolderRemoveIcon,
-	Tick02Icon,
-	UserGroup03Icon,
+	FolderShared02Icon,
+	UserAdd02Icon,
+	UserGroupIcon,
 	UserMinus02Icon,
 	UserSwitchIcon,
 } from "@hugeicons/core-free-icons";
@@ -11,7 +12,7 @@ import type { NotificationType } from "@/lib/db/schema/notification.schema";
 import type { NotificationActor, NotificationData } from "./types";
 
 export type NotificationTypeConfig = {
-	icon: typeof Folder01Icon;
+	icon: typeof FolderShared02Icon;
 	getTitle: (data: NotificationData, actor: NotificationActor | null) => string;
 	getMessage: (
 		data: NotificationData,
@@ -27,7 +28,7 @@ export const NOTIFICATION_CONFIG: Record<
 	NotificationTypeConfig
 > = {
 	folder_invite: {
-		icon: Folder01Icon,
+		icon: FolderShared02Icon,
 		getTitle: (_data, actor) =>
 			`${actor?.name ?? "Someone"} invited you to a folder`,
 		getMessage: (data) => {
@@ -42,7 +43,7 @@ export const NOTIFICATION_CONFIG: Record<
 	},
 
 	folder_invite_accepted: {
-		icon: Tick02Icon,
+		icon: CheckmarkCircle02Icon,
 		getTitle: (_data, actor) =>
 			`${actor?.name ?? "Someone"} accepted your invitation`,
 		getMessage: (data) => {
@@ -81,7 +82,7 @@ export const NOTIFICATION_CONFIG: Record<
 	},
 
 	team_invite: {
-		icon: UserGroup03Icon,
+		icon: UserGroupIcon,
 		getTitle: (_data, actor) =>
 			`${actor?.name ?? "Someone"} invited you to a team`,
 		getMessage: (data) => {
@@ -96,7 +97,7 @@ export const NOTIFICATION_CONFIG: Record<
 	},
 
 	team_invite_accepted: {
-		icon: Tick02Icon,
+		icon: UserAdd02Icon,
 		getTitle: (_data, actor) => `${actor?.name ?? "Someone"} joined your team`,
 		getMessage: (data) => {
 			if (data.type !== "team_invite_accepted") return "";

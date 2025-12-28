@@ -119,7 +119,7 @@ export function NotificationItem({
 					>
 						{notification.data.type === "folder_invite" &&
 						notification.data.folderEmoji ? (
-							<span className="text-sm leading-none">
+							<span className="text-xs leading-none">
 								{notification.data.folderEmoji}
 							</span>
 						) : (
