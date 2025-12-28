@@ -5,6 +5,7 @@ import { organization, username } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { serverEnv } from "@/config/env/server";
 import { db } from "@/lib/db";
+import { ac, roles } from "./permissions";
 
 const getAuthConfig = createServerOnlyFn(() =>
 	betterAuth({
@@ -17,7 +18,26 @@ const getAuthConfig = createServerOnlyFn(() =>
 		},
 
 		// https://www.better-auth.com/docs/integrations/tanstack#usage-tips
-		plugins: [username(), organization(), tanstackStartCookies()], // Make sure tanstackStartCookies is the last plugin in the array
+		plugins: [
+			username(),
+			organization({
+				ac,
+				roles,
+				async sendInvitationEmail(data) {
+					// TODO: Implement actual email sending
+					// For now, log the invitation details for development
+					const inviteLink = `${serverEnv.VITE_BASE_URL}/accept-invitation/${data.id}`;
+					console.log("[Organization Invitation]", {
+						email: data.email,
+						invitedBy: data.inviter.user.name,
+						organization: data.organization.name,
+						role: data.role,
+						inviteLink,
+					});
+				},
+			}),
+			tanstackStartCookies(),
+		], // Make sure tanstackStartCookies is the last plugin in the array
 
 		// https://www.better-auth.com/docs/concepts/session-management#session-caching
 		session: {

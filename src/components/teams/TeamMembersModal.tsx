@@ -1,6 +1,6 @@
 import {
 	Cancel01Icon,
-	InformationCircleIcon,
+	Loading03Icon,
 	Mail01Icon,
 	MoreVerticalIcon,
 	SentIcon,
@@ -8,7 +8,9 @@ import {
 	UserRemove02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { toast } from "sonner";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -42,11 +44,19 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { AssignableRole, Role } from "@/lib/auth/permissions";
+import type {
+	OrganizationDetails,
+	OrganizationMember,
+} from "@/lib/organizations/functions";
 import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+	cancelInvitation,
+	createInvitation,
+	removeMember,
+	resendInvitation,
+	updateMemberRole,
+} from "@/lib/organizations/functions";
+import { organizationDetailsQueryOptions } from "@/lib/organizations/queries";
 
 type TeamMembersModalProps = {
 	organizationId: string;
@@ -56,90 +66,15 @@ type TeamMembersModalProps = {
 	onOpenChange?: (open: boolean) => void;
 };
 
-type Role = "owner" | "member" | "viewer";
-type Tier = "free" | "pro" | "team";
-
-type Member = {
-	id: string;
-	username: string;
-	email: string;
-	image: string | null;
-	role: Role;
-	tier: Tier;
-};
-
-type Invitation = {
-	id: string;
-	email: string;
-	role: Role;
-	sentAt: Date;
-};
-
-// Mock data for demonstration
-// Free/Pro tier users can only be Viewer
-// Team tier users can be either Member or Viewer
-const MOCK_MEMBERS: Member[] = [
-	{
-		id: "1",
-		username: "johndoe",
-		email: "john@example.com",
-		image: null,
-		role: "owner",
-		tier: "team",
-	},
-	{
-		id: "2",
-		username: "janesmith",
-		email: "jane@example.com",
-		image: null,
-		role: "viewer",
-		tier: "pro",
-	},
-	{
-		id: "3",
-		username: "bobwilson",
-		email: "bob@example.com",
-		image: null,
-		role: "viewer",
-		tier: "free",
-	},
-	{
-		id: "4",
-		username: "alicejones",
-		email: "alice@example.com",
-		image: null,
-		role: "member",
-		tier: "team",
-	},
-	{
-		id: "5",
-		username: "charliekim",
-		email: "charlie@example.com",
-		image: null,
-		role: "viewer",
-		tier: "free",
-	},
-	{
-		id: "6",
-		username: "dianalee",
-		email: "diana@example.com",
-		image: null,
-		role: "viewer",
-		tier: "pro",
-	},
-];
-
-const MOCK_INVITATIONS: Invitation[] = [
-	{
-		id: "1",
-		email: "alice@example.com",
-		role: "member",
-		sentAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-	},
-];
-
 const ROLE_LABELS: Record<Role, string> = {
 	owner: "Owner",
+	admin: "Admin",
+	member: "Member",
+	viewer: "Viewer",
+};
+
+const ASSIGNABLE_ROLE_LABELS: Record<AssignableRole, string> = {
+	admin: "Admin",
 	member: "Member",
 	viewer: "Viewer",
 };
@@ -157,7 +92,7 @@ function formatRelativeTime(date: Date): string {
 }
 
 export function TeamMembersModal({
-	organizationId: _organizationId,
+	organizationId,
 	organizationName,
 	trigger,
 	open,
@@ -167,38 +102,82 @@ export function TeamMembersModal({
 	const dialogOpen = open ?? internalOpen;
 	const setDialogOpen = onOpenChange ?? setInternalOpen;
 
-	const [members] = useState<Member[]>(MOCK_MEMBERS);
-	const [invitations, setInvitations] =
-		useState<Invitation[]>(MOCK_INVITATIONS);
-	const [inviteEmail, setInviteEmail] = useState("");
-	const [inviteRole, setInviteRole] = useState<Role>("member");
+	const queryClient = useQueryClient();
+
+	// Fetch organization details (members + invitations)
+	const { data: orgDetails, isLoading } = useQuery({
+		...organizationDetailsQueryOptions(organizationId),
+		enabled: dialogOpen && !!organizationId,
+	});
+
+	const [inviteInput, setInviteInput] = useState("");
+	const [inviteRole, setAssignableRole] = useState<AssignableRole>("viewer");
+
+	// Mutations
+	const createInviteMutation = useMutation({
+		mutationFn: (data: { emailOrUsername: string; role: AssignableRole }) =>
+			createInvitation({
+				data: {
+					organizationId,
+					emailOrUsername: data.emailOrUsername,
+					role: data.role,
+				},
+			}),
+		onSuccess: () => {
+			toast.success("Invitation sent");
+			setInviteInput("");
+			setAssignableRole("viewer");
+			queryClient.invalidateQueries({
+				queryKey: ["organization", organizationId],
+			});
+		},
+		onError: (error: Error) => {
+			toast.error(error.message);
+		},
+	});
+
+	const cancelInviteMutation = useMutation({
+		mutationFn: (invitationId: string) =>
+			cancelInvitation({
+				data: { organizationId, invitationId },
+			}),
+		onSuccess: () => {
+			toast.success("Invitation cancelled");
+			queryClient.invalidateQueries({
+				queryKey: ["organization", organizationId],
+			});
+		},
+		onError: (error: Error) => {
+			toast.error(error.message);
+		},
+	});
+
+	const resendInviteMutation = useMutation({
+		mutationFn: (invitationId: string) =>
+			resendInvitation({
+				data: { organizationId, invitationId },
+			}),
+		onSuccess: () => {
+			toast.success("Invitation resent");
+			queryClient.invalidateQueries({
+				queryKey: ["organization", organizationId],
+			});
+		},
+		onError: (error: Error) => {
+			toast.error(error.message);
+		},
+	});
 
 	const handleInvite = () => {
-		if (!inviteEmail.trim()) return;
-
-		const newInvitation: Invitation = {
-			id: crypto.randomUUID(),
-			email: inviteEmail.trim(),
+		if (!inviteInput.trim()) return;
+		createInviteMutation.mutate({
+			emailOrUsername: inviteInput.trim(),
 			role: inviteRole,
-			sentAt: new Date(),
-		};
-
-		setInvitations((prev) => [...prev, newInvitation]);
-		setInviteEmail("");
-		setInviteRole("member");
+		});
 	};
 
-	const handleCancelInvitation = (invitationId: string) => {
-		setInvitations((prev) => prev.filter((inv) => inv.id !== invitationId));
-	};
-
-	const handleResendInvitation = (invitationId: string) => {
-		setInvitations((prev) =>
-			prev.map((inv) =>
-				inv.id === invitationId ? { ...inv, sentAt: new Date() } : inv,
-			),
-		);
-	};
+	const members = orgDetails?.members ?? [];
+	const invitations = orgDetails?.pendingInvitations ?? [];
 
 	return (
 		<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -224,19 +203,35 @@ export function TeamMembersModal({
 					</TabsList>
 
 					<TabsContent value="members" className="mt-4">
-						<MembersList members={members} />
+						{isLoading ? (
+							<div className="flex items-center justify-center py-8">
+								<HugeiconsIcon
+									icon={Loading03Icon}
+									className="size-6 animate-spin text-muted-foreground"
+								/>
+							</div>
+						) : (
+							<MembersList
+								members={members}
+								organizationId={organizationId}
+								currentUserRole={orgDetails?.currentUserRole ?? "member"}
+							/>
+						)}
 					</TabsContent>
 
 					<TabsContent value="invitations" className="mt-4">
 						<InvitationsTab
 							invitations={invitations}
-							inviteEmail={inviteEmail}
+							inviteInput={inviteInput}
 							inviteRole={inviteRole}
-							onInviteEmailChange={setInviteEmail}
-							onInviteRoleChange={setInviteRole}
+							onInviteInputChange={setInviteInput}
+							onAssignableRoleChange={setAssignableRole}
 							onInvite={handleInvite}
-							onCancelInvitation={handleCancelInvitation}
-							onResendInvitation={handleResendInvitation}
+							onCancelInvitation={(id) => cancelInviteMutation.mutate(id)}
+							onResendInvitation={(id) => resendInviteMutation.mutate(id)}
+							isInviting={createInviteMutation.isPending}
+							isCancelling={cancelInviteMutation.isPending}
+							isResending={resendInviteMutation.isPending}
 						/>
 					</TabsContent>
 				</Tabs>
@@ -245,7 +240,15 @@ export function TeamMembersModal({
 	);
 }
 
-function MembersList({ members }: { members: Member[] }) {
+function MembersList({
+	members,
+	organizationId,
+	currentUserRole,
+}: {
+	members: OrganizationMember[];
+	organizationId: string;
+	currentUserRole: string;
+}) {
 	return (
 		<div>
 			<h4 className="text-sm font-medium text-muted-foreground mb-2">
@@ -253,36 +256,84 @@ function MembersList({ members }: { members: Member[] }) {
 			</h4>
 			<div className="space-y-1 max-h-82 overflow-y-auto -mr-2 pr-2">
 				{members.map((member) => (
-					<MemberRow key={member.id} member={member} />
+					<MemberRow
+						key={member.id}
+						member={member}
+						organizationId={organizationId}
+						currentUserRole={currentUserRole}
+					/>
 				))}
 			</div>
 		</div>
 	);
 }
 
-function MemberRow({ member }: { member: Member }) {
+function MemberRow({
+	member,
+	organizationId,
+	currentUserRole,
+}: {
+	member: OrganizationMember;
+	organizationId: string;
+	currentUserRole: string;
+}) {
+	const queryClient = useQueryClient();
 	const isOwner = member.role === "owner";
+	const canManageMembers = currentUserRole === "owner";
+
+	const removeMemberMutation = useMutation({
+		mutationFn: () =>
+			removeMember({
+				data: { organizationId, memberId: member.id },
+			}),
+		onSuccess: () => {
+			toast.success("Member removed");
+			queryClient.invalidateQueries({
+				queryKey: ["organization", organizationId],
+			});
+		},
+		onError: (error: Error) => {
+			toast.error(error.message);
+		},
+	});
+
+	const updateRoleMutation = useMutation({
+		mutationFn: (newRole: "admin" | "member" | "viewer") =>
+			updateMemberRole({
+				data: { organizationId, memberId: member.id, newRole },
+			}),
+		onSuccess: () => {
+			toast.success("Role updated");
+			queryClient.invalidateQueries({
+				queryKey: ["organization", organizationId],
+			});
+		},
+		onError: (error: Error) => {
+			toast.error(error.message);
+		},
+	});
+
+	const username = member.user.username ?? member.user.name;
+	const displayRole = ROLE_LABELS[member.role as Role] ?? member.role;
 
 	return (
 		<div className="flex items-center gap-3 rounded-lg p-2 hover:bg-muted/50 transition-colors">
-			<UserAvatar
-				username={member.username}
-				imageUrl={member.image}
-				size="sm"
-			/>
+			<UserAvatar username={username} imageUrl={member.user.image} size="sm" />
 
 			<div className="flex-1 min-w-0">
-				<span className="font-medium truncate block">@{member.username}</span>
+				<span className="font-medium truncate block">
+					{member.user.username ? `@${member.user.username}` : member.user.name}
+				</span>
 				<span className="text-sm text-muted-foreground truncate block">
-					{member.email}
+					{member.user.email}
 				</span>
 			</div>
 
 			<Badge variant="outline" className="text-xs shrink-0">
-				{ROLE_LABELS[member.role]}
+				{displayRole}
 			</Badge>
 
-			{isOwner ? (
+			{isOwner || !canManageMembers ? (
 				<div className="size-8 shrink-0" />
 			) : (
 				<DropdownMenu>
@@ -298,49 +349,37 @@ function MemberRow({ member }: { member: Member }) {
 						<DropdownMenuGroup>
 							<DropdownMenuLabel>Change Role</DropdownMenuLabel>
 							<DropdownMenuSeparator />
-							<DropdownMenuRadioGroup>
-								{member.tier === "team" ? (
-									<DropdownMenuRadioItem value="member">
-										Member
-									</DropdownMenuRadioItem>
-								) : (
-									<DropdownMenuRadioItem value="member" disabled>
-										Member
-										<Tooltip>
-											<TooltipTrigger
-												render={
-													<span className="absolute right-2 flex items-center justify-center text-muted-foreground pointer-events-auto">
-														<HugeiconsIcon
-															icon={InformationCircleIcon}
-															className="size-4"
-														/>
-													</span>
-												}
-											/>
-											<TooltipContent
-												side="left"
-												className="max-w-56 text-left"
-											>
-												<p className="font-medium">
-													Team subscription required
-												</p>
-												<p className="mt-1 text-background/70">
-													@{member.username} needs a Team subscription to be
-													assigned the Member role and edit content.
-												</p>
-											</TooltipContent>
-										</Tooltip>
-									</DropdownMenuRadioItem>
-								)}
+							<DropdownMenuRadioGroup
+								value={member.role}
+								onValueChange={(value) => {
+									if (
+										value === "admin" ||
+										value === "member" ||
+										value === "viewer"
+									) {
+										updateRoleMutation.mutate(value);
+									}
+								}}
+							>
+								<DropdownMenuRadioItem value="admin">
+									Admin
+								</DropdownMenuRadioItem>
+								<DropdownMenuRadioItem value="member">
+									Member
+								</DropdownMenuRadioItem>
 								<DropdownMenuRadioItem value="viewer">
 									Viewer
 								</DropdownMenuRadioItem>
-								<DropdownMenuSeparator />
-								<DropdownMenuItem variant="destructive">
-									<HugeiconsIcon icon={UserRemove02Icon} />
-									Remove member
-								</DropdownMenuItem>
 							</DropdownMenuRadioGroup>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem
+								variant="destructive"
+								onClick={() => removeMemberMutation.mutate()}
+								disabled={removeMemberMutation.isPending}
+							>
+								<HugeiconsIcon icon={UserRemove02Icon} />
+								Remove member
+							</DropdownMenuItem>
 						</DropdownMenuGroup>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -349,24 +388,32 @@ function MemberRow({ member }: { member: Member }) {
 	);
 }
 
+type PendingInvitation = OrganizationDetails["pendingInvitations"][number];
+
 function InvitationsTab({
 	invitations,
-	inviteEmail,
+	inviteInput,
 	inviteRole,
-	onInviteEmailChange,
-	onInviteRoleChange,
+	onInviteInputChange,
+	onAssignableRoleChange,
 	onInvite,
 	onCancelInvitation,
 	onResendInvitation,
+	isInviting,
+	isCancelling,
+	isResending,
 }: {
-	invitations: Invitation[];
-	inviteEmail: string;
-	inviteRole: Role;
-	onInviteEmailChange: (email: string) => void;
-	onInviteRoleChange: (role: Role) => void;
+	invitations: PendingInvitation[];
+	inviteInput: string;
+	inviteRole: AssignableRole;
+	onInviteInputChange: (value: string) => void;
+	onAssignableRoleChange: (role: AssignableRole) => void;
 	onInvite: () => void;
 	onCancelInvitation: (id: string) => void;
 	onResendInvitation: (id: string) => void;
+	isInviting: boolean;
+	isCancelling: boolean;
+	isResending: boolean;
 }) {
 	return (
 		<div className="space-y-4">
@@ -378,8 +425,8 @@ function InvitationsTab({
 						<Input
 							type="text"
 							placeholder="Email or username"
-							value={inviteEmail}
-							onChange={(e) => onInviteEmailChange(e.target.value)}
+							value={inviteInput}
+							onChange={(e) => onInviteInputChange(e.target.value)}
 							onKeyDown={(e) => {
 								if (e.key === "Enter") {
 									e.preventDefault();
@@ -387,23 +434,43 @@ function InvitationsTab({
 								}
 							}}
 							className="flex-1"
+							disabled={isInviting}
 						/>
 						<Select
 							value={inviteRole}
 							onValueChange={(value) => {
-								if (value) onInviteRoleChange(value);
+								if (
+									value === "admin" ||
+									value === "member" ||
+									value === "viewer"
+								) {
+									onAssignableRoleChange(value);
+								}
 							}}
+							disabled={isInviting}
 						>
 							<SelectTrigger className="w-28">
-								<SelectValue>{ROLE_LABELS[inviteRole]}</SelectValue>
+								<SelectValue>{ASSIGNABLE_ROLE_LABELS[inviteRole]}</SelectValue>
 							</SelectTrigger>
 							<SelectContent className="min-w-0">
+								<SelectItem value="admin">Admin</SelectItem>
 								<SelectItem value="member">Member</SelectItem>
 								<SelectItem value="viewer">Viewer</SelectItem>
 							</SelectContent>
 						</Select>
-						<Button onClick={onInvite} disabled={!inviteEmail.trim()}>
-							<HugeiconsIcon icon={SentIcon} data-icon="inline-start" />
+						<Button
+							onClick={onInvite}
+							disabled={!inviteInput.trim() || isInviting}
+						>
+							{isInviting ? (
+								<HugeiconsIcon
+									icon={Loading03Icon}
+									className="animate-spin"
+									data-icon="inline-start"
+								/>
+							) : (
+								<HugeiconsIcon icon={SentIcon} data-icon="inline-start" />
+							)}
 							Invite
 						</Button>
 					</div>
@@ -424,6 +491,8 @@ function InvitationsTab({
 									invitation={invitation}
 									onCancel={() => onCancelInvitation(invitation.id)}
 									onResend={() => onResendInvitation(invitation.id)}
+									isCancelling={isCancelling}
+									isResending={isResending}
 								/>
 							))}
 						</div>
@@ -448,11 +517,18 @@ function InvitationRow({
 	invitation,
 	onCancel,
 	onResend,
+	isCancelling,
+	isResending,
 }: {
-	invitation: Invitation;
+	invitation: PendingInvitation;
 	onCancel: () => void;
 	onResend: () => void;
+	isCancelling: boolean;
+	isResending: boolean;
 }) {
+	const displayRole =
+		ROLE_LABELS[(invitation.role ?? "viewer") as Role] ?? invitation.role;
+
 	return (
 		<div className="flex items-center gap-3 rounded-lg p-2 hover:bg-muted/50 transition-colors">
 			<Avatar>
@@ -467,16 +543,26 @@ function InvitationRow({
 			<div className="flex-1 min-w-0">
 				<span className="font-medium truncate block">{invitation.email}</span>
 				<span className="text-sm text-muted-foreground">
-					Invited {formatRelativeTime(invitation.sentAt)} as{" "}
-					{ROLE_LABELS[invitation.role]}
+					Invited {formatRelativeTime(new Date(invitation.createdAt))} as{" "}
+					{displayRole}
 				</span>
 			</div>
 
 			<div className="flex items-center gap-1 shrink-0">
-				<Button variant="ghost" size="sm" onClick={onResend}>
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={onResend}
+					disabled={isResending}
+				>
 					Resend
 				</Button>
-				<Button variant="ghost" size="icon-sm" onClick={onCancel}>
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					onClick={onCancel}
+					disabled={isCancelling}
+				>
 					<HugeiconsIcon icon={Cancel01Icon} />
 					<span className="sr-only">Cancel invitation</span>
 				</Button>

@@ -2,7 +2,6 @@ import { queryOptions } from "@tanstack/react-query";
 import {
 	getInviteDetails,
 	getOrganizationById,
-	getOrganizationBySlug,
 	getOrganizationDetails,
 	getUserOrganizations,
 	getUserOrganizationsWithActive,
@@ -29,14 +28,6 @@ export const organizationDetailsQueryOptions = (organizationId: string) =>
 			getOrganizationDetails({ data: { organizationId }, signal }),
 		staleTime: 1000 * 60 * 2,
 		enabled: !!organizationId,
-	});
-
-export const organizationBySlugQueryOptions = (slug: string) =>
-	queryOptions({
-		queryKey: ["organization", "slug", slug],
-		queryFn: ({ signal }) => getOrganizationBySlug({ data: { slug }, signal }),
-		staleTime: 1000 * 60 * 5,
-		enabled: !!slug,
 	});
 
 export const organizationByIdQueryOptions = (organizationId: string) =>

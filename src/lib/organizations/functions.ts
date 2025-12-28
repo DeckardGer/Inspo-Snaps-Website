@@ -4,8 +4,9 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { auth } from "@/lib/auth/auth";
 import { authMiddleware } from "@/lib/auth/middleware";
+import { ASSIGNABLE_ROLES } from "@/lib/auth/permissions";
 import { db } from "@/lib/db";
-import { invitation, member, organization } from "@/lib/db/schema";
+import { invitation, member, organization, user } from "@/lib/db/schema";
 
 const OrganizationIdInput = z.object({
 	organizationId: z.string(),
@@ -13,7 +14,7 @@ const OrganizationIdInput = z.object({
 
 const InviteLinkInput = z.object({
 	organizationId: z.string(),
-	role: z.enum(["admin", "member"]).default("member"),
+	role: z.enum(ASSIGNABLE_ROLES).default("viewer"),
 	expiresInDays: z.number().min(1).max(30).default(7),
 });
 
@@ -29,7 +30,18 @@ const RemoveMemberInput = z.object({
 const UpdateMemberRoleInput = z.object({
 	organizationId: z.string(),
 	memberId: z.string(),
-	newRole: z.enum(["admin", "member"]),
+	newRole: z.enum(ASSIGNABLE_ROLES),
+});
+
+const CreateInvitationInput = z.object({
+	organizationId: z.string(),
+	emailOrUsername: z.string().min(1),
+	role: z.enum(ASSIGNABLE_ROLES).default("viewer"),
+});
+
+const InvitationIdInput = z.object({
+	organizationId: z.string(),
+	invitationId: z.string(),
 });
 
 export type UserOrganization = {
@@ -112,6 +124,7 @@ export type OrganizationMember = {
 		name: string;
 		email: string;
 		image: string | null;
+		username: string | null;
 	};
 };
 
@@ -152,7 +165,13 @@ export const getOrganizationDetails = createServerFn({ method: "GET" })
 				members: {
 					with: {
 						user: {
-							columns: { id: true, name: true, email: true, image: true },
+							columns: {
+								id: true,
+								name: true,
+								email: true,
+								image: true,
+								username: true,
+							},
 						},
 					},
 				},
@@ -189,36 +208,6 @@ export const getOrganizationDetails = createServerFn({ method: "GET" })
 		} satisfies OrganizationDetails;
 	});
 
-export const getOrganizationBySlug = createServerFn({ method: "GET" })
-	.middleware([authMiddleware])
-	.inputValidator(z.object({ slug: z.string() }))
-	.handler(async ({ data, context }) => {
-		const org = await db.query.organization.findFirst({
-			where: eq(organization.slug, data.slug),
-		});
-
-		if (!org) throw new Error("Organization not found");
-
-		// Verify user is member
-		const membership = await db.query.member.findFirst({
-			where: and(
-				eq(member.organizationId, org.id),
-				eq(member.userId, context.user.id),
-			),
-		});
-
-		if (!membership) throw new Error("Not a member of this organization");
-
-		return {
-			id: org.id,
-			name: org.name,
-			slug: org.slug,
-			logo: org.logo,
-			createdAt: org.createdAt,
-			currentUserRole: membership.role,
-		};
-	});
-
 export const getOrganizationById = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(OrganizationIdInput)
@@ -253,16 +242,21 @@ export const createInviteLink = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(InviteLinkInput)
 	.handler(async ({ data, context }) => {
-		// Verify user is owner or admin
-		const membership = await db.query.member.findFirst({
-			where: and(
-				eq(member.organizationId, data.organizationId),
-				eq(member.userId, context.user.id),
-			),
+		const headers = getRequest().headers;
+
+		// Check permission using Better Auth access control
+		const { success } = await auth.api.hasPermission({
+			headers,
+			body: {
+				permission: {
+					invitation: ["create"],
+				},
+				organizationId: data.organizationId,
+			},
 		});
 
-		if (!membership || !["owner", "admin"].includes(membership.role)) {
-			throw new Error("Only owners and admins can create invite links");
+		if (!success) {
+			throw new Error("You don't have permission to create invite links");
 		}
 
 		const invitationId = crypto.randomUUID();
@@ -329,7 +323,10 @@ export const getInviteDetails = createServerFn({ method: "GET" })
 export const acceptInviteLink = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(InviteCodeInput)
-	.handler(async ({ data, context }) => {
+	.handler(async ({ data }) => {
+		const headers = getRequest().headers;
+
+		// Get invitation details first to return org info
 		const inv = await db.query.invitation.findFirst({
 			where: and(
 				eq(invitation.id, data.inviteCode),
@@ -341,41 +338,14 @@ export const acceptInviteLink = createServerFn({ method: "POST" })
 		if (!inv) throw new Error("Invalid or expired invite link");
 		if (inv.expiresAt < new Date()) throw new Error("Invite link has expired");
 
-		// Check if already a member
-		const existingMember = await db.query.member.findFirst({
-			where: and(
-				eq(member.organizationId, inv.organizationId),
-				eq(member.userId, context.user.id),
-			),
+		// Use Better Auth API to accept invitation
+		// This handles: adding member, updating invitation status, triggering hooks
+		await auth.api.acceptInvitation({
+			headers,
+			body: {
+				invitationId: data.inviteCode,
+			},
 		});
-
-		if (existingMember) {
-			return {
-				success: true,
-				alreadyMember: true,
-				organizationId: inv.organizationId,
-				organizationName: inv.organization.name,
-				organizationSlug: inv.organization.slug,
-			};
-		}
-
-		// Add user as member
-		await db.insert(member).values({
-			id: crypto.randomUUID(),
-			organizationId: inv.organizationId,
-			userId: context.user.id,
-			role: inv.role ?? "member",
-			createdAt: new Date(),
-		});
-
-		// For link-based invites, mark as accepted
-		// (email invites are user-specific so we update differently)
-		if (inv.email.startsWith("invite-link-")) {
-			await db
-				.update(invitation)
-				.set({ status: "accepted" })
-				.where(eq(invitation.id, data.inviteCode));
-		}
 
 		return {
 			success: true,
@@ -389,40 +359,16 @@ export const acceptInviteLink = createServerFn({ method: "POST" })
 export const removeMember = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(RemoveMemberInput)
-	.handler(async ({ data, context }) => {
-		// Verify requester is owner or admin
-		const requesterMembership = await db.query.member.findFirst({
-			where: and(
-				eq(member.organizationId, data.organizationId),
-				eq(member.userId, context.user.id),
-			),
+	.handler(async ({ data }) => {
+		const headers = getRequest().headers;
+
+		await auth.api.removeMember({
+			headers,
+			body: {
+				memberIdOrEmail: data.memberId,
+				organizationId: data.organizationId,
+			},
 		});
-
-		if (
-			!requesterMembership ||
-			!["owner", "admin"].includes(requesterMembership.role)
-		) {
-			throw new Error("Only owners and admins can remove members");
-		}
-
-		// Get target member
-		const targetMember = await db.query.member.findFirst({
-			where: eq(member.id, data.memberId),
-		});
-
-		if (!targetMember) throw new Error("Member not found");
-
-		// Cannot remove owner
-		if (targetMember.role === "owner") {
-			throw new Error("Cannot remove the organization owner");
-		}
-
-		// Admin cannot remove other admins (only owner can)
-		if (targetMember.role === "admin" && requesterMembership.role !== "owner") {
-			throw new Error("Only owners can remove admins");
-		}
-
-		await db.delete(member).where(eq(member.id, data.memberId));
 
 		return { success: true };
 	});
@@ -430,31 +376,17 @@ export const removeMember = createServerFn({ method: "POST" })
 export const updateMemberRole = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(UpdateMemberRoleInput)
-	.handler(async ({ data, context }) => {
-		// Only owner can change roles
-		const requesterMembership = await db.query.member.findFirst({
-			where: and(
-				eq(member.organizationId, data.organizationId),
-				eq(member.userId, context.user.id),
-			),
+	.handler(async ({ data }) => {
+		const headers = getRequest().headers;
+
+		await auth.api.updateMemberRole({
+			headers,
+			body: {
+				memberId: data.memberId,
+				role: data.newRole,
+				organizationId: data.organizationId,
+			},
 		});
-
-		if (!requesterMembership || requesterMembership.role !== "owner") {
-			throw new Error("Only the owner can change member roles");
-		}
-
-		const targetMember = await db.query.member.findFirst({
-			where: eq(member.id, data.memberId),
-		});
-
-		if (!targetMember) throw new Error("Member not found");
-		if (targetMember.role === "owner")
-			throw new Error("Cannot change owner role");
-
-		await db
-			.update(member)
-			.set({ role: data.newRole })
-			.where(eq(member.id, data.memberId));
 
 		return { success: true };
 	});
@@ -462,23 +394,127 @@ export const updateMemberRole = createServerFn({ method: "POST" })
 export const leaveOrganization = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(OrganizationIdInput)
-	.handler(async ({ data, context }) => {
-		const membership = await db.query.member.findFirst({
+	.handler(async ({ data }) => {
+		const headers = getRequest().headers;
+
+		await auth.api.leaveOrganization({
+			headers,
+			body: {
+				organizationId: data.organizationId,
+			},
+		});
+
+		return { success: true };
+	});
+
+export const createInvitation = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(CreateInvitationInput)
+	.handler(async ({ data }) => {
+		const headers = getRequest().headers;
+
+		// Determine if input is email or username
+		const isEmail = data.emailOrUsername.includes("@");
+		let targetEmail = data.emailOrUsername;
+
+		if (!isEmail) {
+			// Search by username (case-insensitive)
+			const usernameSearch = data.emailOrUsername
+				.toLowerCase()
+				.replace("@", "");
+			const targetUser = await db.query.user.findFirst({
+				where: eq(user.username, usernameSearch),
+			});
+
+			if (!targetUser) {
+				throw new Error(`User @${usernameSearch} not found`);
+			}
+
+			targetEmail = targetUser.email;
+		}
+
+		// Use Better Auth API - handles permission checks, duplicate detection, email sending
+		const result = await auth.api.createInvitation({
+			headers,
+			body: {
+				email: targetEmail,
+				role: data.role,
+				organizationId: data.organizationId,
+			},
+		});
+
+		return {
+			id: result.id,
+			email: result.email,
+			role: result.role,
+			expiresAt: result.expiresAt,
+			createdAt: result.createdAt,
+		};
+	});
+
+export const cancelInvitation = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(InvitationIdInput)
+	.handler(async ({ data }) => {
+		const headers = getRequest().headers;
+
+		await auth.api.cancelInvitation({
+			headers,
+			body: {
+				invitationId: data.invitationId,
+			},
+		});
+
+		return { success: true };
+	});
+
+export const resendInvitation = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(InvitationIdInput)
+	.handler(async ({ data }) => {
+		const headers = getRequest().headers;
+
+		// Check permission first using Better Auth access control
+		const { success } = await auth.api.hasPermission({
+			headers,
+			body: {
+				permission: {
+					invitation: ["create"],
+				},
+				organizationId: data.organizationId,
+			},
+		});
+
+		if (!success) {
+			throw new Error("You don't have permission to resend invitations");
+		}
+
+		// Get the invitation to retrieve email and role
+		const inv = await db.query.invitation.findFirst({
 			where: and(
-				eq(member.organizationId, data.organizationId),
-				eq(member.userId, context.user.id),
+				eq(invitation.id, data.invitationId),
+				eq(invitation.organizationId, data.organizationId),
+				eq(invitation.status, "pending"),
 			),
 		});
 
-		if (!membership) throw new Error("Not a member of this organization");
-
-		if (membership.role === "owner") {
-			throw new Error(
-				"Owner cannot leave the organization. Transfer ownership first or delete the organization.",
-			);
+		if (!inv) {
+			throw new Error("Invitation not found or already processed");
 		}
 
-		await db.delete(member).where(eq(member.id, membership.id));
+		// Use Better Auth API with resend flag - triggers sendInvitationEmail callback
+		const result = await auth.api.createInvitation({
+			headers,
+			body: {
+				email: inv.email,
+				role: (inv.role ?? "viewer") as "admin" | "member" | "viewer",
+				organizationId: data.organizationId,
+				resend: true,
+			},
+		});
 
-		return { success: true };
+		return {
+			success: true,
+			expiresAt: result.expiresAt,
+		};
 	});
