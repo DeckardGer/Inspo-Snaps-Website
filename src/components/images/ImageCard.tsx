@@ -7,7 +7,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import {
 	AlertDialog,
@@ -46,6 +46,8 @@ interface FolderImageCardProps {
 	folderId: string;
 	organizationId?: string;
 	readOnly?: boolean;
+	onOpenLightbox?: (rect: DOMRect | null) => void;
+	registerRef?: (element: HTMLDivElement | null) => void;
 }
 
 export function ImageCard({
@@ -53,9 +55,12 @@ export function ImageCard({
 	folderId,
 	organizationId,
 	readOnly,
+	onOpenLightbox,
+	registerRef,
 }: FolderImageCardProps) {
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+	const imageContainerRef = useRef<HTMLDivElement>(null);
 	const queryClient = useQueryClient();
 
 	const imageUrl = image.imageUrl;
@@ -118,10 +123,23 @@ export function ImageCard({
 		}
 	};
 
+	const handleImageClick = () => {
+		const rect = imageContainerRef.current?.getBoundingClientRect() ?? null;
+		onOpenLightbox?.(rect);
+	};
+
+	const setRefs = (element: HTMLDivElement | null) => {
+		(
+			imageContainerRef as React.MutableRefObject<HTMLDivElement | null>
+		).current = element;
+		registerRef?.(element);
+	};
+
 	return (
 		<div
+			ref={setRefs}
 			data-menu-open={menuOpen || undefined}
-			className="group relative bg-card rounded-xl shadow-md overflow-hidden h-32"
+			className="group relative bg-card rounded-xl shadow-md h-32"
 		>
 			{/* Image Container */}
 			{imageUrl ? (
@@ -162,13 +180,20 @@ export function ImageCard({
 						</DropdownMenuContent>
 					</DropdownMenu>
 
-					<img
-						src={imageUrl}
-						alt={image.filename}
-						loading="lazy"
-						decoding="async"
-						className="w-full h-full object-cover group-hover:scale-105 group-data-[menu-open]:scale-105 transition-transform duration-200 cursor-pointer"
-					/>
+					<button
+						type="button"
+						onClick={handleImageClick}
+						aria-label={`View ${image.filename} full size`}
+						className="w-full h-full cursor-pointer rounded-xl outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 overflow-hidden"
+					>
+						<img
+							src={imageUrl}
+							alt={image.filename}
+							loading="lazy"
+							decoding="async"
+							className="w-full h-full object-cover group-hover:scale-105 group-data-[menu-open]:scale-105 transition-transform duration-200 cursor-pointer"
+						/>
+					</button>
 
 					{/* Shadow Overlay on Hover */}
 					<div className="absolute inset-0 rounded-xl shadow-[inset_0_0_20px_rgba(0,0,0,0.3)] opacity-0 group-hover:opacity-100 group-data-[menu-open]:opacity-100 transition-opacity duration-200 pointer-events-none" />
