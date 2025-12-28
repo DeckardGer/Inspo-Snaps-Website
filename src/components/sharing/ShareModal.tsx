@@ -40,7 +40,7 @@ import {
 } from "@/lib/sharing/queries";
 import { cn } from "@/lib/utils";
 
-interface ShareDialogProps {
+interface ShareModalProps {
 	folder: { id: string; name: string };
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -55,7 +55,7 @@ const EXPIRATION_OPTIONS: { value: ExpirationOption; label: string }[] = [
 	{ value: "never", label: "Never expires" },
 ];
 
-export function ShareDialog({ folder, open, onOpenChange }: ShareDialogProps) {
+export function ShareModal({ folder, open, onOpenChange }: ShareModalProps) {
 	const [userIdentifier, setUserIdentifier] = useState("");
 	const [isCreatingLink, setIsCreatingLink] = useState(false);
 	const queryClient = useQueryClient();

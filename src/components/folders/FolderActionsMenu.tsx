@@ -11,7 +11,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ShareDialog } from "@/components/sharing";
+import { ShareModal } from "@/components/sharing";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -64,7 +64,7 @@ export function FolderActionsMenu({
 }: FolderActionsMenuProps) {
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [editModalOpen, setEditModalOpen] = useState(false);
-	const [shareDialogOpen, setShareDialogOpen] = useState(false);
+	const [shareModalOpen, setShareModalOpen] = useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const queryClient = useQueryClient();
 
@@ -169,7 +169,7 @@ export function FolderActionsMenu({
 					<DropdownMenuItem
 						onClick={() => {
 							setMenuOpen(false);
-							setShareDialogOpen(true);
+							setShareModalOpen(true);
 						}}
 					>
 						<HugeiconsIcon icon={Share08Icon} />
@@ -197,11 +197,11 @@ export function FolderActionsMenu({
 				onOpenChange={setEditModalOpen}
 			/>
 
-			{/* Share dialog */}
-			<ShareDialog
+			{/* Share modal */}
+			<ShareModal
 				folder={folder}
-				open={shareDialogOpen}
-				onOpenChange={setShareDialogOpen}
+				open={shareModalOpen}
+				onOpenChange={setShareModalOpen}
 			/>
 
 			{/* Delete confirmation dialog */}

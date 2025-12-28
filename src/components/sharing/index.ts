@@ -1,5 +1,4 @@
 export { InvitationError } from "./InvitationError";
-export { ShareDialog } from "./ShareDialog";
 export {
 	SharedFolderActionsMenu,
 	type SharedFolderForActions,
@@ -9,3 +8,4 @@ export { SharedFolderEmptyState } from "./SharedFolderEmptyState";
 export { SharedFolderError } from "./SharedFolderError";
 export { SharedFoldersEmptyState } from "./SharedFoldersEmptyState";
 export { ShareLinkError } from "./ShareLinkError";
+export { ShareModal } from "./ShareModal";
