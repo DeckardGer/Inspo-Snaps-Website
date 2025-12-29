@@ -27,12 +27,9 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useFavouriteMutation } from "@/hooks/use-favourite-mutation";
 import type { FolderColor } from "@/lib/folders/constants";
-import {
-	addFolderToFavourites,
-	deleteTeamFolder,
-	removeFolderFromFavourites,
-} from "@/lib/folders/functions";
+import { deleteTeamFolder } from "@/lib/folders/functions";
 import { teamFolderStatsQueryOptions } from "@/lib/folders/queries";
 import { TeamFolderModal } from "./TeamFolderModal";
 
@@ -78,31 +75,11 @@ export function TeamFolderActionsMenu({
 		enabled: deleteDialogOpen,
 	});
 
-	const favouriteMutation = useMutation({
-		mutationFn: () =>
-			folder.isFavourited
-				? removeFolderFromFavourites({ data: { id: folder.id } })
-				: addFolderToFavourites({ data: { id: folder.id } }),
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ["teamFolders", organizationId],
-			});
-			queryClient.invalidateQueries({
-				queryKey: ["favouriteFolders"],
-				exact: true,
-			});
-			toast.success(
-				folder.isFavourited ? "Removed from favourites" : "Added to favourites",
-			);
-		},
-		onError: (error) => {
-			toast.error(
-				folder.isFavourited
-					? "Failed to remove from favourites"
-					: "Failed to add to favourites",
-				{ description: error.message },
-			);
-		},
+	const favouriteMutation = useFavouriteMutation({
+		folderId: folder.id,
+		isFavourited: folder.isFavourited,
+		context: "team",
+		organizationId,
 	});
 
 	const deleteMutation = useMutation({

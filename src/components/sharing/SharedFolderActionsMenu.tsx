@@ -27,11 +27,8 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useFavouriteMutation } from "@/hooks/use-favourite-mutation";
 import type { FolderColor } from "@/lib/folders/constants";
-import {
-	addFolderToFavourites,
-	removeFolderFromFavourites,
-} from "@/lib/folders/functions";
 import { cloneSharedFolder, removeFromShared } from "@/lib/sharing/functions";
 
 export type SharedFolderForActions = {
@@ -68,34 +65,10 @@ export function SharedFolderActionsMenu({
 		onOpenChange?.(open);
 	};
 
-	const favouriteMutation = useMutation({
-		mutationFn: () =>
-			folder.isFavourited
-				? removeFolderFromFavourites({ data: { id: folder.id } })
-				: addFolderToFavourites({ data: { id: folder.id } }),
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ["sharedWithMe"],
-			});
-			queryClient.invalidateQueries({
-				queryKey: ["sharedFolderContents"],
-			});
-			queryClient.invalidateQueries({
-				queryKey: ["favouriteFolders"],
-				exact: true,
-			});
-			toast.success(
-				folder.isFavourited ? "Removed from favourites" : "Added to favourites",
-			);
-		},
-		onError: (error) => {
-			toast.error(
-				folder.isFavourited
-					? "Failed to remove from favourites"
-					: "Failed to add to favourites",
-				{ description: error.message },
-			);
-		},
+	const favouriteMutation = useFavouriteMutation({
+		folderId: folder.id,
+		isFavourited: folder.isFavourited,
+		context: "shared",
 	});
 
 	const removeFromSharedMutation = useMutation({

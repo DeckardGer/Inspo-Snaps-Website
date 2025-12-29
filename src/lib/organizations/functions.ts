@@ -415,12 +415,14 @@ export const removeMember = createServerFn({ method: "POST" })
 
 		if (orgFolders.length > 0) {
 			const orgFolderIds = orgFolders.map((f) => f.id);
-			await db.delete(favouriteFolder).where(
-				and(
-					eq(favouriteFolder.userId, memberToRemove.userId),
-					inArray(favouriteFolder.folderId, orgFolderIds),
-				),
-			);
+			await db
+				.delete(favouriteFolder)
+				.where(
+					and(
+						eq(favouriteFolder.userId, memberToRemove.userId),
+						inArray(favouriteFolder.folderId, orgFolderIds),
+					),
+				);
 		}
 
 		// Notify the removed user
@@ -501,12 +503,14 @@ export const leaveOrganization = createServerFn({ method: "POST" })
 
 		if (orgFolders.length > 0) {
 			const orgFolderIds = orgFolders.map((f) => f.id);
-			await db.delete(favouriteFolder).where(
-				and(
-					eq(favouriteFolder.userId, context.user.id),
-					inArray(favouriteFolder.folderId, orgFolderIds),
-				),
-			);
+			await db
+				.delete(favouriteFolder)
+				.where(
+					and(
+						eq(favouriteFolder.userId, context.user.id),
+						inArray(favouriteFolder.folderId, orgFolderIds),
+					),
+				);
 		}
 
 		return { success: true };
