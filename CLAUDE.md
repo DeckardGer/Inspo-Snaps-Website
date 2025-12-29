@@ -84,14 +84,28 @@ src/
 │       └── auth/$.ts             # Auth API handler (Better Auth)
 │
 ├── components/
-│   ├── ui/                       # Shadcn UI components
+│   ├── ui/                       # Shadcn UI + shared templates
+│   │   ├── empty-state.tsx       # EmptyState, FloatingIcon, IllustrationContainer
+│   │   ├── error-state.tsx       # ErrorState, DriftingIcon, FloatingParticle
+│   │   └── ...                   # Other Shadcn components
 │   ├── folders/                  # Folder management
-│   │   ├── FolderCard.tsx        # Folder display with actions menu
+│   │   ├── BaseFolderCard.tsx    # Shared card rendering (used by all card variants)
+│   │   ├── BaseFolderModal.tsx   # Shared modal form (used by folder/team modals)
+│   │   ├── FolderCard.tsx        # Personal folder card (uses BaseFolderCard)
+│   │   ├── FolderModal.tsx       # Personal folder modal (uses BaseFolderModal)
 │   │   ├── FolderGrid.tsx        # Responsive grid layout
-│   │   ├── FolderModal.tsx       # Create/edit folder dialog
-│   │   ├── FolderNotFound.tsx    # Error state
-│   │   ├── FoldersEmptyState.tsx # Empty state UI
+│   │   ├── FolderNotFound.tsx    # Error state (uses ErrorState template)
+│   │   ├── FoldersEmptyState.tsx # Empty state (uses EmptyState template)
 │   │   └── FoldersSkeleton.tsx   # Loading skeleton
+│   ├── sharing/                  # Sharing components
+│   │   ├── SharedFolderCard.tsx  # Uses BaseFolderCard + subtitle
+│   │   ├── SharedFolderError.tsx # Uses ErrorState template
+│   │   └── ...
+│   ├── teams/                    # Team folder components
+│   │   ├── TeamFolderCard.tsx    # Uses BaseFolderCard
+│   │   ├── TeamFolderModal.tsx   # Uses BaseFolderModal
+│   │   ├── TeamFolderError.tsx   # Uses ErrorState template
+│   │   └── ...
 │   ├── gallery/                  # Image gallery
 │   │   ├── ImageGallery.tsx
 │   │   └── ImageCard.tsx
@@ -153,7 +167,8 @@ src/
 │   └── utils.ts                  # cn(), generateUserGradient()
 │
 ├── hooks/
-│   └── use-mobile.ts             # Mobile viewport detection
+│   ├── use-mobile.ts             # Mobile viewport detection
+│   └── use-favourite-mutation.ts # Shared favourite toggle mutation
 │
 ├── config/
 │   └── env/
@@ -267,6 +282,66 @@ Routes in `(authenticated)/` require auth via `route.tsx` beforeLoad check.
 ### Form Validation
 Use TanStack Form with Zod schemas for validation.
 
+### Shared Component Patterns
+
+**Base Components**: Reusable components that encapsulate common UI patterns.
+
+```typescript
+// BaseFolderCard - shared card rendering for folder variants
+<BaseFolderCard
+  folder={{ name, color, emoji, imageCount }}
+  linkTo="/my-folders/{-$folderId}"
+  linkParams={{ folderId: folder.id }}
+  subtitle="Shared by @user"  // Optional
+  actionsMenu={({ trigger, onOpenChange }) => (
+    <FolderActionsMenu folder={folder} trigger={trigger} onOpenChange={onOpenChange} />
+  )}
+/>
+
+// BaseFolderModal - shared form for folder creation/editing
+<BaseFolderModal
+  folder={existingFolder}  // undefined for create mode
+  trigger={<Button>Create</Button>}
+  formId="folder-form"
+  onSubmit={(values) => mutation.mutate(values)}
+  isPending={mutation.isPending}
+/>
+```
+
+**State Templates**: Consistent empty and error states.
+
+```typescript
+// EmptyState template with floating icon animations
+<EmptyState
+  illustration={<FoldersIllustration />}
+  title="Create your first folder"
+  description="Organize your inspiration into folders."
+  actions={<Button>Create Folder</Button>}
+/>
+
+// ErrorState template with drifting animations
+<ErrorState
+  illustration={<ErrorIllustration />}
+  title="Folder not found"
+  description="This folder doesn't exist."
+  backLink="/my-folders"
+  backLabel="Back to My Folders"
+/>
+```
+
+**Shared Hooks**: Reusable mutation logic.
+
+```typescript
+// useFavouriteMutation - favourite toggle with proper cache invalidation
+const favouriteMutation = useFavouriteMutation({
+  folderId: folder.id,
+  isFavourited: folder.isFavourited,
+  context: "personal" | "shared" | "team",
+  parentId,        // for personal folders
+  organizationId,  // for team folders
+});
+```
+
 ## Environment Variables
 
 Required in `.env`:
@@ -288,6 +363,13 @@ VITE_BASE_URL=http://localhost:3000
 **New Route**: Create file in `src/routes/`. Use `createFileRoute` for definition.
 
 **New Component**: Add to `src/components/`. Follow existing patterns for folders/gallery.
+
+**New Folder Card Variant**: Use `BaseFolderCard` with custom link/actions:
+```typescript
+<BaseFolderCard folder={folder} linkTo="/custom-route" actionsMenu={...} />
+```
+
+**New Empty/Error State**: Use the templates from `ui/empty-state.tsx` or `ui/error-state.tsx`.
 
 **Database Change**:
 1. Modify schema in `src/lib/db/schema/`
