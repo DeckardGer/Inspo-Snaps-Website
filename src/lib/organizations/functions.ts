@@ -1,12 +1,19 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { auth } from "@/lib/auth/auth";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { ASSIGNABLE_ROLES } from "@/lib/auth/permissions";
 import { db } from "@/lib/db";
-import { invitation, member, organization, user } from "@/lib/db/schema";
+import {
+	favouriteFolder,
+	folder,
+	invitation,
+	member,
+	organization,
+	user,
+} from "@/lib/db/schema";
 import {
 	createTeamInviteAcceptedNotification,
 	createTeamInviteDeclinedNotification,
@@ -400,6 +407,22 @@ export const removeMember = createServerFn({ method: "POST" })
 			},
 		});
 
+		// Clean up favorites for folders belonging to this organization
+		const orgFolders = await db.query.folder.findMany({
+			where: eq(folder.organizationId, data.organizationId),
+			columns: { id: true },
+		});
+
+		if (orgFolders.length > 0) {
+			const orgFolderIds = orgFolders.map((f) => f.id);
+			await db.delete(favouriteFolder).where(
+				and(
+					eq(favouriteFolder.userId, memberToRemove.userId),
+					inArray(favouriteFolder.folderId, orgFolderIds),
+				),
+			);
+		}
+
 		// Notify the removed user
 		await createTeamMemberRemovedNotification({
 			recipientId: memberToRemove.userId,
@@ -460,7 +483,7 @@ export const updateMemberRole = createServerFn({ method: "POST" })
 export const leaveOrganization = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(OrganizationIdInput)
-	.handler(async ({ data }) => {
+	.handler(async ({ data, context }) => {
 		const headers = getRequest().headers;
 
 		await auth.api.leaveOrganization({
@@ -469,6 +492,22 @@ export const leaveOrganization = createServerFn({ method: "POST" })
 				organizationId: data.organizationId,
 			},
 		});
+
+		// Clean up favorites for folders belonging to this organization
+		const orgFolders = await db.query.folder.findMany({
+			where: eq(folder.organizationId, data.organizationId),
+			columns: { id: true },
+		});
+
+		if (orgFolders.length > 0) {
+			const orgFolderIds = orgFolders.map((f) => f.id);
+			await db.delete(favouriteFolder).where(
+				and(
+					eq(favouriteFolder.userId, context.user.id),
+					inArray(favouriteFolder.folderId, orgFolderIds),
+				),
+			);
+		}
 
 		return { success: true };
 	});
