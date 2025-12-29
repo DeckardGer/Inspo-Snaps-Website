@@ -73,7 +73,7 @@ export function TeamFolderActionsMenu({
 	};
 
 	// Fetch stats only when delete dialog is open
-	const { data: stats, isLoading: statsLoading } = useQuery({
+	const { data: stats } = useQuery({
 		...teamFolderStatsQueryOptions(organizationId, folder.id),
 		enabled: deleteDialogOpen,
 	});
@@ -189,12 +189,8 @@ export function TeamFolderActionsMenu({
 						<AlertDialogDescription>
 							This action cannot be undone. This will permanently delete this
 							folder and all its contents.
-							{statsLoading ? (
-								<span className="mt-2 block text-muted-foreground">
-									Loading folder contents...
-								</span>
-							) : stats &&
-								(stats.nestedFolderCount > 0 || stats.imageCount > 0) ? (
+							{stats &&
+							(stats.nestedFolderCount > 0 || stats.imageCount > 0) ? (
 								<span className="mt-2 block font-medium text-destructive">
 									This will delete{" "}
 									{stats.nestedFolderCount > 0 && (
