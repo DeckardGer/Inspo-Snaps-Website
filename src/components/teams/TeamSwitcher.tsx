@@ -3,6 +3,8 @@ import {
 	ArrowDown01Icon,
 	ArrowRight01Icon,
 	Delete02Icon,
+	Loading03Icon,
+	Logout01Icon,
 	PencilEdit01Icon,
 	Tick02Icon,
 	UserGroupIcon,
@@ -11,6 +13,17 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -25,6 +38,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import authClient from "@/lib/auth/auth-client";
+import { leaveOrganization } from "@/lib/organizations/functions";
 import {
 	userOrganizationsQueryOptions,
 	userOrganizationsWithActiveQueryOptions,
@@ -49,6 +63,10 @@ export function TeamSwitcher({
 		id: string;
 		name: string;
 	} | null>(null);
+	const [leaveDialogOrg, setLeaveDialogOrg] = useState<{
+		id: string;
+		name: string;
+	} | null>(null);
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
@@ -64,6 +82,33 @@ export function TeamSwitcher({
 			// Invalidate the query to refetch with new active org
 			queryClient.invalidateQueries({
 				queryKey: userOrganizationsWithActiveQueryOptions().queryKey,
+			});
+		},
+	});
+
+	const leaveMutation = useMutation({
+		mutationFn: (organizationId: string) =>
+			leaveOrganization({ data: { organizationId } }),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["organizations"],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["favouriteFolders"],
+			});
+			toast.success("Left team", {
+				description: `You are no longer a member of "${leaveDialogOrg?.name}".`,
+			});
+			setLeaveDialogOrg(null);
+
+			// Navigate to team-folders root if we left the current org
+			if (leaveDialogOrg?.id === currentOrgId) {
+				navigate({ to: "/team-folders" });
+			}
+		},
+		onError: (error) => {
+			toast.error("Failed to leave team", {
+				description: error.message,
 			});
 		},
 	});
@@ -118,6 +163,7 @@ export function TeamSwitcher({
 					{organizations.map((org) => {
 						const isActive = org.id === currentOrgId;
 						const isSubMenuOpen = openSubMenuId === org.id;
+						const isOwner = org.role === "owner";
 						return (
 							<DropdownMenuSub
 								key={org.id}
@@ -125,7 +171,7 @@ export function TeamSwitcher({
 							>
 								<DropdownMenuSubTrigger
 									showArrow={false}
-									delay={300}
+									delay={250}
 									onClick={() => handleTeamSelect(org.id)}
 									className={cn(
 										"group/team-item gap-2 p-2",
@@ -168,24 +214,39 @@ export function TeamSwitcher({
 									/>
 								</DropdownMenuSubTrigger>
 								<DropdownMenuSubContent className="min-w-40">
-									<DropdownMenuItem>
-										<HugeiconsIcon icon={PencilEdit01Icon} />
-										Edit Team
-									</DropdownMenuItem>
-									<DropdownMenuItem
-										onClick={() => {
-											setDropdownOpen(false);
-											setMembersModalOrg({ id: org.id, name: org.name });
-										}}
-									>
-										<HugeiconsIcon icon={UserGroupIcon} />
-										Manage Team
-									</DropdownMenuItem>
-									<DropdownMenuSeparator />
-									<DropdownMenuItem variant="destructive">
-										<HugeiconsIcon icon={Delete02Icon} />
-										Delete Team
-									</DropdownMenuItem>
+									{isOwner ? (
+										<>
+											<DropdownMenuItem>
+												<HugeiconsIcon icon={PencilEdit01Icon} />
+												Edit Team
+											</DropdownMenuItem>
+											<DropdownMenuItem
+												onClick={() => {
+													setDropdownOpen(false);
+													setMembersModalOrg({ id: org.id, name: org.name });
+												}}
+											>
+												<HugeiconsIcon icon={UserGroupIcon} />
+												Manage Team
+											</DropdownMenuItem>
+											<DropdownMenuSeparator />
+											<DropdownMenuItem variant="destructive">
+												<HugeiconsIcon icon={Delete02Icon} />
+												Delete Team
+											</DropdownMenuItem>
+										</>
+									) : (
+										<DropdownMenuItem
+											variant="destructive"
+											onClick={() => {
+												setDropdownOpen(false);
+												setLeaveDialogOrg({ id: org.id, name: org.name });
+											}}
+										>
+											<HugeiconsIcon icon={Logout01Icon} />
+											Leave Team
+										</DropdownMenuItem>
+									)}
 								</DropdownMenuSubContent>
 							</DropdownMenuSub>
 						);
@@ -220,6 +281,50 @@ export function TeamSwitcher({
 					}}
 				/>
 			)}
+
+			{/* Leave Team confirmation dialog */}
+			<AlertDialog
+				open={!!leaveDialogOrg}
+				onOpenChange={(open) => {
+					if (!open) setLeaveDialogOrg(null);
+				}}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Leave team?</AlertDialogTitle>
+						<AlertDialogDescription>
+							You will lose access to all folders and content in "
+							{leaveDialogOrg?.name}". You'll need a new invitation to rejoin.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel disabled={leaveMutation.isPending}>
+							Cancel
+						</AlertDialogCancel>
+						<AlertDialogAction
+							variant="destructive"
+							onClick={() => {
+								if (leaveDialogOrg) {
+									leaveMutation.mutate(leaveDialogOrg.id);
+								}
+							}}
+							disabled={leaveMutation.isPending}
+						>
+							{leaveMutation.isPending ? (
+								<>
+									<HugeiconsIcon
+										icon={Loading03Icon}
+										className="animate-spin"
+									/>
+									Leaving...
+								</>
+							) : (
+								"Leave Team"
+							)}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</DropdownMenu>
 	);
 }

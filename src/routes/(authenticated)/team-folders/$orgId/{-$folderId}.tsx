@@ -164,23 +164,25 @@ function RouteComponent() {
 								folderId={folderId}
 							/>
 						)}
-						<TeamMembersModal
-							organizationId={organization.id}
-							organizationName={organization.name}
-							trigger={
-								<DialogTrigger
-									render={
-										<Button variant="outline">
-											<HugeiconsIcon
-												icon={UserGroupIcon}
-												data-icon="inline-start"
-											/>
-											Manage Team
-										</Button>
-									}
-								/>
-							}
-						/>
+						{organization.currentUserRole === "owner" && (
+							<TeamMembersModal
+								organizationId={organization.id}
+								organizationName={organization.name}
+								trigger={
+									<DialogTrigger
+										render={
+											<Button variant="outline">
+												<HugeiconsIcon
+													icon={UserGroupIcon}
+													data-icon="inline-start"
+												/>
+												Manage Team
+											</Button>
+										}
+									/>
+								}
+							/>
+						)}
 						<TeamFolderModal
 							organizationId={organization.id}
 							parentId={folderId}
