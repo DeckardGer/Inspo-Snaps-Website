@@ -25,6 +25,7 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import authClient from "@/lib/auth/auth-client";
+import { notifyInspoSnapsExtension } from "@/lib/auth/extension";
 import { authQueryOptions } from "@/lib/auth/queries";
 import { cn } from "@/lib/utils";
 
@@ -113,6 +114,8 @@ export function SidebarAppFooter() {
 								await authClient.signOut({
 									fetchOptions: {
 										onResponse: async () => {
+											// Notify Chrome extension about logout
+											notifyInspoSnapsExtension(null);
 											// Clear all cached data to prevent stale user-specific
 											// data from persisting if another user logs in
 											queryClient.clear();

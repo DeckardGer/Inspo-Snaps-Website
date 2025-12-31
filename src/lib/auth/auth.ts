@@ -41,6 +41,8 @@ const getAuthConfig = createServerOnlyFn(() =>
 
 		// https://www.better-auth.com/docs/concepts/session-management#session-caching
 		session: {
+			expiresIn: 60 * 60 * 24 * 90, // 3 months
+			updateAge: 60 * 60 * 24 * 7, // Refresh weekly
 			cookieCache: {
 				enabled: true,
 				maxAge: 5 * 60, // 5 minutes
@@ -63,6 +65,8 @@ const getAuthConfig = createServerOnlyFn(() =>
 			// https://www.better-auth.com/docs/adapters/drizzle#joins-experimental
 			joins: true,
 		},
+
+		trustedOrigins: ["chrome-extension://logjliapdhfaooaeanbjojildfhilaab"],
 	}),
 );
 
