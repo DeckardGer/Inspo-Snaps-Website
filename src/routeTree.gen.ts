@@ -17,6 +17,7 @@ import { Route as authPagesLoginRouteImport } from './routes/(auth-pages)/login'
 import { Route as authenticatedTeamFoldersIndexRouteImport } from './routes/(authenticated)/team-folders/index'
 import { Route as authenticatedSharedFoldersIndexRouteImport } from './routes/(authenticated)/shared-folders/index'
 import { Route as authenticatedOverviewIndexRouteImport } from './routes/(authenticated)/overview/index'
+import { Route as ApiExtensionFoldersRouteImport } from './routes/api/extension/folders'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as authenticatedTeamInviteInvitationIdRouteImport } from './routes/(authenticated)/team-invite/$invitationId'
 import { Route as authenticatedSharedFoldersFolderIdRouteImport } from './routes/(authenticated)/shared-folders/$folderId'
@@ -66,6 +67,11 @@ const authenticatedOverviewIndexRoute =
     path: '/overview/',
     getParentRoute: () => authenticatedRouteRoute,
   } as any)
+const ApiExtensionFoldersRoute = ApiExtensionFoldersRouteImport.update({
+  id: '/api/extension/folders',
+  path: '/api/extension/folders',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/shared-folders/$folderId': typeof authenticatedSharedFoldersFolderIdRoute
   '/team-invite/$invitationId': typeof authenticatedTeamInviteInvitationIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/extension/folders': typeof ApiExtensionFoldersRoute
   '/overview': typeof authenticatedOverviewIndexRoute
   '/shared-folders': typeof authenticatedSharedFoldersIndexRoute
   '/team-folders': typeof authenticatedTeamFoldersIndexRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/shared-folders/$folderId': typeof authenticatedSharedFoldersFolderIdRoute
   '/team-invite/$invitationId': typeof authenticatedTeamInviteInvitationIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/extension/folders': typeof ApiExtensionFoldersRoute
   '/overview': typeof authenticatedOverviewIndexRoute
   '/shared-folders': typeof authenticatedSharedFoldersIndexRoute
   '/team-folders': typeof authenticatedTeamFoldersIndexRoute
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/(authenticated)/shared-folders/$folderId': typeof authenticatedSharedFoldersFolderIdRoute
   '/(authenticated)/team-invite/$invitationId': typeof authenticatedTeamInviteInvitationIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/extension/folders': typeof ApiExtensionFoldersRoute
   '/(authenticated)/overview/': typeof authenticatedOverviewIndexRoute
   '/(authenticated)/shared-folders/': typeof authenticatedSharedFoldersIndexRoute
   '/(authenticated)/team-folders/': typeof authenticatedTeamFoldersIndexRoute
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/shared-folders/$folderId'
     | '/team-invite/$invitationId'
     | '/api/auth/$'
+    | '/api/extension/folders'
     | '/overview'
     | '/shared-folders'
     | '/team-folders'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/shared-folders/$folderId'
     | '/team-invite/$invitationId'
     | '/api/auth/$'
+    | '/api/extension/folders'
     | '/overview'
     | '/shared-folders'
     | '/team-folders'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/(authenticated)/shared-folders/$folderId'
     | '/(authenticated)/team-invite/$invitationId'
     | '/api/auth/$'
+    | '/api/extension/folders'
     | '/(authenticated)/overview/'
     | '/(authenticated)/shared-folders/'
     | '/(authenticated)/team-folders/'
@@ -211,6 +223,7 @@ export interface RootRouteChildren {
   authPagesRouteRoute: typeof authPagesRouteRouteWithChildren
   authenticatedRouteRoute: typeof authenticatedRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiExtensionFoldersRoute: typeof ApiExtensionFoldersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -270,6 +283,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/overview'
       preLoaderRoute: typeof authenticatedOverviewIndexRouteImport
       parentRoute: typeof authenticatedRouteRoute
+    }
+    '/api/extension/folders': {
+      id: '/api/extension/folders'
+      path: '/api/extension/folders'
+      fullPath: '/api/extension/folders'
+      preLoaderRoute: typeof ApiExtensionFoldersRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -373,6 +393,7 @@ const rootRouteChildren: RootRouteChildren = {
   authPagesRouteRoute: authPagesRouteRouteWithChildren,
   authenticatedRouteRoute: authenticatedRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiExtensionFoldersRoute: ApiExtensionFoldersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
