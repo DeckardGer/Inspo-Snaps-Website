@@ -10,6 +10,10 @@ import {
 	image,
 	userShare,
 } from "@/lib/db/schema";
+import {
+	FOLDER_NAME_MAX_LENGTH,
+	FOLDER_NAME_MIN_LENGTH,
+} from "@/lib/folders/constants";
 import { createFolderAccessRevokedNotification } from "@/lib/notifications/create";
 import { deleteStorageObjects } from "@/lib/storage/functions";
 
@@ -38,13 +42,17 @@ function toStoredFolder(f: {
 }
 
 const CreateFolderSchema = z.object({
-	name: z.string().min(1).max(255),
+	name: z.string().min(FOLDER_NAME_MIN_LENGTH).max(FOLDER_NAME_MAX_LENGTH),
 	parentId: z.string().uuid().nullable().optional(),
 });
 
 const UpdateFolderSchema = z.object({
-	name: z.string().min(1).max(255).optional(),
-	parentId: z.uuid().nullable().optional(),
+	name: z
+		.string()
+		.min(FOLDER_NAME_MIN_LENGTH)
+		.max(FOLDER_NAME_MAX_LENGTH)
+		.optional(),
+	parentId: z.string().uuid().nullable().optional(),
 });
 
 export const Route = createFileRoute("/api/extension/folders")({
@@ -135,6 +143,7 @@ export const Route = createFileRoute("/api/extension/folders")({
 				return Response.json({ folder: toStoredFolder(newFolder[0]) });
 			},
 
+			// TODO: Add support for moving folders into other folders
 			// PATCH update folder
 			PATCH: async ({ request }) => {
 				const session = await auth.api.getSession({

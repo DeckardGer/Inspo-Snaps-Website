@@ -1,3 +1,6 @@
+export const FOLDER_NAME_MIN_LENGTH = 1;
+export const FOLDER_NAME_MAX_LENGTH = 255;
+
 export const FOLDER_COLORS = [
 	"slate",
 	"red",

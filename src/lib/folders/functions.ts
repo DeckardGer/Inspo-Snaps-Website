@@ -11,12 +11,17 @@ import {
 	member,
 	userShare,
 } from "@/lib/db/schema";
-import { FOLDER_COLORS, type FolderColor } from "@/lib/folders/constants";
+import {
+	FOLDER_COLORS,
+	FOLDER_NAME_MAX_LENGTH,
+	FOLDER_NAME_MIN_LENGTH,
+	type FolderColor,
+} from "@/lib/folders/constants";
 import { createFolderAccessRevokedNotification } from "@/lib/notifications/create";
 import { deleteStorageObjects } from "@/lib/storage/functions";
 
 const CreateFolderInput = z.object({
-	name: z.string().min(1).max(255),
+	name: z.string().min(FOLDER_NAME_MIN_LENGTH).max(FOLDER_NAME_MAX_LENGTH),
 	color: z.enum(FOLDER_COLORS).default("indigo"),
 	emoji: z.string().max(10).nullable().optional(),
 	parentId: z.uuid().nullable().optional(),
@@ -24,7 +29,11 @@ const CreateFolderInput = z.object({
 
 const UpdateFolderInput = z.object({
 	id: z.uuid(),
-	name: z.string().min(1).max(255).optional(),
+	name: z
+		.string()
+		.min(FOLDER_NAME_MIN_LENGTH)
+		.max(FOLDER_NAME_MAX_LENGTH)
+		.optional(),
 	color: z.enum(FOLDER_COLORS).default("indigo"),
 	emoji: z.string().max(10).nullable().optional(),
 });
@@ -599,7 +608,7 @@ export const getFolderStats = createServerFn({ method: "GET" })
 // ============================================================================
 
 const CreateTeamFolderInput = z.object({
-	name: z.string().min(1).max(255),
+	name: z.string().min(FOLDER_NAME_MIN_LENGTH).max(FOLDER_NAME_MAX_LENGTH),
 	color: z.enum(FOLDER_COLORS).default("indigo"),
 	emoji: z.string().max(10).nullable().optional(),
 	parentId: z.string().nullable().optional(),
@@ -619,7 +628,11 @@ const TeamFolderIdInput = z.object({
 const UpdateTeamFolderInput = z.object({
 	id: z.string(),
 	organizationId: z.string(),
-	name: z.string().min(1).max(255).optional(),
+	name: z
+		.string()
+		.min(FOLDER_NAME_MIN_LENGTH)
+		.max(FOLDER_NAME_MAX_LENGTH)
+		.optional(),
 	color: z.enum(FOLDER_COLORS).optional(),
 	emoji: z.string().max(10).nullable().optional(),
 });
