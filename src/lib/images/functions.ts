@@ -4,6 +4,7 @@ import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { db } from "@/lib/db";
 import { folder, folderImage, image, member } from "@/lib/db/schema";
+import { MAX_IMAGE_SIZE_BYTES } from "@/lib/images/constants";
 import {
 	createPresignedDownloadUrl,
 	deleteStorageObject,
@@ -13,7 +14,7 @@ const SaveImageInput = z.object({
 	filename: z.string(),
 	storageKey: z.string(),
 	mimeType: z.string(),
-	sizeBytes: z.number().int().positive(),
+	sizeBytes: z.number().int().positive().max(MAX_IMAGE_SIZE_BYTES),
 	width: z.number().int().positive().optional(),
 	height: z.number().int().positive().optional(),
 	originUrl: z.url().optional(),
@@ -210,7 +211,7 @@ const SaveTeamImageInput = z.object({
 	filename: z.string(),
 	storageKey: z.string(),
 	mimeType: z.string(),
-	sizeBytes: z.number().int().positive(),
+	sizeBytes: z.number().int().positive().max(MAX_IMAGE_SIZE_BYTES),
 	width: z.number().int().positive().optional(),
 	height: z.number().int().positive().optional(),
 	originUrl: z.url().optional(),

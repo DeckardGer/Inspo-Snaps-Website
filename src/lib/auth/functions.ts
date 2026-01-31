@@ -4,6 +4,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth/auth";
 import authClient from "@/lib/auth/auth-client";
 import { authMiddleware } from "@/lib/auth/middleware";
+import { MAX_AVATAR_SIZE_BYTES } from "@/lib/images/constants";
 import {
 	createPresignedDownloadUrl,
 	deleteStorageObject,
@@ -132,6 +133,7 @@ const GetAvatarUploadUrlInput = z.object({
 	contentType: z
 		.string()
 		.refine((type) => type.startsWith("image/"), "File must be an image."),
+	fileSize: z.number().int().positive().max(MAX_AVATAR_SIZE_BYTES),
 });
 
 export const getAvatarUploadUrl = createServerFn({ method: "POST" })
