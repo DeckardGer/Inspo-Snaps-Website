@@ -17,6 +17,7 @@ import { Route as authPagesLoginRouteImport } from './routes/(auth-pages)/login'
 import { Route as authenticatedTeamFoldersIndexRouteImport } from './routes/(authenticated)/team-folders/index'
 import { Route as authenticatedSharedFoldersIndexRouteImport } from './routes/(authenticated)/shared-folders/index'
 import { Route as authenticatedOverviewIndexRouteImport } from './routes/(authenticated)/overview/index'
+import { Route as ApiExtensionOrganizationsRouteImport } from './routes/api/extension/organizations'
 import { Route as ApiExtensionImagesRouteImport } from './routes/api/extension/images'
 import { Route as ApiExtensionFoldersRouteImport } from './routes/api/extension/folders'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -67,6 +68,12 @@ const authenticatedOverviewIndexRoute =
     id: '/overview/',
     path: '/overview/',
     getParentRoute: () => authenticatedRouteRoute,
+  } as any)
+const ApiExtensionOrganizationsRoute =
+  ApiExtensionOrganizationsRouteImport.update({
+    id: '/api/extension/organizations',
+    path: '/api/extension/organizations',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const ApiExtensionImagesRoute = ApiExtensionImagesRouteImport.update({
   id: '/api/extension/images',
@@ -132,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/extension/folders': typeof ApiExtensionFoldersRoute
   '/api/extension/images': typeof ApiExtensionImagesRoute
+  '/api/extension/organizations': typeof ApiExtensionOrganizationsRoute
   '/overview': typeof authenticatedOverviewIndexRoute
   '/shared-folders': typeof authenticatedSharedFoldersIndexRoute
   '/team-folders': typeof authenticatedTeamFoldersIndexRoute
@@ -149,6 +157,7 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/extension/folders': typeof ApiExtensionFoldersRoute
   '/api/extension/images': typeof ApiExtensionImagesRoute
+  '/api/extension/organizations': typeof ApiExtensionOrganizationsRoute
   '/overview': typeof authenticatedOverviewIndexRoute
   '/shared-folders': typeof authenticatedSharedFoldersIndexRoute
   '/team-folders': typeof authenticatedTeamFoldersIndexRoute
@@ -169,6 +178,7 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/extension/folders': typeof ApiExtensionFoldersRoute
   '/api/extension/images': typeof ApiExtensionImagesRoute
+  '/api/extension/organizations': typeof ApiExtensionOrganizationsRoute
   '/(authenticated)/overview/': typeof authenticatedOverviewIndexRoute
   '/(authenticated)/shared-folders/': typeof authenticatedSharedFoldersIndexRoute
   '/(authenticated)/team-folders/': typeof authenticatedTeamFoldersIndexRoute
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/extension/folders'
     | '/api/extension/images'
+    | '/api/extension/organizations'
     | '/overview'
     | '/shared-folders'
     | '/team-folders'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/extension/folders'
     | '/api/extension/images'
+    | '/api/extension/organizations'
     | '/overview'
     | '/shared-folders'
     | '/team-folders'
@@ -224,6 +236,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/extension/folders'
     | '/api/extension/images'
+    | '/api/extension/organizations'
     | '/(authenticated)/overview/'
     | '/(authenticated)/shared-folders/'
     | '/(authenticated)/team-folders/'
@@ -237,6 +250,7 @@ export interface RootRouteChildren {
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiExtensionFoldersRoute: typeof ApiExtensionFoldersRoute
   ApiExtensionImagesRoute: typeof ApiExtensionImagesRoute
+  ApiExtensionOrganizationsRoute: typeof ApiExtensionOrganizationsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -296,6 +310,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/overview'
       preLoaderRoute: typeof authenticatedOverviewIndexRouteImport
       parentRoute: typeof authenticatedRouteRoute
+    }
+    '/api/extension/organizations': {
+      id: '/api/extension/organizations'
+      path: '/api/extension/organizations'
+      fullPath: '/api/extension/organizations'
+      preLoaderRoute: typeof ApiExtensionOrganizationsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/extension/images': {
       id: '/api/extension/images'
@@ -415,6 +436,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiExtensionFoldersRoute: ApiExtensionFoldersRoute,
   ApiExtensionImagesRoute: ApiExtensionImagesRoute,
+  ApiExtensionOrganizationsRoute: ApiExtensionOrganizationsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

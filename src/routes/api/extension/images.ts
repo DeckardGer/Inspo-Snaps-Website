@@ -3,7 +3,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { auth } from "@/lib/auth/auth";
 import { db } from "@/lib/db";
-import { folder, folderImage, image } from "@/lib/db/schema";
+import { folder, folderImage, image, member } from "@/lib/db/schema";
 import {
 	ALLOWED_IMAGE_MIME_TYPES,
 	MAX_IMAGE_SIZE_BYTES,
@@ -28,6 +28,7 @@ const UploadUrlsSchema = z.object({
 
 const SaveImagesSchema = z.object({
 	folderId: z.uuid(),
+	organizationId: z.string().nullable().optional(),
 	images: z
 		.array(
 			z.object({
@@ -114,18 +115,58 @@ async function handleSaveImages(request: Request, userId: string) {
 	}
 
 	const { folderId, images: imageInputs } = parsed.data;
+	const organizationId =
+		parsed.data.organizationId ||
+		new URL(request.url).searchParams.get("organizationId") ||
+		null;
 
-	// Verify user owns the folder (personal folders only)
-	const targetFolder = await db.query.folder.findFirst({
-		where: and(
-			eq(folder.id, folderId),
-			eq(folder.userId, userId),
-			isNull(folder.organizationId),
-		),
-	});
+	if (organizationId) {
+		// Verify membership
+		const membership = await db.query.member.findFirst({
+			where: and(
+				eq(member.organizationId, organizationId),
+				eq(member.userId, userId),
+			),
+		});
 
-	if (!targetFolder) {
-		return Response.json({ error: "Folder not found" }, { status: 404 });
+		if (!membership) {
+			return Response.json(
+				{ error: "Organization not found" },
+				{ status: 404 },
+			);
+		}
+
+		if (membership.role === "viewer") {
+			return Response.json(
+				{ error: "Insufficient permissions" },
+				{ status: 403 },
+			);
+		}
+
+		// Verify folder belongs to this organization
+		const targetFolder = await db.query.folder.findFirst({
+			where: and(
+				eq(folder.id, folderId),
+				eq(folder.organizationId, organizationId),
+			),
+		});
+
+		if (!targetFolder) {
+			return Response.json({ error: "Folder not found" }, { status: 404 });
+		}
+	} else {
+		// Personal folder — verify user owns it
+		const targetFolder = await db.query.folder.findFirst({
+			where: and(
+				eq(folder.id, folderId),
+				eq(folder.userId, userId),
+				isNull(folder.organizationId),
+			),
+		});
+
+		if (!targetFolder) {
+			return Response.json({ error: "Folder not found" }, { status: 404 });
+		}
 	}
 
 	// Verify all storage keys belong to this user
@@ -136,7 +177,7 @@ async function handleSaveImages(request: Request, userId: string) {
 		return Response.json({ error: "Invalid storage key" }, { status: 403 });
 	}
 
-	// Insert all images and optionally link to folder
+	// Insert all images and link to folder
 	const savedImages = [];
 
 	for (const img of imageInputs) {
