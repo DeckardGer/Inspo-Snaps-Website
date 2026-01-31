@@ -67,6 +67,10 @@ export function TeamSwitcher({
 		id: string;
 		name: string;
 	} | null>(null);
+	const [editModalOrg, setEditModalOrg] = useState<{
+		id: string;
+		name: string;
+	} | null>(null);
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
@@ -216,7 +220,12 @@ export function TeamSwitcher({
 								<DropdownMenuSubContent className="min-w-40">
 									{isOwner ? (
 										<>
-											<DropdownMenuItem>
+											<DropdownMenuItem
+												onClick={() => {
+													setDropdownOpen(false);
+													setEditModalOrg({ id: org.id, name: org.name });
+												}}
+											>
 												<HugeiconsIcon icon={PencilEdit01Icon} />
 												Edit Team
 											</DropdownMenuItem>
@@ -270,6 +279,14 @@ export function TeamSwitcher({
 			</DropdownMenuContent>
 
 			<TeamModal open={teamModalOpen} onOpenChange={setTeamModalOpen} />
+
+			<TeamModal
+				team={editModalOrg ?? undefined}
+				open={!!editModalOrg}
+				onOpenChange={(open) => {
+					if (!open) setEditModalOrg(null);
+				}}
+			/>
 
 			{membersModalOrg && (
 				<TeamMembersModal

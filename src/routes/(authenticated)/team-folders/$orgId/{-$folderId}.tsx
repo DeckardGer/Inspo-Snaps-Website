@@ -73,7 +73,15 @@ const BASE_BREADCRUMBS = [{ name: "Team Folders", link: "/team-folders" }];
 
 function RouteComponent() {
 	const { orgId, folderId } = Route.useParams();
-	const { organization, hasError } = Route.useRouteContext();
+	const { organization: initialOrganization, hasError } =
+		Route.useRouteContext();
+
+	// Subscribe to org query so the UI updates when the name changes
+	const { data: organization } = useQuery({
+		...organizationByIdQueryOptions(orgId),
+		initialData: initialOrganization ?? undefined,
+		enabled: !!initialOrganization,
+	});
 
 	// Set active organization when entering this route
 	useEffect(() => {

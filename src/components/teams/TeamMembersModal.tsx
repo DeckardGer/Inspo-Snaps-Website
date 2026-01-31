@@ -128,7 +128,7 @@ export function TeamMembersModal({
 			setInviteInput("");
 			setAssignableRole("viewer");
 			queryClient.invalidateQueries({
-				queryKey: ["organization", organizationId],
+				queryKey: ["organizationDetails", organizationId],
 			});
 			queryClient.invalidateQueries({
 				queryKey: ["notifications"],
@@ -147,7 +147,7 @@ export function TeamMembersModal({
 		onSuccess: () => {
 			toast.success("Invitation cancelled");
 			queryClient.invalidateQueries({
-				queryKey: ["organization", organizationId],
+				queryKey: ["organizationDetails", organizationId],
 			});
 		},
 		onError: (error: Error) => {
@@ -163,7 +163,7 @@ export function TeamMembersModal({
 		onSuccess: () => {
 			toast.success("Invitation resent");
 			queryClient.invalidateQueries({
-				queryKey: ["organization", organizationId],
+				queryKey: ["organizationDetails", organizationId],
 			});
 		},
 		onError: (error: Error) => {
@@ -292,7 +292,7 @@ function MemberRow({
 		onSuccess: () => {
 			toast.success("Member removed");
 			queryClient.invalidateQueries({
-				queryKey: ["organization", organizationId],
+				queryKey: ["organizationDetails", organizationId],
 			});
 			queryClient.invalidateQueries({
 				queryKey: ["notifications"],
@@ -311,7 +311,7 @@ function MemberRow({
 		onSuccess: () => {
 			toast.success("Role updated");
 			queryClient.invalidateQueries({
-				queryKey: ["organization", organizationId],
+				queryKey: ["organizationDetails", organizationId],
 			});
 			queryClient.invalidateQueries({
 				queryKey: ["notifications"],

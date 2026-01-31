@@ -3,7 +3,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -37,11 +37,19 @@ interface TeamModalProps {
 	trigger?: React.ReactElement;
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
+	team?: { id: string; name: string };
 }
 
-export function TeamModal({ trigger, open, onOpenChange }: TeamModalProps) {
+export function TeamModal({
+	trigger,
+	open,
+	onOpenChange,
+	team,
+}: TeamModalProps) {
 	const [internalOpen, setInternalOpen] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	const isEditMode = !!team;
 
 	// Use external control if provided, otherwise use internal state
 	const dialogOpen = open ?? internalOpen;
@@ -52,7 +60,7 @@ export function TeamModal({ trigger, open, onOpenChange }: TeamModalProps) {
 
 	const form = useForm({
 		defaultValues: {
-			name: "",
+			name: team?.name ?? "",
 		},
 		validators: {
 			onSubmit: formSchema,
@@ -61,54 +69,89 @@ export function TeamModal({ trigger, open, onOpenChange }: TeamModalProps) {
 			setIsSubmitting(true);
 
 			try {
-				// Generate slug from name
-				const slug = value.name
-					.toLowerCase()
-					.replace(/\s+/g, "-")
-					.replace(/[^a-z0-9-]/g, "")
-					.replace(/-+/g, "-")
-					.replace(/^-|-$/g, "");
+				if (isEditMode) {
+					const result = await authClient.organization.update({
+						organizationId: team.id,
+						data: { name: value.name.trim() },
+					});
 
-				const result = await authClient.organization.create({
-					name: value.name.trim(),
-					slug: `team-${slug}-${Date.now()}`,
-				});
+					if (result.error) {
+						toast.error(result.error.message || "Failed to update team");
+						return;
+					}
 
-				if (result.error) {
-					toast.error(result.error.message || "Failed to create team");
-					return;
+					await Promise.all([
+						queryClient.invalidateQueries({
+							queryKey: ["organizations"],
+						}),
+						queryClient.invalidateQueries({
+							queryKey: ["organization", team.id],
+						}),
+					]);
+
+					toast.success("Team updated successfully!");
+					setDialogOpen(false);
+				} else {
+					// Generate slug from name
+					const slug = value.name
+						.toLowerCase()
+						.replace(/\s+/g, "-")
+						.replace(/[^a-z0-9-]/g, "")
+						.replace(/-+/g, "-")
+						.replace(/^-|-$/g, "");
+
+					const result = await authClient.organization.create({
+						name: value.name.trim(),
+						slug: `team-${slug}-${Date.now()}`,
+					});
+
+					if (result.error) {
+						toast.error(result.error.message || "Failed to create team");
+						return;
+					}
+
+					// Invalidate organizations query to refresh the list
+					await queryClient.invalidateQueries({
+						queryKey: userOrganizationsQueryOptions().queryKey,
+					});
+
+					toast.success("Team created successfully!");
+					setDialogOpen(false);
+					form.reset();
+
+					navigate({
+						to: "/team-folders/$orgId/{-$folderId}",
+						params: { orgId: result.data.id },
+					});
 				}
-
-				// Invalidate organizations query to refresh the list
-				await queryClient.invalidateQueries({
-					queryKey: userOrganizationsQueryOptions().queryKey,
-				});
-
-				toast.success("Team created successfully!");
-				setDialogOpen(false);
-				form.reset();
-
-				navigate({
-					to: "/team-folders/$orgId/{-$folderId}",
-					params: { orgId: result.data.id },
-				});
 			} catch (error) {
 				console.error(error);
-				toast.error("Failed to create team");
+				toast.error(
+					isEditMode ? "Failed to update team" : "Failed to create team",
+				);
 			} finally {
 				setIsSubmitting(false);
 			}
 		},
 	});
 
+	// Reset form when team prop changes (e.g. opening edit modal for a different team)
+	useEffect(() => {
+		form.reset({ name: team?.name ?? "" });
+	}, [team?.name, form]);
+
 	return (
 		<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
 			{trigger && <DialogTrigger render={trigger} />}
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Create New Team</DialogTitle>
+					<DialogTitle>
+						{isEditMode ? "Edit Team" : "Create New Team"}
+					</DialogTitle>
 					<DialogDescription>
-						Create a team to collaborate with others on shared folders.
+						{isEditMode
+							? "Change the name of your team."
+							: "Create a team to collaborate with others on shared folders."}
 					</DialogDescription>
 				</DialogHeader>
 
@@ -159,8 +202,10 @@ export function TeamModal({ trigger, open, onOpenChange }: TeamModalProps) {
 									strokeWidth={2}
 									className="animate-spin"
 								/>
-								Creating...
+								{isEditMode ? "Saving..." : "Creating..."}
 							</>
+						) : isEditMode ? (
+							"Save Changes"
 						) : (
 							"Create Team"
 						)}

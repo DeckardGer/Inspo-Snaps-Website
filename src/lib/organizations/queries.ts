@@ -24,7 +24,7 @@ export const userOrganizationsWithActiveQueryOptions = () =>
 
 export const organizationDetailsQueryOptions = (organizationId: string) =>
 	queryOptions({
-		queryKey: ["organization", organizationId],
+		queryKey: ["organizationDetails", organizationId],
 		queryFn: ({ signal }) =>
 			getOrganizationDetails({ data: { organizationId }, signal }),
 		staleTime: 1000 * 60 * 2,
@@ -33,7 +33,7 @@ export const organizationDetailsQueryOptions = (organizationId: string) =>
 
 export const organizationByIdQueryOptions = (organizationId: string) =>
 	queryOptions({
-		queryKey: ["organization", "id", organizationId],
+		queryKey: ["organization", organizationId],
 		queryFn: ({ signal }) =>
 			getOrganizationById({ data: { organizationId }, signal }),
 		staleTime: 1000 * 60 * 5,
