@@ -27,7 +27,7 @@ const UploadUrlsSchema = z.object({
 });
 
 const SaveImagesSchema = z.object({
-	folderId: z.uuid().nullable(),
+	folderId: z.uuid(),
 	images: z
 		.array(
 			z.object({
@@ -116,18 +116,16 @@ async function handleSaveImages(request: Request, userId: string) {
 	const { folderId, images: imageInputs } = parsed.data;
 
 	// Verify user owns the folder (personal folders only)
-	if (folderId) {
-		const targetFolder = await db.query.folder.findFirst({
-			where: and(
-				eq(folder.id, folderId),
-				eq(folder.userId, userId),
-				isNull(folder.organizationId),
-			),
-		});
+	const targetFolder = await db.query.folder.findFirst({
+		where: and(
+			eq(folder.id, folderId),
+			eq(folder.userId, userId),
+			isNull(folder.organizationId),
+		),
+	});
 
-		if (!targetFolder) {
-			return Response.json({ error: "Folder not found" }, { status: 404 });
-		}
+	if (!targetFolder) {
+		return Response.json({ error: "Folder not found" }, { status: 404 });
 	}
 
 	// Verify all storage keys belong to this user
@@ -157,12 +155,10 @@ async function handleSaveImages(request: Request, userId: string) {
 			})
 			.returning();
 
-		if (folderId) {
-			await db.insert(folderImage).values({
-				folderId,
-				imageId: newImage[0].id,
-			});
-		}
+		await db.insert(folderImage).values({
+			folderId,
+			imageId: newImage[0].id,
+		});
 
 		const src = await createPresignedDownloadUrl(newImage[0].storageKey);
 
