@@ -12,7 +12,6 @@ import {
 	getShareLinks,
 } from "./functions";
 
-// TODO: Not currently used
 export const shareLinksQueryOptions = (folderId: string) =>
 	queryOptions({
 		queryKey: ["shareLinks", folderId],
@@ -56,7 +55,6 @@ export const invitationDetailsQueryOptions = (folderId: string) =>
 		staleTime: 1000 * 60 * 5,
 	});
 
-// TODO: Not currently used
 export const sharedLinkAccessQueryOptions = (linkId: string) =>
 	queryOptions({
 		queryKey: ["sharedLinkAccess", linkId],

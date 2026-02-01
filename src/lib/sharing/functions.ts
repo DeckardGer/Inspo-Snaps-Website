@@ -82,7 +82,6 @@ export const createShareLink = createServerFn({ method: "POST" })
 		return link[0];
 	});
 
-// TODO: Not currently used
 export const getShareLinks = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
@@ -107,7 +106,6 @@ export const getShareLinks = createServerFn({ method: "GET" })
 		});
 	});
 
-// TODO: Not currently used
 export const deleteShareLink = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(DeleteShareLinkInput)
@@ -238,7 +236,6 @@ export const getSharedUsers = createServerFn({ method: "GET" })
 		});
 	});
 
-// TODO: Not currently used
 export const revokeUserShare = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(RevokeShareInput)
@@ -437,7 +434,6 @@ export const getSharedWithMe = createServerFn({ method: "GET" })
 		}));
 	});
 
-// TODO: Not currently used
 export const accessSharedLink = createServerFn({ method: "GET" })
 	.inputValidator(LinkIdInput)
 	.handler(async ({ data }) => {
@@ -527,7 +523,6 @@ export const acceptShareLinkInvite = createServerFn({ method: "POST" })
 		return { folderId: link.folderId, alreadyAccepted: false };
 	});
 
-// TODO: Not currently used
 export const getSharedFolderContents = createServerFn({ method: "GET" })
 	.inputValidator(GetSharedFolderContentsInput)
 	.handler(async ({ data }) => {

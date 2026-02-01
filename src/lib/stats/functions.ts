@@ -8,8 +8,7 @@ export interface OverviewStats {
 
 export const getOverviewStats = createServerFn({ method: "GET" }).handler(
 	async () => {
-		// TODO: Replace with actual database query
-		// Mock data for now with simulated delay
+		// Mock data with simulated delay
 		await new Promise((resolve) => setTimeout(resolve, 800));
 
 		return {

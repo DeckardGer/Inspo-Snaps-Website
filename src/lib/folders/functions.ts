@@ -134,7 +134,6 @@ export const getFolders = createServerFn({ method: "GET" })
 		})) satisfies Folder[];
 	});
 
-// TODO: Not currently used
 export const getFolder = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(FolderIdInput)
@@ -180,7 +179,6 @@ export const updateFolder = createServerFn({ method: "POST" })
 		return result[0];
 	});
 
-// TODO: Not currently used
 export const moveFolder = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(MoveFolderInput)

@@ -17,7 +17,6 @@ export const foldersQueryOptions = (parentId?: string | null) =>
 		staleTime: 1000 * 60 * 5,
 	});
 
-// TODO: Not currently used
 export const folderQueryOptions = (id: string) =>
 	queryOptions({
 		queryKey: ["folder", id],

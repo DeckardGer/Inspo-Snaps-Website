@@ -226,7 +226,6 @@ export const Route = createFileRoute("/api/extension/folders")({
 				return Response.json({ folder: toStoredFolder(newFolder[0]) });
 			},
 
-			// TODO: Add support for moving folders into other folders
 			// PATCH update folder
 			PATCH: async ({ request }) => {
 				const session = await auth.api.getSession({

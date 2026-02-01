@@ -24,8 +24,6 @@ const getAuthConfig = createServerOnlyFn(() =>
 				ac,
 				roles,
 				async sendInvitationEmail(data) {
-					// TODO: Implement actual email sending
-					// For now, log the invitation details for development
 					const inviteLink = `${serverEnv.VITE_BASE_URL}/accept-invitation/${data.id}`;
 					console.log("[Organization Invitation]", {
 						email: data.email,
