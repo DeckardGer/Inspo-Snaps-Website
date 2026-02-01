@@ -37,9 +37,9 @@ export const UserAvatar = memo(function UserAvatar({
 		<Avatar key={avatarKey} className={avatarClassName}>
 			{imageUrl && <AvatarImage src={imageUrl} alt={username} />}
 			<AvatarFallback
-				style={{
-					background: gradient.css,
-				}}
+				{...(imageUrl
+					? { className: "animate-pulse bg-muted" }
+					: { style: { background: gradient.css } })}
 			/>
 		</Avatar>
 	);
