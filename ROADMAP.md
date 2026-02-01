@@ -33,7 +33,7 @@ A universal command palette (Cmd+K / Ctrl+K) that serves as the central hub for 
 
 ## Settings Page Review
 
-Review and refine the new settings page implementation before making it functional.
+Review and refine the settings page. Theme toggle, account fields (username, email, profile photo), and auto-save with toast feedback are already implemented.
 
 **Components to Review:**
 
@@ -48,14 +48,13 @@ Review and refine the new settings page implementation before making it function
   - Verify checked/unchecked states render correctly
   - Test keyboard navigation between options
 
-**Settings Page Items:**
+**Remaining Items:**
 
-- Wire up theme toggle to actual theme state
-- Connect account fields to user data from auth
+- ~~Wire up theme toggle to actual theme state~~ ✅
+- ~~Connect account fields to user data from auth~~ ✅
 - Implement storage usage calculation from actual data
 - Add confirmation dialogs for danger zone actions
 - Consider mobile layout improvements (sidebar becomes dropdown?)
-- Add save/cancel buttons or auto-save with toast feedback
 
 ---
 
@@ -191,7 +190,7 @@ Add email verification to the authentication flow to ensure valid email ownershi
 
 ## Move Folders
 
-Add functionality to move folders into other folders, enabling better organization and hierarchy management.
+Add UI for moving folders into other folders. Backend support already exists.
 
 **Core Capabilities:**
 
@@ -212,13 +211,12 @@ Add functionality to move folders into other folders, enabling better organizati
 
 **Implementation Notes:**
 
-- [ ] Update `updateFolder` server function to handle `parentId` changes
-- [ ] Add move validation to prevent circular references
+- ~~Backend `moveFolder` function~~ ✅ exists in `src/lib/folders/functions.ts` with cycle detection
+- ~~Add move support to extension API~~ ✅ PATCH handler in `src/routes/api/extension/folders.ts` supports `parentId`
 - [ ] Create folder picker component for destination selection
+- [ ] Add "Move to..." action in folder context menu
 - [ ] Update clone shared folder mutation to accept destination `parentId`
 - [ ] **TODO:** Update invalidation query for clone mutation - currently invalidates 'root' but should invalidate the specific destination folder being cloned into
-- [ ] Add move support to extension API (`src/routes/api/extension/folders.ts` PATCH handler)
-- Backend `moveFolder` function already exists in `src/lib/folders/functions.ts` but has no UI
 
 ---
 
@@ -257,12 +255,4 @@ Functions and query options that exist but are not currently used by any UI. Wir
 
 **Sharing:**
 
-- `getShareLinks` in `src/lib/sharing/functions.ts` — list non-expired share links for a folder
-- `deleteShareLink` in `src/lib/sharing/functions.ts` — delete a share link by ID
-- `revokeUserShare` in `src/lib/sharing/functions.ts` — revoke a user's access to a shared folder
-- `accessSharedLink` in `src/lib/sharing/functions.ts` — access a shared folder via link (unauthenticated)
-- `getSharedFolderContents` in `src/lib/sharing/functions.ts` — get folder contents via share link
-- `shareLinksQueryOptions` in `src/lib/sharing/queries.ts` — query options for `getShareLinks`
-- `sharedLinkAccessQueryOptions` in `src/lib/sharing/queries.ts` — query options for `accessSharedLink`
-
-
+- `getSharedFolderContents` in `src/lib/sharing/functions.ts` — unauthenticated version, not used (the authenticated `getSharedFolderContentsAuth` is used instead)
