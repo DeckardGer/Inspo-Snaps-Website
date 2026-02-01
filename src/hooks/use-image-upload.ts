@@ -1,17 +1,14 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
+import {
+	ALLOWED_IMAGE_MIME_TYPES,
+	type AllowedImageMimeType,
+	MAX_IMAGE_SIZE_BYTES,
+} from "@/lib/images/constants";
 import { saveImage } from "@/lib/images/functions";
 import { getImageDimensions } from "@/lib/images/utils";
 import { getUploadUrl } from "@/lib/storage/functions";
-
-const ALLOWED_TYPES = [
-	"image/jpeg",
-	"image/png",
-	"image/gif",
-	"image/webp",
-] as const;
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 interface ValidationResult {
 	valid: boolean;
@@ -19,17 +16,17 @@ interface ValidationResult {
 }
 
 export function validateFile(file: File): ValidationResult {
-	if (!ALLOWED_TYPES.includes(file.type as (typeof ALLOWED_TYPES)[number])) {
+	if (!ALLOWED_IMAGE_MIME_TYPES.includes(file.type as AllowedImageMimeType)) {
 		return {
 			valid: false,
-			error: `Invalid file type. Allowed: ${ALLOWED_TYPES.map((t) => t.split("/")[1]).join(", ")}`,
+			error: `Invalid file type. Allowed: ${ALLOWED_IMAGE_MIME_TYPES.map((t) => t.split("/")[1]).join(", ")}`,
 		};
 	}
 
-	if (file.size > MAX_FILE_SIZE) {
+	if (file.size > MAX_IMAGE_SIZE_BYTES) {
 		return {
 			valid: false,
-			error: `File too large. Maximum size: ${MAX_FILE_SIZE / 1024 / 1024}MB`,
+			error: `File too large. Maximum size: ${MAX_IMAGE_SIZE_BYTES / 1024 / 1024}MB`,
 		};
 	}
 

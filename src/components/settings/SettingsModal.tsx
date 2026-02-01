@@ -42,6 +42,7 @@ import {
 	updateUsername,
 } from "@/lib/auth/functions";
 import { authQueryOptions } from "@/lib/auth/queries";
+import { MAX_AVATAR_SIZE_BYTES } from "@/lib/images/constants";
 import { type UserTheme, useTheme } from "@/lib/ThemeProvider";
 import { cn } from "@/lib/utils";
 
@@ -67,7 +68,6 @@ const SECTIONS: {
 	{ id: "extension", label: "Extension", icon: BrowserIcon },
 ];
 
-const MAX_FILE_SIZE = 1024 * 1024; // 1MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif"];
 
 const usernameSchema = z.object({
@@ -268,9 +268,9 @@ export function SettingsModal({
 		}
 
 		// Validate file size
-		if (file.size > MAX_FILE_SIZE) {
+		if (file.size > MAX_AVATAR_SIZE_BYTES) {
 			toast.error("File too large", {
-				description: "Please upload an image smaller than 1MB.",
+				description: `Please upload an image smaller than ${MAX_AVATAR_SIZE_BYTES / 1024 / 1024}MB.`,
 			});
 			return;
 		}
@@ -504,7 +504,7 @@ export function SettingsModal({
 									<div className="min-w-0 flex-1">
 										<p className="text-sm font-medium">Profile photo</p>
 										<p className="text-xs text-muted-foreground">
-											JPG, PNG or GIF. 1MB max.
+											JPG, PNG or GIF. {MAX_AVATAR_SIZE_BYTES / 1024 / 1024}MB max.
 										</p>
 									</div>
 									<div className="flex gap-2">
