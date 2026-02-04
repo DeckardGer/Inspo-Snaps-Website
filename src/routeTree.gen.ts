@@ -13,7 +13,9 @@ import { Route as authenticatedRouteRouteImport } from './routes/(authenticated)
 import { Route as authPagesRouteRouteImport } from './routes/(auth-pages)/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as authPagesSignupRouteImport } from './routes/(auth-pages)/signup'
+import { Route as authPagesResetPasswordRouteImport } from './routes/(auth-pages)/reset-password'
 import { Route as authPagesLoginRouteImport } from './routes/(auth-pages)/login'
+import { Route as authPagesForgotPasswordRouteImport } from './routes/(auth-pages)/forgot-password'
 import { Route as authenticatedTeamFoldersIndexRouteImport } from './routes/(authenticated)/team-folders/index'
 import { Route as authenticatedSharedFoldersIndexRouteImport } from './routes/(authenticated)/shared-folders/index'
 import { Route as authenticatedOverviewIndexRouteImport } from './routes/(authenticated)/overview/index'
@@ -46,9 +48,19 @@ const authPagesSignupRoute = authPagesSignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => authPagesRouteRoute,
 } as any)
+const authPagesResetPasswordRoute = authPagesResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => authPagesRouteRoute,
+} as any)
 const authPagesLoginRoute = authPagesLoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => authPagesRouteRoute,
+} as any)
+const authPagesForgotPasswordRoute = authPagesForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => authPagesRouteRoute,
 } as any)
 const authenticatedTeamFoldersIndexRoute =
@@ -129,7 +141,9 @@ const authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/forgot-password': typeof authPagesForgotPasswordRoute
   '/login': typeof authPagesLoginRoute
+  '/reset-password': typeof authPagesResetPasswordRoute
   '/signup': typeof authPagesSignupRoute
   '/invite/$folderId': typeof authenticatedInviteFolderIdRoute
   '/my-folders/{-$folderId}': typeof authenticatedMyFoldersChar123FolderIdChar125Route
@@ -147,7 +161,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/forgot-password': typeof authPagesForgotPasswordRoute
   '/login': typeof authPagesLoginRoute
+  '/reset-password': typeof authPagesResetPasswordRoute
   '/signup': typeof authPagesSignupRoute
   '/invite/$folderId': typeof authenticatedInviteFolderIdRoute
   '/my-folders/{-$folderId}': typeof authenticatedMyFoldersChar123FolderIdChar125Route
@@ -168,7 +184,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/(auth-pages)': typeof authPagesRouteRouteWithChildren
   '/(authenticated)': typeof authenticatedRouteRouteWithChildren
+  '/(auth-pages)/forgot-password': typeof authPagesForgotPasswordRoute
   '/(auth-pages)/login': typeof authPagesLoginRoute
+  '/(auth-pages)/reset-password': typeof authPagesResetPasswordRoute
   '/(auth-pages)/signup': typeof authPagesSignupRoute
   '/(authenticated)/invite/$folderId': typeof authenticatedInviteFolderIdRoute
   '/(authenticated)/my-folders/{-$folderId}': typeof authenticatedMyFoldersChar123FolderIdChar125Route
@@ -188,7 +206,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/forgot-password'
     | '/login'
+    | '/reset-password'
     | '/signup'
     | '/invite/$folderId'
     | '/my-folders/{-$folderId}'
@@ -206,7 +226,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/forgot-password'
     | '/login'
+    | '/reset-password'
     | '/signup'
     | '/invite/$folderId'
     | '/my-folders/{-$folderId}'
@@ -226,7 +248,9 @@ export interface FileRouteTypes {
     | '/'
     | '/(auth-pages)'
     | '/(authenticated)'
+    | '/(auth-pages)/forgot-password'
     | '/(auth-pages)/login'
+    | '/(auth-pages)/reset-password'
     | '/(auth-pages)/signup'
     | '/(authenticated)/invite/$folderId'
     | '/(authenticated)/my-folders/{-$folderId}'
@@ -283,11 +307,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authPagesSignupRouteImport
       parentRoute: typeof authPagesRouteRoute
     }
+    '/(auth-pages)/reset-password': {
+      id: '/(auth-pages)/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof authPagesResetPasswordRouteImport
+      parentRoute: typeof authPagesRouteRoute
+    }
     '/(auth-pages)/login': {
       id: '/(auth-pages)/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof authPagesLoginRouteImport
+      parentRoute: typeof authPagesRouteRoute
+    }
+    '/(auth-pages)/forgot-password': {
+      id: '/(auth-pages)/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof authPagesForgotPasswordRouteImport
       parentRoute: typeof authPagesRouteRoute
     }
     '/(authenticated)/team-folders/': {
@@ -385,12 +423,16 @@ declare module '@tanstack/react-router' {
 }
 
 interface authPagesRouteRouteChildren {
+  authPagesForgotPasswordRoute: typeof authPagesForgotPasswordRoute
   authPagesLoginRoute: typeof authPagesLoginRoute
+  authPagesResetPasswordRoute: typeof authPagesResetPasswordRoute
   authPagesSignupRoute: typeof authPagesSignupRoute
 }
 
 const authPagesRouteRouteChildren: authPagesRouteRouteChildren = {
+  authPagesForgotPasswordRoute: authPagesForgotPasswordRoute,
   authPagesLoginRoute: authPagesLoginRoute,
+  authPagesResetPasswordRoute: authPagesResetPasswordRoute,
   authPagesSignupRoute: authPagesSignupRoute,
 }
 

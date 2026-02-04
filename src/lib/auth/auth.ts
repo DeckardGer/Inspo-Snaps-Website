@@ -51,6 +51,15 @@ const getAuthConfig = createServerOnlyFn(() =>
 		emailAndPassword: {
 			enabled: true,
 			requireEmailVerification: false, // We'll enforce this in the changePassword function
+			sendResetPassword: async ({ user, url, token }) => {
+				// TODO: Replace with Resend email sending when wired up
+				console.log("[Password Reset]", {
+					to: user.email,
+					subject: "Reset your password",
+					resetUrl: url,
+					token,
+				});
+			},
 		},
 
 		// https://www.better-auth.com/docs/authentication/email-verification

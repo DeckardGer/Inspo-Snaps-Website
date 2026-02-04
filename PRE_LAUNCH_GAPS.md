@@ -6,14 +6,23 @@ Comprehensive review of outstanding features, gaps, and priorities before launch
 
 ## Critical Blockers (Must fix before launch)
 
-### 1. No Password Reset / Forgot Password Flow
+### 1. ~~No Password Reset / Forgot Password Flow~~ ✅ DONE
 
-Users have no way to recover their accounts if they forget their password. The `verification` table exists in the database but is unused. No email-based reset flow, no token generation, no reset UI.
+Password reset flow is now implemented:
+
+- `sendResetPassword` callback configured in Better Auth
+- `/forgot-password` page for requesting reset links
+- `/reset-password` page for setting new password using token
+- Login page "Forgot Password?" link connected
+- Handles invalid/expired tokens with appropriate error UI
+- Success states with navigation back to login
 
 **Files involved:**
 
-- `src/lib/auth/auth.ts` — Better Auth config (no password reset plugin)
-- `src/lib/db/schema/auth.schema.ts` — verification table exists but unused
+- `src/lib/auth/auth.ts` — `sendResetPassword` callback configured (console.log placeholder for actual sending)
+- `src/routes/(auth-pages)/forgot-password.tsx` — new forgot password page
+- `src/routes/(auth-pages)/reset-password.tsx` — new reset password page
+- `src/routes/(auth-pages)/login.tsx` — updated "Forgot Password?" link
 
 ### 2. Email Infrastructure Missing (Partially Addressed)
 
@@ -236,7 +245,7 @@ These features are well-implemented and ready for launch:
 
 ### Missing
 
-- Forgot password / password reset flow
+- ~~Forgot password / password reset flow~~ ✅ Flow implemented (needs Resend for actual emails)
 - ~~Email verification (table exists, never used)~~ ✅ Flow implemented (needs Resend for actual emails)
 - ~~Password change functionality~~ ✅ Implemented
 - Account deletion / deactivation
@@ -303,8 +312,8 @@ These features are well-implemented and ready for launch:
 
 ## Suggested Pre-Launch Priority Order
 
-1. Wire up email infrastructure (Resend) — unblocks password reset, verification emails, invitations
-2. Implement password reset (forgot password flow)
+1. Wire up email infrastructure (Resend) — unblocks password reset emails, verification emails, invitations
+2. ~~Implement password reset (forgot password flow)~~ ✅ DONE
 3. Build the landing/home page
 4. Add payments/subscriptions
 5. Add rate limiting on auth + upload endpoints
@@ -320,6 +329,7 @@ These features are well-implemented and ready for launch:
 
 ## Recently Completed
 
+- ✅ **Forgot password / password reset flow** — Full implementation with forgot password page, reset password page, token validation, and Better Auth integration (console.log placeholder for actual email sending)
 - ✅ **Password change functionality** — Full implementation with dialog, validation, email verification requirement
 - ✅ **Email verification flow** — UI and server functions implemented (console.log placeholder for actual email sending)
 - ✅ **OAuth user detection** — Shows "Signed in with Google" for users without password credentials

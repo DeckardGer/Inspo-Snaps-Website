@@ -15,6 +15,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
 import { SocialSignInButton } from "@/components/SocialSignInButton";
 import { Button } from "@/components/ui/button";
 import {
@@ -129,283 +130,250 @@ function RouteComponent() {
 	});
 
 	return (
-		<div className="flex h-screen p-2">
-			<div className="w-full lg:w-2/5 lg:max-w-200 flex flex-col">
-				<div className="flex justify-between text-muted-foreground py-4 px-8">
-					<div>InspoSnaps Icon</div>
-				</div>
-				<div className="flex-1 overflow-y-auto px-8">
-					<div className="flex items-center justify-center min-h-full">
-						<div className="flex flex-col items-center max-w-100 w-full">
-							<div className="flex justify-center items-center p-4 rounded-full bg-linear-to-t from-background to-accent">
-								<div className="flex items-center justify-center bg-card rounded-full p-4 border">
-									<HugeiconsIcon
-										icon={UserIcon}
-										size={32}
-										className="text-foreground"
-									/>
-								</div>
-							</div>
-							<div className="flex flex-col items-center gap-1 mt-2">
-								<h1 className="text-2xl font-medium">Sign up to InspoSnaps</h1>
-								<span className="text-muted-foreground">
-									Enter your details to signup.
-								</span>
-							</div>
-							<div className="flex gap-3 w-full mt-4">
-								<SocialSignInButton
-									provider="google"
-									logo={<Google />}
-									callbackURL={redirectUrl}
-								/>
-							</div>
-							<form
-								id="signup-form"
-								onSubmit={(e) => {
-									e.preventDefault();
-									form.handleSubmit();
-								}}
-								className="w-full mt-6"
-							>
-								<FieldGroup className="gap-4">
-									<FieldSeparator className="text-secondary-foreground">
-										OR
-									</FieldSeparator>
-									<form.Field
-										name="username"
-										validators={{
-											onChangeAsyncDebounceMs: 500,
-											onChangeAsync: async ({ value }) => {
-												// Empty value is valid (no error)
-												if (!value) {
-													return undefined;
-												}
-
-												try {
-													const result = await checkUsernameAvailability({
-														data: { username: value },
-													});
-
-													// Backend validates format and checks availability
-													if (!result.valid) {
-														return result.message;
-													}
-
-													return undefined;
-												} catch (error) {
-													// Network or other errors
-													console.error("Username check error:", error);
-													return "Unable to verify username. Please try again.";
-												}
-											},
-										}}
-										children={(field) => {
-											const hasValue = field.state.value.length > 0;
-											const isValidating = field.state.meta.isValidating;
-											const hasErrors =
-												field.state.meta.errors &&
-												field.state.meta.errors.length > 0;
-											const isInvalid =
-												field.state.meta.isTouched &&
-												hasErrors &&
-												!isValidating;
-											const isAvailable =
-												hasValue &&
-												!hasErrors &&
-												!isValidating &&
-												field.state.meta.isTouched;
-
-											const transformedErrors = transformFormErrors(
-												field.state.meta.errors,
-											);
-
-											return (
-												<Field data-invalid={isInvalid}>
-													<FieldLabel htmlFor={field.name} required>
-														Username
-													</FieldLabel>
-													<InputGroup>
-														<InputGroupAddon align="inline-start">
-															<InputGroupText>
-																<HugeiconsIcon
-																	icon={AtIcon}
-																	size={18}
-																	strokeWidth={2}
-																/>
-															</InputGroupText>
-														</InputGroupAddon>
-														<InputGroupInput
-															id={field.name}
-															name={field.name}
-															value={field.state.value}
-															onBlur={field.handleBlur}
-															onChange={(e) =>
-																field.handleChange(e.target.value)
-															}
-															aria-invalid={isInvalid}
-															autoComplete="username"
-															spellCheck={false}
-														/>
-														<InputGroupAddon align="inline-end">
-															<InputGroupText>
-																{isValidating && (
-																	<HugeiconsIcon
-																		icon={Loading03Icon}
-																		size={18}
-																		strokeWidth={2}
-																		className="animate-spin"
-																	/>
-																)}
-																{isAvailable && (
-																	<HugeiconsIcon
-																		icon={Tick02Icon}
-																		size={18}
-																		strokeWidth={2}
-																		className="text-green-600"
-																	/>
-																)}
-															</InputGroupText>
-														</InputGroupAddon>
-													</InputGroup>
-													{isInvalid && (
-														<FieldError errors={transformedErrors} />
-													)}
-												</Field>
-											);
-										}}
-									/>
-									<form.Field
-										name="email"
-										children={(field) => {
-											const isInvalid =
-												field.state.meta.isTouched && !field.state.meta.isValid;
-											return (
-												<Field data-invalid={isInvalid}>
-													<FieldLabel htmlFor={field.name} required>
-														Email
-													</FieldLabel>
-													<InputGroup>
-														<InputGroupAddon align="inline-start">
-															<InputGroupText>
-																<HugeiconsIcon
-																	icon={Mail01Icon}
-																	size={18}
-																	strokeWidth={2}
-																/>
-															</InputGroupText>
-														</InputGroupAddon>
-														<InputGroupInput
-															id={field.name}
-															name={field.name}
-															value={field.state.value}
-															onBlur={field.handleBlur}
-															onChange={(e) =>
-																field.handleChange(e.target.value)
-															}
-															aria-invalid={isInvalid}
-															autoComplete="email"
-														/>
-													</InputGroup>
-													{isInvalid && (
-														<FieldError errors={field.state.meta.errors} />
-													)}
-												</Field>
-											);
-										}}
-									/>
-									<form.Field
-										name="password"
-										children={(field) => {
-											const isInvalid =
-												field.state.meta.isTouched && !field.state.meta.isValid;
-											return (
-												<Field data-invalid={isInvalid}>
-													<FieldLabel htmlFor={field.name} required>
-														Password
-													</FieldLabel>
-													<InputGroup>
-														<InputGroupAddon align="inline-start">
-															<InputGroupText>
-																<HugeiconsIcon
-																	icon={SquareLock02Icon}
-																	size={18}
-																	strokeWidth={2}
-																/>
-															</InputGroupText>
-														</InputGroupAddon>
-														<InputGroupInput
-															id={field.name}
-															name={field.name}
-															value={field.state.value}
-															onBlur={field.handleBlur}
-															onChange={(e) =>
-																field.handleChange(e.target.value)
-															}
-															aria-invalid={isInvalid}
-															autoComplete="new-password"
-															type={showPassword ? "text" : "password"}
-														/>
-														<InputGroupAddon align="inline-end">
-															<Tooltip>
-																<TooltipTrigger
-																	render={(props) => (
-																		<InputGroupButton
-																			{...props}
-																			onClick={() =>
-																				setShowPassword(!showPassword)
-																			}
-																			size="icon-xs"
-																		>
-																			<HugeiconsIcon
-																				icon={
-																					showPassword
-																						? ViewIcon
-																						: ViewOffSlashIcon
-																				}
-																				size={18}
-																				strokeWidth={2}
-																			/>
-																		</InputGroupButton>
-																	)}
-																/>
-																<TooltipContent>
-																	<p>
-																		{showPassword
-																			? "Hide password"
-																			: "Show password"}
-																	</p>
-																</TooltipContent>
-															</Tooltip>
-														</InputGroupAddon>
-													</InputGroup>
-													{isInvalid && (
-														<FieldError
-															errors={field.state.meta.errors}
-															showAll
-														/>
-													)}
-												</Field>
-											);
-										}}
-									/>
-								</FieldGroup>
-								<Field className="mt-6">
-									<Button type="submit" form="signup-form" className="w-full">
-										Sign up
-									</Button>
-									<FieldDescription className="text-center">
-										Already have an account? <Link to="/login">Login</Link>
-									</FieldDescription>
-								</Field>
-							</form>
-						</div>
+		<AuthPageLayout>
+			<div className="flex flex-col items-center max-w-100 w-full">
+				<div className="flex justify-center items-center p-4 rounded-full bg-linear-to-t from-background to-accent">
+					<div className="flex items-center justify-center bg-card rounded-full p-4 border">
+						<HugeiconsIcon
+							icon={UserIcon}
+							size={32}
+							className="text-foreground"
+						/>
 					</div>
 				</div>
-				<span className="text-sm text-muted-foreground py-4 px-8">
-					&copy; 2025 InspoSnaps.com
-				</span>
+				<div className="flex flex-col items-center gap-1 mt-2">
+					<h1 className="text-2xl font-medium">Sign up to InspoSnaps</h1>
+					<span className="text-muted-foreground">
+						Enter your details to signup.
+					</span>
+				</div>
+				<div className="flex gap-3 w-full mt-4">
+					<SocialSignInButton
+						provider="google"
+						logo={<Google />}
+						callbackURL={redirectUrl}
+					/>
+				</div>
+				<form
+					id="signup-form"
+					onSubmit={(e) => {
+						e.preventDefault();
+						form.handleSubmit();
+					}}
+					className="w-full mt-6"
+				>
+					<FieldGroup className="gap-4">
+						<FieldSeparator className="text-secondary-foreground">
+							OR
+						</FieldSeparator>
+						<form.Field
+							name="username"
+							validators={{
+								onChangeAsyncDebounceMs: 500,
+								onChangeAsync: async ({ value }) => {
+									// Empty value is valid (no error)
+									if (!value) {
+										return undefined;
+									}
+
+									try {
+										const result = await checkUsernameAvailability({
+											data: { username: value },
+										});
+
+										// Backend validates format and checks availability
+										if (!result.valid) {
+											return result.message;
+										}
+
+										return undefined;
+									} catch (error) {
+										// Network or other errors
+										console.error("Username check error:", error);
+										return "Unable to verify username. Please try again.";
+									}
+								},
+							}}
+							children={(field) => {
+								const hasValue = field.state.value.length > 0;
+								const isValidating = field.state.meta.isValidating;
+								const hasErrors =
+									field.state.meta.errors && field.state.meta.errors.length > 0;
+								const isInvalid =
+									field.state.meta.isTouched && hasErrors && !isValidating;
+								const isAvailable =
+									hasValue &&
+									!hasErrors &&
+									!isValidating &&
+									field.state.meta.isTouched;
+
+								const transformedErrors = transformFormErrors(
+									field.state.meta.errors,
+								);
+
+								return (
+									<Field data-invalid={isInvalid}>
+										<FieldLabel htmlFor={field.name} required>
+											Username
+										</FieldLabel>
+										<InputGroup>
+											<InputGroupAddon align="inline-start">
+												<InputGroupText>
+													<HugeiconsIcon
+														icon={AtIcon}
+														size={18}
+														strokeWidth={2}
+													/>
+												</InputGroupText>
+											</InputGroupAddon>
+											<InputGroupInput
+												id={field.name}
+												name={field.name}
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.value)}
+												aria-invalid={isInvalid}
+												autoComplete="username"
+												spellCheck={false}
+											/>
+											<InputGroupAddon align="inline-end">
+												<InputGroupText>
+													{isValidating && (
+														<HugeiconsIcon
+															icon={Loading03Icon}
+															size={18}
+															strokeWidth={2}
+															className="animate-spin"
+														/>
+													)}
+													{isAvailable && (
+														<HugeiconsIcon
+															icon={Tick02Icon}
+															size={18}
+															strokeWidth={2}
+															className="text-green-600"
+														/>
+													)}
+												</InputGroupText>
+											</InputGroupAddon>
+										</InputGroup>
+										{isInvalid && <FieldError errors={transformedErrors} />}
+									</Field>
+								);
+							}}
+						/>
+						<form.Field
+							name="email"
+							children={(field) => {
+								const isInvalid =
+									field.state.meta.isTouched && !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid}>
+										<FieldLabel htmlFor={field.name} required>
+											Email
+										</FieldLabel>
+										<InputGroup>
+											<InputGroupAddon align="inline-start">
+												<InputGroupText>
+													<HugeiconsIcon
+														icon={Mail01Icon}
+														size={18}
+														strokeWidth={2}
+													/>
+												</InputGroupText>
+											</InputGroupAddon>
+											<InputGroupInput
+												id={field.name}
+												name={field.name}
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.value)}
+												aria-invalid={isInvalid}
+												autoComplete="email"
+											/>
+										</InputGroup>
+										{isInvalid && (
+											<FieldError errors={field.state.meta.errors} />
+										)}
+									</Field>
+								);
+							}}
+						/>
+						<form.Field
+							name="password"
+							children={(field) => {
+								const isInvalid =
+									field.state.meta.isTouched && !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid}>
+										<FieldLabel htmlFor={field.name} required>
+											Password
+										</FieldLabel>
+										<InputGroup>
+											<InputGroupAddon align="inline-start">
+												<InputGroupText>
+													<HugeiconsIcon
+														icon={SquareLock02Icon}
+														size={18}
+														strokeWidth={2}
+													/>
+												</InputGroupText>
+											</InputGroupAddon>
+											<InputGroupInput
+												id={field.name}
+												name={field.name}
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.value)}
+												aria-invalid={isInvalid}
+												autoComplete="new-password"
+												type={showPassword ? "text" : "password"}
+											/>
+											<InputGroupAddon align="inline-end">
+												<Tooltip>
+													<TooltipTrigger
+														render={(props) => (
+															<InputGroupButton
+																{...props}
+																onClick={() => setShowPassword(!showPassword)}
+																size="icon-xs"
+															>
+																<HugeiconsIcon
+																	icon={
+																		showPassword ? ViewIcon : ViewOffSlashIcon
+																	}
+																	size={18}
+																	strokeWidth={2}
+																/>
+															</InputGroupButton>
+														)}
+													/>
+													<TooltipContent>
+														<p>
+															{showPassword ? "Hide password" : "Show password"}
+														</p>
+													</TooltipContent>
+												</Tooltip>
+											</InputGroupAddon>
+										</InputGroup>
+										{isInvalid && (
+											<FieldError errors={field.state.meta.errors} showAll />
+										)}
+									</Field>
+								);
+							}}
+						/>
+					</FieldGroup>
+					<Field className="mt-6">
+						<Button type="submit" form="signup-form" className="w-full">
+							Sign up
+						</Button>
+						<FieldDescription className="text-center">
+							Already have an account? <Link to="/login">Login</Link>
+						</FieldDescription>
+					</Field>
+				</form>
 			</div>
-			<div className="hidden lg:flex lg:w-3/5 flex-1 justify-center items-center bg-secondary rounded-2xl"></div>
-		</div>
+		</AuthPageLayout>
 	);
 }
