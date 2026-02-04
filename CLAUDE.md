@@ -71,7 +71,9 @@ src/
 │   ├── (auth-pages)/             # Public auth routes
 │   │   ├── login.tsx
 │   │   ├── signup.tsx
-│   │   └── route.tsx             # Auth layout
+│   │   ├── forgot-password.tsx   # Request password reset
+│   │   ├── reset-password.tsx    # Set new password with token
+│   │   └── route.tsx             # Auth layout (redirects if logged in)
 │   ├── (authenticated)/          # Protected routes (require auth)
 │   │   ├── route.tsx             # Layout with sidebar + navbar
 │   │   ├── my-folders/
@@ -88,6 +90,8 @@ src/
 │   │   ├── empty-state.tsx       # EmptyState, FloatingIcon, IllustrationContainer
 │   │   ├── error-state.tsx       # ErrorState, DriftingIcon, FloatingParticle
 │   │   └── ...                   # Other Shadcn components
+│   ├── auth/                     # Auth page components
+│   │   └── AuthPageLayout.tsx    # Shared layout wrapper for all auth pages
 │   ├── folders/                  # Folder management
 │   │   ├── BaseFolderCard.tsx    # Shared card rendering (used by all card variants)
 │   │   ├── BaseFolderModal.tsx   # Shared modal form (used by folder/team modals)
@@ -201,6 +205,9 @@ src/
 - Email/password authentication
 - Google OAuth login
 - Username system with availability checking
+- Password reset flow (forgot password / reset password)
+- Password change (requires email verification)
+- Email verification flow
 - Create/edit/delete folders
 - Hierarchical folder structure (nested folders)
 - Folder colors (9 options) and emojis
@@ -228,6 +235,11 @@ src/
 ### Authentication (`lib/auth/functions.ts`)
 - `getUser()` - Get current session user
 - `checkUsernameAvailability()` - Validate username
+- `updateUsername()` - Update user's username
+- `changePassword()` - Change password (requires email verification)
+- `hasPassword()` - Check if user has password credentials
+- `sendVerificationEmail()` - Send email verification link
+- `getAvatarUploadUrl()` / `updateAvatar()` / `removeAvatar()` - Avatar management
 
 ### Folders (`lib/folders/functions.ts`)
 - `createFolder()` - Create new folder
