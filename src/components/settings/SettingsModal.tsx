@@ -17,6 +17,7 @@ import {
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { ChangePasswordDialog } from "@/components/settings/ChangePasswordDialog";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -38,10 +39,11 @@ import {
 	checkUsernameAvailability,
 	getAvatarUploadUrl,
 	removeAvatar,
+	sendVerificationEmail,
 	updateAvatar,
 	updateUsername,
 } from "@/lib/auth/functions";
-import { authQueryOptions } from "@/lib/auth/queries";
+import { authQueryOptions, hasPasswordQueryOptions } from "@/lib/auth/queries";
 import { MAX_AVATAR_SIZE_BYTES } from "@/lib/images/constants";
 import { type UserTheme, useTheme } from "@/lib/ThemeProvider";
 import { cn } from "@/lib/utils";
@@ -169,6 +171,7 @@ export function SettingsModal({
 	const [internalOpen, setInternalOpen] = useState(false);
 	const [activeSection, setActiveSection] = useState<Section>("account");
 	const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+	const [nestedDialogOpen, setNestedDialogOpen] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const { userTheme, setTheme } = useTheme();
 	const queryClient = useQueryClient();
@@ -176,6 +179,8 @@ export function SettingsModal({
 	// Use query directly for reactive updates when user data changes
 	const { data: user } = useSuspenseQuery(authQueryOptions());
 	if (!user) throw new Error("User not found");
+
+	const { data: passwordData } = useSuspenseQuery(hasPasswordQueryOptions());
 
 	const sectionRefs = useRef<Record<Section, HTMLElement | null>>({
 		account: null,
@@ -250,6 +255,24 @@ export function SettingsModal({
 		},
 		onError: (error) => {
 			toast.error("Failed to remove profile photo", {
+				description: error.message,
+			});
+		},
+	});
+
+	// ─────────────────────────────────────────────────────────────────────────
+	// Email Verification Mutation
+	// ─────────────────────────────────────────────────────────────────────────
+
+	const verificationMutation = useMutation({
+		mutationFn: sendVerificationEmail,
+		onSuccess: (result) => {
+			toast.success(result.message, {
+				description: "Check your inbox for the verification link.",
+			});
+		},
+		onError: (error) => {
+			toast.error("Failed to send verification email", {
 				description: error.message,
 			});
 		},
@@ -402,7 +425,10 @@ export function SettingsModal({
 			{trigger && <DialogTrigger render={trigger} />}
 			<DialogContent
 				showCloseButton={false}
-				className="flex h-[520px] max-h-[85vh] w-[calc(100%-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl sm:flex-row"
+				className={cn(
+					"flex h-[520px] max-h-[85vh] w-[calc(100%-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl sm:flex-row",
+					nestedDialogOpen && "blur-xs",
+				)}
 			>
 				{/* Mobile Header + Tabs */}
 				<div className="flex shrink-0 flex-col border-b border-border/50 sm:hidden">
@@ -504,7 +530,8 @@ export function SettingsModal({
 									<div className="min-w-0 flex-1">
 										<p className="text-sm font-medium">Profile photo</p>
 										<p className="text-xs text-muted-foreground">
-											JPG, PNG or GIF. {MAX_AVATAR_SIZE_BYTES / 1024 / 1024}MB max.
+											JPG, PNG or GIF. {MAX_AVATAR_SIZE_BYTES / 1024 / 1024}MB
+											max.
 										</p>
 									</div>
 									<div className="flex gap-2">
@@ -692,7 +719,7 @@ export function SettingsModal({
 								{/* Email */}
 								<SettingRow label="Email" description="Used for notifications">
 									<div className="flex items-center gap-2">
-										{user.emailVerified && (
+										{user.emailVerified ? (
 											<Badge
 												variant="secondary"
 												className="h-5 gap-1 px-1.5 text-[10px] text-green-600 dark:text-green-400"
@@ -704,6 +731,26 @@ export function SettingsModal({
 												/>
 												Verified
 											</Badge>
+										) : (
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={() => verificationMutation.mutate({})}
+												disabled={verificationMutation.isPending}
+											>
+												{verificationMutation.isPending ? (
+													<>
+														<HugeiconsIcon
+															icon={Loading03Icon}
+															className="animate-spin"
+															strokeWidth={2}
+														/>
+														Sending...
+													</>
+												) : (
+													"Verify"
+												)}
+											</Button>
 										)}
 										<Input
 											type="email"
@@ -718,9 +765,32 @@ export function SettingsModal({
 
 								{/* Password */}
 								<SettingRow label="Password" description="Secure your account">
-									<Button variant="outline" size="sm" disabled>
-										Change
-									</Button>
+									{passwordData?.hasPassword ? (
+										user.emailVerified ? (
+											<ChangePasswordDialog
+												onOpenChange={setNestedDialogOpen}
+											/>
+										) : (
+											<Tooltip>
+												<TooltipTrigger
+													render={
+														<span className="inline-block">
+															<Button variant="outline" size="sm" disabled>
+																Change
+															</Button>
+														</span>
+													}
+												/>
+												<TooltipContent>
+													<p>Verify your email first</p>
+												</TooltipContent>
+											</Tooltip>
+										)
+									) : (
+										<span className="text-xs text-muted-foreground">
+											Signed in with Google
+										</span>
+									)}
 								</SettingRow>
 							</div>
 						</section>

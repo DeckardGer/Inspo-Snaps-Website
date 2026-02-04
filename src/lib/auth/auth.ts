@@ -50,6 +50,22 @@ const getAuthConfig = createServerOnlyFn(() =>
 		// https://www.better-auth.com/docs/authentication/email-password
 		emailAndPassword: {
 			enabled: true,
+			requireEmailVerification: false, // We'll enforce this in the changePassword function
+		},
+
+		// https://www.better-auth.com/docs/authentication/email-verification
+		emailVerification: {
+			sendVerificationEmail: async ({ user, url, token }) => {
+				// TODO: Replace with Resend email sending when wired up
+				console.log("[Email Verification]", {
+					to: user.email,
+					subject: "Verify your email address",
+					verificationUrl: url,
+					token,
+				});
+			},
+			sendOnSignUp: false,
+			autoSignInAfterVerification: true,
 		},
 
 		socialProviders: {

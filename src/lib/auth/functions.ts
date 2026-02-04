@@ -1,9 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest, setResponseHeader } from "@tanstack/react-start/server";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { auth } from "@/lib/auth/auth";
 import authClient from "@/lib/auth/auth-client";
 import { authMiddleware } from "@/lib/auth/middleware";
+import { db } from "@/lib/db";
+import { account } from "@/lib/db/schema/auth.schema";
 import { MAX_AVATAR_SIZE_BYTES } from "@/lib/images/constants";
 import {
 	createPresignedDownloadUrl,
@@ -221,4 +224,93 @@ export const removeAvatar = createServerFn({ method: "POST" })
 		}
 
 		return { success: true };
+	});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Password Management
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const hasPassword = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
+	.handler(async ({ context }) => {
+		const accounts = await db
+			.select({ providerId: account.providerId })
+			.from(account)
+			.where(eq(account.userId, context.user.id));
+
+		return {
+			hasPassword: accounts.some((a) => a.providerId === "credential"),
+		};
+	});
+
+export const passwordSchema = z
+	.string()
+	.min(8, "Password must be at least 8 characters.")
+	.regex(/[a-z]/, "Password must contain at least one lowercase letter.")
+	.regex(/[A-Z]/, "Password must contain at least one uppercase letter.")
+	.regex(/[0-9]/, "Password must contain at least one number.")
+	.regex(
+		/[^a-zA-Z0-9]/,
+		"Password must contain at least one special character.",
+	);
+
+const ChangePasswordInput = z
+	.object({
+		currentPassword: z.string().min(1, "Current password is required."),
+		newPassword: passwordSchema,
+		confirmPassword: z.string().min(1, "Please confirm your new password."),
+	})
+	.refine((data) => data.newPassword === data.confirmPassword, {
+		message: "Passwords don't match.",
+		path: ["confirmPassword"],
+	})
+	.refine((data) => data.currentPassword !== data.newPassword, {
+		message: "New password must be different from current password.",
+		path: ["newPassword"],
+	});
+
+export const changePassword = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(ChangePasswordInput)
+	.handler(async ({ data, context }) => {
+		// Require email verification before allowing password changes
+		if (!context.user.emailVerified) {
+			throw new Error(
+				"Please verify your email address before changing your password.",
+			);
+		}
+
+		await auth.api.changePassword({
+			headers: getRequest().headers,
+			body: {
+				currentPassword: data.currentPassword,
+				newPassword: data.newPassword,
+				revokeOtherSessions: true,
+			},
+		});
+
+		// TODO: Send password change confirmation email when Resend is wired up
+		console.log(
+			"[Password Changed] User changed their password. Send confirmation email.",
+		);
+
+		return { success: true, message: "Password changed successfully." };
+	});
+
+export const sendVerificationEmail = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.handler(async ({ context }) => {
+		if (context.user.emailVerified) {
+			return { success: true, message: "Email is already verified." };
+		}
+
+		await auth.api.sendVerificationEmail({
+			headers: getRequest().headers,
+			body: {
+				email: context.user.email,
+				callbackURL: "/overview",
+			},
+		});
+
+		return { success: true, message: "Verification email sent." };
 	});
