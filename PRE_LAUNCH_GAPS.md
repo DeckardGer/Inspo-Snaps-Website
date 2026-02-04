@@ -15,26 +15,34 @@ Users have no way to recover their accounts if they forget their password. The `
 - `src/lib/auth/auth.ts` — Better Auth config (no password reset plugin)
 - `src/lib/db/schema/auth.schema.ts` — verification table exists but unused
 
-### 2. Email Infrastructure Missing
+### 2. Email Infrastructure Missing (Partially Addressed)
 
-`sendInvitationEmail` in `auth.ts` logs to console instead of sending actual emails. Resend (or similar) needs to be wired up. This blocks:
+`sendInvitationEmail` and `sendVerificationEmail` in `auth.ts` log to console instead of sending actual emails. Resend (or similar) needs to be wired up. This blocks:
 
 - Password reset emails
-- Email verification
+- ~~Email verification~~ ✅ Flow implemented (console.log placeholder for actual sending)
 - Sharing invitation emails
 - Account change notifications
 
 **Files involved:**
 
-- `src/lib/auth/auth.ts` (line ~28, console.log placeholder)
+- `src/lib/auth/auth.ts` — `emailVerification.sendVerificationEmail` configured (console.log placeholder)
+- `src/lib/auth/functions.ts` — `sendVerificationEmail` server function implemented
 
-### 3. No Password Change Functionality
+### 3. ~~No Password Change Functionality~~ ✅ DONE
 
-The settings UI has a disabled password change button but no implementation. Users cannot update their existing password.
+Password change is now implemented:
+
+- `ChangePasswordDialog` component with full form validation
+- Requires email verification before allowing password changes
+- Detects OAuth-only users and shows "Signed in with Google" instead
+- Uses shared `passwordSchema` for consistent validation
 
 **Files involved:**
 
-- `src/components/settings/SettingsModal.tsx` — disabled button in UI
+- `src/components/settings/ChangePasswordDialog.tsx` — new dialog component
+- `src/components/settings/SettingsModal.tsx` — integrated with verification check
+- `src/lib/auth/functions.ts` — `changePassword`, `hasPassword`, `sendVerificationEmail` server functions
 
 ### 4. Zero Test Coverage
 
@@ -229,8 +237,8 @@ These features are well-implemented and ready for launch:
 ### Missing
 
 - Forgot password / password reset flow
-- Email verification (table exists, never used)
-- Password change functionality
+- ~~Email verification (table exists, never used)~~ ✅ Flow implemented (needs Resend for actual emails)
+- ~~Password change functionality~~ ✅ Implemented
 - Account deletion / deactivation
 - Multiple device session management UI
 - 2FA / MFA support
@@ -295,8 +303,8 @@ These features are well-implemented and ready for launch:
 
 ## Suggested Pre-Launch Priority Order
 
-1. Wire up email infrastructure (Resend) — unblocks password reset, verification, invitations
-2. Implement password reset + password change
+1. Wire up email infrastructure (Resend) — unblocks password reset, verification emails, invitations
+2. Implement password reset (forgot password flow)
 3. Build the landing/home page
 4. Add payments/subscriptions
 5. Add rate limiting on auth + upload endpoints
@@ -307,3 +315,12 @@ These features are well-implemented and ready for launch:
 10. Set up CI/CD + production deployment
 11. Write core tests (auth flows, folder CRUD, sharing)
 12. Add security headers
+
+---
+
+## Recently Completed
+
+- ✅ **Password change functionality** — Full implementation with dialog, validation, email verification requirement
+- ✅ **Email verification flow** — UI and server functions implemented (console.log placeholder for actual email sending)
+- ✅ **OAuth user detection** — Shows "Signed in with Google" for users without password credentials
+- ✅ **Shared password schema** — Consolidated validation rules across signup and password change
