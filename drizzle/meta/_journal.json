@@ -71,6 +71,13 @@
       "when": 1766900484568,
       "tag": "0009_young_turbo",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1770294291842,
+      "tag": "0010_fluffy_thor_girl",
+      "breakpoints": true
     }
   ]
 }

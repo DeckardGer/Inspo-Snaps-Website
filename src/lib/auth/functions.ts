@@ -9,6 +9,11 @@ import { db } from "@/lib/db";
 import { account } from "@/lib/db/schema/auth.schema";
 import { MAX_AVATAR_SIZE_BYTES } from "@/lib/images/constants";
 import {
+	accountRateLimitMiddleware,
+	uploadRateLimitMiddleware,
+	usernameCheckRateLimitMiddleware,
+} from "@/lib/rate-limit/middleware";
+import {
 	createPresignedDownloadUrl,
 	deleteStorageObject,
 } from "@/lib/storage/s3";
@@ -44,6 +49,7 @@ const UsernameInput = z.object({
 });
 
 export const checkUsernameAvailability = createServerFn({ method: "GET" })
+	.middleware([usernameCheckRateLimitMiddleware])
 	.inputValidator(UsernameInput)
 	.handler(async ({ data }) => {
 		// Validate username format first
@@ -140,7 +146,7 @@ const GetAvatarUploadUrlInput = z.object({
 });
 
 export const getAvatarUploadUrl = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([authMiddleware, uploadRateLimitMiddleware])
 	.inputValidator(GetAvatarUploadUrlInput)
 	.handler(async ({ data, context }) => {
 		// Generate a storage key with avatars/ prefix
@@ -270,7 +276,7 @@ const ChangePasswordInput = z
 	});
 
 export const changePassword = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([authMiddleware, accountRateLimitMiddleware])
 	.inputValidator(ChangePasswordInput)
 	.handler(async ({ data, context }) => {
 		// Require email verification before allowing password changes
@@ -298,7 +304,7 @@ export const changePassword = createServerFn({ method: "POST" })
 	});
 
 export const sendVerificationEmail = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([authMiddleware, accountRateLimitMiddleware])
 	.handler(async ({ context }) => {
 		if (context.user.emailVerified) {
 			return { success: true, message: "Email is already verified." };

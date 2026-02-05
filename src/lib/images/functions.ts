@@ -5,6 +5,7 @@ import { authMiddleware } from "@/lib/auth/middleware";
 import { db } from "@/lib/db";
 import { folder, folderImage, image, member } from "@/lib/db/schema";
 import { MAX_IMAGE_SIZE_BYTES } from "@/lib/images/constants";
+import { uploadRateLimitMiddleware } from "@/lib/rate-limit/middleware";
 import {
 	createPresignedDownloadUrl,
 	deleteStorageObject,
@@ -40,7 +41,7 @@ const FolderIdInput = z.object({
 });
 
 export const saveImage = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([authMiddleware, uploadRateLimitMiddleware])
 	.inputValidator(SaveImageInput)
 	.handler(async ({ data, context }) => {
 		const targetFolder = await db.query.folder.findFirst({
@@ -231,7 +232,7 @@ const RemoveTeamImageInput = z.object({
 });
 
 export const saveTeamImage = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([authMiddleware, uploadRateLimitMiddleware])
 	.inputValidator(SaveTeamImageInput)
 	.handler(async ({ data, context }) => {
 		// Verify user is member of organization

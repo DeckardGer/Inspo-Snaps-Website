@@ -4,5 +4,6 @@ export * from "./folder.schema";
 export * from "./folder-image.schema";
 export * from "./image.schema";
 export * from "./notification.schema";
+export * from "./rate-limit.schema";
 export * from "./share-link.schema";
 export * from "./user-share.schema";

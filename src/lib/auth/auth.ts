@@ -17,6 +17,29 @@ const getAuthConfig = createServerOnlyFn(() =>
 			enabled: false,
 		},
 
+		// https://www.better-auth.com/docs/concepts/rate-limit
+		rateLimit: {
+			enabled: true,
+			window: 60, // 60 second window
+			max: 100, // 100 requests per window (general endpoints)
+			storage: "database", // Persist across serverless invocations
+			modelName: "rateLimit",
+			customRules: {
+				// Strict limits on auth endpoints to prevent brute force
+				"/sign-in/email": { window: 60, max: 5 }, // 5 login attempts per minute
+				"/sign-up/email": { window: 60, max: 3 }, // 3 signups per minute
+				"/forget-password": { window: 60, max: 3 }, // 3 reset requests per minute
+				"/reset-password": { window: 60, max: 5 }, // 5 reset attempts per minute
+				"/verify-email": { window: 60, max: 5 }, // 5 verification attempts per minute
+				"/send-verification-email": { window: 300, max: 3 }, // 3 emails per 5 minutes
+				"/change-password": { window: 60, max: 3 }, // 3 password changes per minute
+				// OAuth is less sensitive as it's provider-controlled
+				"/sign-in/social": { window: 60, max: 10 },
+				// Session endpoints can be more relaxed
+				"/get-session": false, // No limit on session checks
+			},
+		},
+
 		// https://www.better-auth.com/docs/integrations/tanstack#usage-tips
 		plugins: [
 			username(),

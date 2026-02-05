@@ -17,6 +17,7 @@ import {
 	createFolderInviteDeclinedNotification,
 	createFolderInviteNotification,
 } from "@/lib/notifications/create";
+import { shareRateLimitMiddleware } from "@/lib/rate-limit/middleware";
 import { createPresignedDownloadUrl } from "@/lib/storage/functions";
 
 const CreateShareLinkInput = z.object({
@@ -53,7 +54,7 @@ const GetSharedFolderContentsInput = z.object({
 });
 
 export const createShareLink = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([authMiddleware, shareRateLimitMiddleware])
 	.inputValidator(CreateShareLinkInput)
 	.handler(async ({ data, context }) => {
 		const f = await db.query.folder.findFirst({
@@ -125,7 +126,7 @@ export const deleteShareLink = createServerFn({ method: "POST" })
 	});
 
 export const shareWithUser = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([authMiddleware, shareRateLimitMiddleware])
 	.inputValidator(ShareWithUserInput)
 	.handler(async ({ data, context }) => {
 		const f = await db.query.folder.findFirst({
@@ -1029,7 +1030,7 @@ async function getAllDescendantFolderIds(
 
 // Clone a shared folder and all its contents to user's own folders
 export const cloneSharedFolder = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([authMiddleware, shareRateLimitMiddleware])
 	.inputValidator(FolderIdInput)
 	.handler(async ({ data, context }) => {
 		// 1. Verify access to the shared folder

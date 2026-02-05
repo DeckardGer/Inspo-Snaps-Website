@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
+import { uploadRateLimitMiddleware } from "@/lib/rate-limit/middleware";
 import {
 	createPresignedDownloadUrl,
 	createPresignedUploadUrl,
@@ -25,7 +26,7 @@ export function generateStorageKey(userId: string, filename: string): string {
 }
 
 export const getUploadUrl = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([authMiddleware, uploadRateLimitMiddleware])
 	.inputValidator(GetUploadUrlInput)
 	.handler(async ({ data, context }) => {
 		const storageKey = generateStorageKey(context.user.id, data.filename);

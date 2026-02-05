@@ -62,13 +62,26 @@ Vitest 3.0.5 and React Testing Library 16.2.0 are installed but there are no tes
 - `package.json` — test script exists (`vitest run`)
 - No `*.test.ts` or `*.test.tsx` files found
 
-### 5. No Rate Limiting
+### 5. ~~No Rate Limiting~~ ✅ DONE
 
-No rate limiting on login attempts, API endpoints, or upload endpoints. Vulnerable to brute force attacks and API abuse.
+Rate limiting is now implemented:
+
+- Better Auth built-in rate limiting enabled with database storage
+- Custom rules for sensitive auth endpoints (login: 5/min, signup: 3/min, password reset: 3/min)
+- Rate limit middleware for custom server functions (uploads, account operations, sharing)
+- Proper IP address handling (X-Forwarded-For, CF-Connecting-IP, IPv6 /64 subnet masking)
+- Rate limit headers returned to clients (X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, X-Retry-After)
+- Automatic cleanup of expired rate limit entries
 
 **Files involved:**
 
-- `src/lib/auth/middleware.ts` — auth middleware with no rate limiting
+- `src/lib/auth/auth.ts` — Better Auth rate limit configuration
+- `src/lib/db/schema/rate-limit.schema.ts` — database schema for rate limit persistence
+- `src/lib/rate-limit/middleware.ts` — reusable rate limit middleware for server functions
+- `src/lib/storage/functions.ts` — upload rate limiting applied
+- `src/lib/auth/functions.ts` — account operations rate limiting applied
+- `src/lib/images/functions.ts` — image save rate limiting applied
+- `src/lib/sharing/functions.ts` — sharing operations rate limiting applied
 
 ### 6. No Production Deployment Config
 
@@ -252,10 +265,10 @@ These features are well-implemented and ready for launch:
 - ~~Forgot password / password reset flow~~ ✅ Flow implemented (needs Resend for actual emails)
 - ~~Email verification (table exists, never used)~~ ✅ Flow implemented (needs Resend for actual emails)
 - ~~Password change functionality~~ ✅ Implemented
+- ~~Rate limiting / brute force protection~~ ✅ Implemented
 - Account deletion / deactivation
 - Multiple device session management UI
 - 2FA / MFA support
-- Rate limiting / brute force protection
 - Account lockout after failed attempts
 - Audit logging for auth events
 - Login attempt notifications
@@ -305,7 +318,7 @@ These features are well-implemented and ready for launch:
 
 - CI/CD pipeline (GitHub Actions or similar)
 - Production Dockerfile
-- Rate limiting
+- ~~Rate limiting~~ ✅ Implemented
 - Security headers (CSP, HSTS, X-Frame-Options)
 - Error tracking (Sentry or similar)
 - Application logging beyond console.log
@@ -320,7 +333,7 @@ These features are well-implemented and ready for launch:
 2. ~~Implement password reset (forgot password flow)~~ ✅ DONE
 3. Build the landing/home page
 4. Add payments/subscriptions
-5. Add rate limiting on auth + upload endpoints
+5. ~~Add rate limiting on auth + upload endpoints~~ ✅ DONE
 6. Set up error tracking (Sentry)
 7. Fix share link auth requirement (allow unauthenticated access)
 8. Wire up real overview stats
@@ -333,6 +346,7 @@ These features are well-implemented and ready for launch:
 
 ## Recently Completed
 
+- ✅ **Rate limiting** — Better Auth built-in rate limiting with database storage, custom rules for sensitive endpoints (login: 5/min, signup: 3/min), reusable middleware for server functions (uploads, account ops, sharing), proper IP handling with IPv6 subnet masking, rate limit headers for clients
 - ✅ **Forgot password / password reset flow** — Full implementation with forgot password page, reset password page, token validation, and Better Auth integration (console.log placeholder for actual email sending)
 - ✅ **Password change functionality** — Full implementation with dialog, validation, email verification requirement
 - ✅ **Email verification flow** — UI and server functions implemented (console.log placeholder for actual email sending)
