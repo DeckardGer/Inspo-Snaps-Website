@@ -7,20 +7,19 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Suspense, useEffect } from "react";
-import { FolderNotFound, FoldersGridSkeleton } from "@/components/folders";
-import { ImageGrid } from "@/components/images";
+import { FolderNotFound } from "@/components/folders/FolderNotFound";
+import { FoldersGridSkeleton } from "@/components/folders/FoldersSkeleton";
+import { ImageGrid } from "@/components/images/ImageGrid";
 import { NavBar } from "@/components/navbar/NavBar";
-import {
-	TeamFolderError,
-	TeamFolderGrid,
-	TeamFolderModal,
-	TeamFoldersEmptyState,
-	TeamMembersModal,
-	TeamSwitcher,
-} from "@/components/teams";
+import { TeamFolderError } from "@/components/teams/TeamFolderError";
+import { TeamFolderGrid } from "@/components/teams/TeamFolderGrid";
+import { TeamFolderModal } from "@/components/teams/TeamFolderModal";
+import { TeamFoldersEmptyState } from "@/components/teams/TeamFoldersEmptyState";
+import { TeamMembersModal } from "@/components/teams/TeamMembersModal";
+import { TeamSwitcher } from "@/components/teams/TeamSwitcher";
 import { Button } from "@/components/ui/button";
 import { DialogTrigger } from "@/components/ui/dialog";
-import { TeamUploadButton } from "@/components/upload";
+import { TeamUploadButton } from "@/components/upload/TeamUploadButton";
 import { useTeamImageUpload } from "@/hooks/use-team-image-upload";
 import authClient from "@/lib/auth/auth-client";
 import {

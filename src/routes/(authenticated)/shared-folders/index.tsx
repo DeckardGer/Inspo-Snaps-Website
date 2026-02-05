@@ -1,12 +1,11 @@
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
-import { FolderCard, FoldersGridSkeleton } from "@/components/folders";
+import { FolderCard } from "@/components/folders/FolderCard";
+import { FoldersGridSkeleton } from "@/components/folders/FoldersSkeleton";
 import { NavBar } from "@/components/navbar/NavBar";
-import {
-	SharedFolderCard,
-	SharedFoldersEmptyState,
-} from "@/components/sharing";
+import { SharedFolderCard } from "@/components/sharing/SharedFolderCard";
+import { SharedFoldersEmptyState } from "@/components/sharing/SharedFoldersEmptyState";
 import {
 	sharedByMeQueryOptions,
 	sharedWithMeQueryOptions,

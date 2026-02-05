@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { NavBar } from "@/components/navbar/NavBar";
-import { TeamsEmptyState } from "@/components/teams";
+import { TeamsEmptyState } from "@/components/teams/TeamsEmptyState";
 import { userOrganizationsWithActiveQueryOptions } from "@/lib/organizations/queries";
 
 export const Route = createFileRoute("/(authenticated)/team-folders/")({

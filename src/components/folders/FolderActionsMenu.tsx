@@ -11,7 +11,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ShareModal } from "@/components/sharing";
+import { ShareModal } from "@/components/sharing/ShareModal";
 import {
 	AlertDialog,
 	AlertDialogAction,

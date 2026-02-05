@@ -3,14 +3,12 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Suspense } from "react";
-import { FoldersGridSkeleton } from "@/components/folders";
-import { ImageGrid } from "@/components/images";
+import { FoldersGridSkeleton } from "@/components/folders/FoldersSkeleton";
+import { ImageGrid } from "@/components/images/ImageGrid";
 import { NavBar } from "@/components/navbar/NavBar";
-import {
-	SharedFolderCard,
-	SharedFolderEmptyState,
-	SharedFolderError,
-} from "@/components/sharing";
+import { SharedFolderCard } from "@/components/sharing/SharedFolderCard";
+import { SharedFolderEmptyState } from "@/components/sharing/SharedFolderEmptyState";
+import { SharedFolderError } from "@/components/sharing/SharedFolderError";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { FolderColor } from "@/lib/folders/constants";

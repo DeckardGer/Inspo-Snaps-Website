@@ -3,17 +3,15 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Suspense } from "react";
-import {
-	FolderGrid,
-	FolderModal,
-	FolderNotFound,
-	FoldersEmptyState,
-	FoldersGridSkeleton,
-} from "@/components/folders";
-import { ImageGrid } from "@/components/images";
+import { FolderGrid } from "@/components/folders/FolderGrid";
+import { FolderModal } from "@/components/folders/FolderModal";
+import { FolderNotFound } from "@/components/folders/FolderNotFound";
+import { FoldersEmptyState } from "@/components/folders/FoldersEmptyState";
+import { FoldersGridSkeleton } from "@/components/folders/FoldersSkeleton";
+import { ImageGrid } from "@/components/images/ImageGrid";
 import { NavBar } from "@/components/navbar/NavBar";
 import { Button } from "@/components/ui/button";
-import { UploadButton } from "@/components/upload";
+import { UploadButton } from "@/components/upload/UploadButton";
 import { useImageUpload } from "@/hooks/use-image-upload";
 import {
 	folderPathQueryOptions,

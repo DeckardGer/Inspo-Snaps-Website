@@ -13,7 +13,7 @@ import {
 import {
 	SharedFolderActionsMenu,
 	type SharedFolderForActions,
-} from "@/components/sharing";
+} from "@/components/sharing/SharedFolderActionsMenu";
 import {
 	TeamFolderActionsMenu,
 	type TeamFolderForActions,
