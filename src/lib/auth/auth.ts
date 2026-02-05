@@ -5,6 +5,11 @@ import { organization, username } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { serverEnv } from "@/config/env/server";
 import { db } from "@/lib/db";
+import {
+	sendPasswordResetEmail,
+	sendTeamInvitationEmail,
+	sendVerificationEmail,
+} from "@/lib/email/send";
 import { ac, roles } from "./permissions";
 
 const getAuthConfig = createServerOnlyFn(() =>
@@ -48,12 +53,11 @@ const getAuthConfig = createServerOnlyFn(() =>
 				roles,
 				async sendInvitationEmail(data) {
 					const inviteLink = `${serverEnv.VITE_BASE_URL}/accept-invitation/${data.id}`;
-					console.log("[Organization Invitation]", {
-						email: data.email,
-						invitedBy: data.inviter.user.name,
-						organization: data.organization.name,
-						role: data.role,
+					await sendTeamInvitationEmail(data.email, {
 						inviteLink,
+						inviterName: data.inviter.user.name ?? "Someone",
+						teamName: data.organization.name,
+						role: data.role,
 					});
 				},
 			}),
@@ -74,27 +78,15 @@ const getAuthConfig = createServerOnlyFn(() =>
 		emailAndPassword: {
 			enabled: true,
 			requireEmailVerification: false, // We'll enforce this in the changePassword function
-			sendResetPassword: async ({ user, url, token }) => {
-				// TODO: Replace with Resend email sending when wired up
-				console.log("[Password Reset]", {
-					to: user.email,
-					subject: "Reset your password",
-					resetUrl: url,
-					token,
-				});
+			sendResetPassword: async ({ user, url }) => {
+				await sendPasswordResetEmail(user.email, url);
 			},
 		},
 
 		// https://www.better-auth.com/docs/authentication/email-verification
 		emailVerification: {
-			sendVerificationEmail: async ({ user, url, token }) => {
-				// TODO: Replace with Resend email sending when wired up
-				console.log("[Email Verification]", {
-					to: user.email,
-					subject: "Verify your email address",
-					verificationUrl: url,
-					token,
-				});
+			sendVerificationEmail: async ({ user, url }) => {
+				await sendVerificationEmail(user.email, url);
 			},
 			sendOnSignUp: false,
 			autoSignInAfterVerification: true,

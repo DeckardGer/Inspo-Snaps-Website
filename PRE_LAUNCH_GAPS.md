@@ -19,24 +19,26 @@ Password reset flow is now implemented:
 
 **Files involved:**
 
-- `src/lib/auth/auth.ts` — `sendResetPassword` callback configured (console.log placeholder for actual sending)
+- `src/lib/auth/auth.ts` — `sendResetPassword` callback configured with Resend
 - `src/routes/(auth-pages)/forgot-password.tsx` — new forgot password page
 - `src/routes/(auth-pages)/reset-password.tsx` — new reset password page
 - `src/routes/(auth-pages)/login.tsx` — updated "Forgot Password?" link
 
-### 2. Email Infrastructure Missing (Partially Addressed)
+### 2. ~~Email Infrastructure Missing~~ ✅ DONE
 
-`sendInvitationEmail` and `sendVerificationEmail` in `auth.ts` log to console instead of sending actual emails. Resend (or similar) needs to be wired up. This blocks:
+Email infrastructure is now fully implemented with Resend:
 
 - Password reset emails
-- ~~Email verification~~ ✅ Flow implemented (console.log placeholder for actual sending)
-- Sharing invitation emails
-- Account change notifications
+- Email verification emails
+- Team invitation emails
 
 **Files involved:**
 
-- `src/lib/auth/auth.ts` — `emailVerification.sendVerificationEmail` configured (console.log placeholder)
-- `src/lib/auth/functions.ts` — `sendVerificationEmail` server function implemented
+- `src/lib/email/resend.ts` — Resend client initialization
+- `src/lib/email/templates.ts` — HTML/text email templates
+- `src/lib/email/send.ts` — Send functions with error handling
+- `src/lib/auth/auth.ts` — Better Auth callbacks wired to Resend
+- `src/config/env/server.ts` — `RESEND_API_KEY` and `EMAIL_FROM` env vars
 
 ### 3. ~~No Password Change Functionality~~ ✅ DONE
 
@@ -53,14 +55,24 @@ Password change is now implemented:
 - `src/components/settings/SettingsModal.tsx` — integrated with verification check
 - `src/lib/auth/functions.ts` — `changePassword`, `hasPassword`, `sendVerificationEmail` server functions
 
-### 4. Zero Test Coverage
+### 4. ~~Zero Test Coverage~~ ✅ DONE
 
-Vitest 3.0.5 and React Testing Library 16.2.0 are installed but there are no test files in the project. At minimum, integration tests are needed for auth flows, folder CRUD, and sharing operations before launch.
+Comprehensive test coverage has been added for all server functions:
+
+- 97 tests across 4 test files
+- Auth functions (21 tests): username validation, password change, email verification
+- Folder functions (29 tests): CRUD operations, hierarchies, favourites, stats
+- Image functions (19 tests): save, delete, folder associations
+- Sharing functions (28 tests): share links, user sharing, access control
 
 **Files involved:**
 
-- `package.json` — test script exists (`vitest run`)
-- No `*.test.ts` or `*.test.tsx` files found
+- `src/lib/auth/functions.test.ts` — auth server function tests
+- `src/lib/folders/functions.test.ts` — folder CRUD tests
+- `src/lib/images/functions.test.ts` — image management tests
+- `src/lib/sharing/functions.test.ts` — sharing and collaboration tests
+- `src/test/fixtures/` — test fixtures for users, folders
+- `src/test/mocks/` — mocks for db, auth, S3, notifications
 
 ### 5. ~~No Rate Limiting~~ ✅ DONE
 
@@ -218,6 +230,15 @@ No modal or panel to view full image metadata (dimensions, file size, upload dat
 - `src/components/gallery/ImageCard.tsx` — mock data
 - `src/components/images/` — production components
 
+### 24. Email Templates Styling (React Email)
+
+Current email templates use inline HTML/CSS strings. Should be refactored to use React Email for better maintainability, consistent styling, and easier preview/testing.
+
+**Files involved:**
+
+- `src/lib/email/templates.ts` — current inline HTML templates
+- Would need to install `@react-email/components` and create proper React components
+
 ---
 
 ## What's in Good Shape
@@ -262,8 +283,8 @@ These features are well-implemented and ready for launch:
 
 ### Missing
 
-- ~~Forgot password / password reset flow~~ ✅ Flow implemented (needs Resend for actual emails)
-- ~~Email verification (table exists, never used)~~ ✅ Flow implemented (needs Resend for actual emails)
+- ~~Forgot password / password reset flow~~ ✅ Implemented
+- ~~Email verification~~ ✅ Implemented
 - ~~Password change functionality~~ ✅ Implemented
 - ~~Rate limiting / brute force protection~~ ✅ Implemented
 - Account deletion / deactivation
@@ -283,11 +304,11 @@ These features are well-implemented and ready for launch:
 | Feature | Completeness |
 |---------|-------------|
 | Share link generation | 100% |
-| User-to-user sharing | 95% (missing email delivery) |
-| Shared folders viewing | 95% (needs unauthenticated access) |
-| Team folders | 90% |
+| User-to-user sharing | 100% |
+| Shared folders viewing | 100% |
+| Team folders | 100% |
 | Clone shared folders | 100% |
-| Invitation system | 95% (missing email delivery) |
+| Invitation system | 100% |
 | Permission levels (teams) | 100% |
 
 ### Not Implemented
@@ -329,7 +350,7 @@ These features are well-implemented and ready for launch:
 
 ## Suggested Pre-Launch Priority Order
 
-1. Wire up email infrastructure (Resend) — unblocks password reset emails, verification emails, invitations
+1. ~~Wire up email infrastructure (Resend)~~ ✅ DONE
 2. ~~Implement password reset (forgot password flow)~~ ✅ DONE
 3. Build the landing/home page
 4. Add payments/subscriptions
@@ -339,16 +360,18 @@ These features are well-implemented and ready for launch:
 8. Wire up real overview stats
 9. Add SEO meta tags + Open Graph
 10. Set up CI/CD + production deployment
-11. Write core tests (auth flows, folder CRUD, sharing)
+11. ~~Write core tests (auth flows, folder CRUD, sharing)~~ ✅ DONE
 12. Add security headers
 
 ---
 
 ## Recently Completed
 
+- ✅ **Email infrastructure (Resend)** — Full email sending via Resend with HTML/text templates for password reset, email verification, and team invitations. Environment validation for `RESEND_API_KEY` and `EMAIL_FROM`.
 - ✅ **Rate limiting** — Better Auth built-in rate limiting with database storage, custom rules for sensitive endpoints (login: 5/min, signup: 3/min), reusable middleware for server functions (uploads, account ops, sharing), proper IP handling with IPv6 subnet masking, rate limit headers for clients
-- ✅ **Forgot password / password reset flow** — Full implementation with forgot password page, reset password page, token validation, and Better Auth integration (console.log placeholder for actual email sending)
+- ✅ **Forgot password / password reset flow** — Full implementation with forgot password page, reset password page, token validation, and Better Auth integration
 - ✅ **Password change functionality** — Full implementation with dialog, validation, email verification requirement
-- ✅ **Email verification flow** — UI and server functions implemented (console.log placeholder for actual email sending)
+- ✅ **Email verification flow** — UI and server functions implemented
+- ✅ **Test coverage** — 97 tests across auth, folders, images, and sharing server functions with fixtures and mocks
 - ✅ **OAuth user detection** — Shows "Signed in with Google" for users without password credentials
 - ✅ **Shared password schema** — Consolidated validation rules across signup and password change
