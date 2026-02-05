@@ -120,14 +120,18 @@ No explicit security headers configured:
 - HTTP Strict Transport Security (HSTS)
 - Referrer-Policy
 
-### 11. Share Links Require Authentication
+### 11. ~~Share Links Require Authentication~~ ✅ Working as Intended
 
-Share link routes are under `/(authenticated)/`, so unauthenticated users cannot view shared content. The backend (`accessSharedLink()`) supports unauthenticated access but the routing blocks it.
+Share links intentionally require authentication — users need an account to view shared content. This is by design for security and tracking purposes. Backend functions now consistently require auth:
+
+- `accessSharedLink()` — requires auth
+- `getSharedFolderContents()` — requires auth
+- `getLinkSharedFolderImages()` — requires auth
 
 **Files involved:**
 
-- `src/routes/(authenticated)/share/$linkId.tsx` — protected route
-- `src/lib/sharing/functions.ts` — `accessSharedLink()` works without auth
+- `src/routes/(authenticated)/share/$linkId.tsx` — protected route (correct)
+- `src/lib/sharing/functions.ts` — all share link functions require auth
 
 ### 12. Overview Dashboard Shows Mock Data
 

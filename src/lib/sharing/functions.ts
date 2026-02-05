@@ -435,6 +435,7 @@ export const getSharedWithMe = createServerFn({ method: "GET" })
 	});
 
 export const accessSharedLink = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
 	.inputValidator(LinkIdInput)
 	.handler(async ({ data }) => {
 		const link = await db.query.shareLink.findFirst({
@@ -524,6 +525,7 @@ export const acceptShareLinkInvite = createServerFn({ method: "POST" })
 	});
 
 export const getSharedFolderContents = createServerFn({ method: "GET" })
+	.middleware([authMiddleware])
 	.inputValidator(GetSharedFolderContentsInput)
 	.handler(async ({ data }) => {
 		let rootFolderId: string;
