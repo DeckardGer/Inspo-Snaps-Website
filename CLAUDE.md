@@ -109,9 +109,6 @@ src/
 │   │   ├── TeamFolderModal.tsx   # Uses BaseFolderModal
 │   │   ├── TeamFolderError.tsx   # Uses ErrorState template
 │   │   └── ...
-│   ├── gallery/                  # Image gallery
-│   │   ├── ImageGallery.tsx
-│   │   └── ImageCard.tsx
 │   ├── sidebar/                  # Navigation sidebar
 │   │   ├── AppSidebar.tsx
 │   │   ├── NavMain.tsx

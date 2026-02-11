@@ -225,15 +225,9 @@ Email field is displayed but disabled in the settings UI. Users cannot change th
 
 No modal or panel to view full image metadata (dimensions, file size, upload date, EXIF data).
 
-### 23. Legacy Gallery Components Cleanup
+### ~~23. Legacy Gallery Components Cleanup~~ ✅ DONE
 
-`src/components/gallery/` contains demo components with mock data alongside the production components in `src/components/images/`. The legacy gallery components should be reviewed and removed.
-
-**Files involved:**
-
-- `src/components/gallery/ImageGallery.tsx` — mock data
-- `src/components/gallery/ImageCard.tsx` — mock data
-- `src/components/images/` — production components
+Deleted `src/components/gallery/` (ImageGallery.tsx, ImageCard.tsx) — demo components with mock data. Their only consumer (the overview page) was removed, making them dead code.
 
 ### 24. Email Templates Styling (React Email)
 
