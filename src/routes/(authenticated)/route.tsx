@@ -11,6 +11,9 @@ const FRESH_LOGIN_KEY = "freshLogin";
 
 export const Route = createFileRoute("/(authenticated)")({
 	component: RouteComponent,
+	head: () => ({
+		meta: [{ name: "robots", content: "noindex, nofollow" }],
+	}),
 	beforeLoad: async ({ context, location }) => {
 		const user = await context.queryClient.ensureQueryData({
 			...authQueryOptions(),

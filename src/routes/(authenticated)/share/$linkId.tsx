@@ -12,17 +12,55 @@ import { toast } from "sonner";
 import { NavBar } from "@/components/navbar/NavBar";
 import { ShareLinkError } from "@/components/sharing/ShareLinkError";
 import { Button } from "@/components/ui/button";
+import { clientEnv } from "@/config/env/client";
 import { FOLDER_CLASSES } from "@/lib/folders/constants";
 import { acceptShareLinkInvite } from "@/lib/sharing/functions";
 import { sharedLinkAccessQueryOptions } from "@/lib/sharing/queries";
 import { cn } from "@/lib/utils";
 
+const OG_IMAGE_URL = `${clientEnv.VITE_BASE_URL}/og-image.png`;
+
 export const Route = createFileRoute("/(authenticated)/share/$linkId")({
-	beforeLoad: async ({ context, params }) => {
+	loader: async ({ context, params }) => {
 		const linkId = params.linkId;
-		await context.queryClient.prefetchQuery(
-			sharedLinkAccessQueryOptions(linkId),
-		);
+		try {
+			const shareAccess = await context.queryClient.ensureQueryData(
+				sharedLinkAccessQueryOptions(linkId),
+			);
+			return { shareAccess };
+		} catch {
+			return { shareAccess: null };
+		}
+	},
+	head: ({ loaderData }) => {
+		const folder = loaderData?.shareAccess?.folder;
+		const ownerName = folder?.owner?.name ?? "Someone";
+		const folderName = folder?.name ?? "Shared Folder";
+
+		return {
+			meta: [
+				{ title: `${folderName} - Shared on Inspo Snaps` },
+				{
+					name: "description",
+					content: `View "${folderName}" shared by ${ownerName} on Inspo Snaps.`,
+				},
+				{ name: "robots", content: "noindex, nofollow" },
+				// Open Graph for social sharing previews
+				{ property: "og:title", content: `${folderName} - Shared on Inspo Snaps` },
+				{
+					property: "og:description",
+					content: `View "${folderName}" shared by ${ownerName} on Inspo Snaps.`,
+				},
+				{ property: "og:image", content: OG_IMAGE_URL },
+				// Twitter Card
+				{ name: "twitter:title", content: `${folderName} - Shared on Inspo Snaps` },
+				{
+					name: "twitter:description",
+					content: `View "${folderName}" shared by ${ownerName} on Inspo Snaps.`,
+				},
+				{ name: "twitter:image", content: OG_IMAGE_URL },
+			],
+		};
 	},
 	component: RouteComponent,
 	errorComponent: ShareLinkError,
@@ -32,14 +70,22 @@ const BREADCRUMBS = [{ name: "Share Invite", link: "" }];
 
 function RouteComponent() {
 	const { linkId } = Route.useParams();
+	const { shareAccess: loaderShareAccess } = Route.useLoaderData();
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
+	// Use loader data if available, otherwise fetch
 	const {
-		data: shareAccess,
+		data: queryShareAccess,
 		isLoading,
 		error,
-	} = useQuery(sharedLinkAccessQueryOptions(linkId));
+	} = useQuery({
+		...sharedLinkAccessQueryOptions(linkId),
+		// Skip query if we already have loader data
+		enabled: !loaderShareAccess,
+	});
+
+	const shareAccess = loaderShareAccess ?? queryShareAccess;
 
 	const acceptMutation = useMutation({
 		mutationFn: () => acceptShareLinkInvite({ data: { linkId } }),

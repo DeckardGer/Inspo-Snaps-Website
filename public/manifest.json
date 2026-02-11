@@ -1,6 +1,7 @@
 {
-  "short_name": "TanStack App",
-  "name": "Create TanStack App Sample",
+  "short_name": "Inspo Snaps",
+  "name": "Inspo Snaps - Visual Inspiration Organizer",
+  "description": "Organize, save, and share your visual inspiration. Create folders, upload images, and collaborate with others.",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +21,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#18181b",
   "background_color": "#ffffff"
 }

@@ -1,3 +1,24 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+
+# Allow public pages
+Allow: /
+Allow: /login
+Allow: /signup
+
+# Disallow authenticated/private routes
+Disallow: /overview
+Disallow: /my-folders
+Disallow: /shared-folders
+Disallow: /team-folders
+Disallow: /settings
+Disallow: /share/
+
+# Disallow utility pages
+Disallow: /forgot-password
+Disallow: /reset-password
+
+# Disallow API routes
+Disallow: /api/
+
+Sitemap: https://insposnaps.com/sitemap.xml

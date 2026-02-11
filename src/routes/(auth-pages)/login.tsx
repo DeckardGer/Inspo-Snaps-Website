@@ -37,9 +37,23 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import authClient from "@/lib/auth/auth-client";
+import { clientEnv } from "@/config/env/client";
+
+const CANONICAL_URL = `${clientEnv.VITE_BASE_URL}/login`;
 
 export const Route = createFileRoute("/(auth-pages)/login")({
 	component: RouteComponent,
+	head: () => ({
+		meta: [
+			{ title: "Sign In - Inspo Snaps" },
+			{
+				name: "description",
+				content:
+					"Sign in to your Inspo Snaps account to access your folders, images, and shared collections.",
+			},
+		],
+		links: [{ rel: "canonical", href: CANONICAL_URL }],
+	}),
 });
 
 const loginFormSchema = z.object({

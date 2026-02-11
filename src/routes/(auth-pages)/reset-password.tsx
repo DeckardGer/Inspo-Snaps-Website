@@ -44,6 +44,12 @@ const resetPasswordSearchSchema = z.object({
 export const Route = createFileRoute("/(auth-pages)/reset-password")({
 	component: RouteComponent,
 	validateSearch: resetPasswordSearchSchema,
+	head: () => ({
+		meta: [
+			{ title: "Set New Password - Inspo Snaps" },
+			{ name: "robots", content: "noindex, nofollow" },
+		],
+	}),
 });
 
 const resetPasswordFormSchema = z

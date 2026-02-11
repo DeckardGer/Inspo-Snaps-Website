@@ -24,6 +24,12 @@ import authClient from "@/lib/auth/auth-client";
 
 export const Route = createFileRoute("/(auth-pages)/forgot-password")({
 	component: RouteComponent,
+	head: () => ({
+		meta: [
+			{ title: "Reset Password - Inspo Snaps" },
+			{ name: "robots", content: "noindex, nofollow" },
+		],
+	}),
 });
 
 const forgotPasswordSchema = z.object({

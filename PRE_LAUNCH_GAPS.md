@@ -116,20 +116,36 @@ Docker Compose exists for local dev (Postgres + MinIO) but there is no Dockerfil
 
 ## High Priority (Should fix before launch)
 
-### 8. SEO Metadata
+### 8. ~~SEO Metadata~~ ✅ DONE
 
-Only a basic `<title>Inspo Snaps</title>` tag exists in the root layout. Missing:
+SEO metadata is now fully implemented:
 
-- Meta description
-- Open Graph tags (critical for social sharing of shared folders)
-- Twitter card tags
-- Canonical URLs
-- robots.txt
-- Sitemap
+- Meta descriptions on all public pages
+- Open Graph tags (og:title, og:description, og:image, og:url, og:type, og:site_name, og:locale)
+- Twitter card tags (summary_large_image)
+- Canonical URLs on public pages
+- robots.txt with proper allow/disallow directives
+- Static sitemap.xml for public pages
+- Dynamic OG tags on share link pages (folder name + owner for social previews)
+- Page-specific titles across all routes
+- `noindex, nofollow` on all protected and utility routes
+- Web app manifest updated with Inspo Snaps branding
+- OG image placeholder (`public/og-image.png`)
 
 **Files involved:**
 
-- `src/routes/__root.tsx` — minimal meta tags
+- `src/routes/__root.tsx` — default meta tags, OG, Twitter cards, theme-color
+- `src/routes/index.tsx` — landing page SEO + canonical
+- `src/routes/(auth-pages)/login.tsx` — page title + canonical
+- `src/routes/(auth-pages)/signup.tsx` — page title + canonical
+- `src/routes/(auth-pages)/forgot-password.tsx` — noindex
+- `src/routes/(auth-pages)/reset-password.tsx` — noindex
+- `src/routes/(authenticated)/route.tsx` — noindex for all authenticated routes
+- `src/routes/(authenticated)/share/$linkId.tsx` — dynamic OG tags + noindex
+- `public/robots.txt` — crawl directives + sitemap reference
+- `public/sitemap.xml` — static sitemap for public pages
+- `public/manifest.json` — updated branding
+- `public/og-image.png` — OG image
 
 ### 9. No Error Tracking / Monitoring
 
@@ -358,7 +374,7 @@ These features are well-implemented and ready for launch:
 6. Set up error tracking (Sentry)
 7. Fix share link auth requirement (allow unauthenticated access)
 8. Wire up real overview stats
-9. Add SEO meta tags + Open Graph
+9. ~~Add SEO meta tags + Open Graph~~ ✅ DONE
 10. Set up CI/CD + production deployment
 11. ~~Write core tests (auth flows, folder CRUD, sharing)~~ ✅ DONE
 12. Add security headers
@@ -375,3 +391,4 @@ These features are well-implemented and ready for launch:
 - ✅ **Test coverage** — 97 tests across auth, folders, images, and sharing server functions with fixtures and mocks
 - ✅ **OAuth user detection** — Shows "Signed in with Google" for users without password credentials
 - ✅ **Shared password schema** — Consolidated validation rules across signup and password change
+- ✅ **SEO metadata** — Full meta tags, OG/Twitter cards, canonical URLs, robots.txt, sitemap.xml, dynamic OG on share links, noindex on protected routes, web app manifest, OG image

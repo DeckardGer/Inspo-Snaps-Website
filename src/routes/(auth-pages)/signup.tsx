@@ -40,10 +40,13 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import authClient from "@/lib/auth/auth-client";
+import { clientEnv } from "@/config/env/client";
 import {
 	checkUsernameAvailability,
 	passwordSchema,
 } from "@/lib/auth/functions";
+
+const CANONICAL_URL = `${clientEnv.VITE_BASE_URL}/signup`;
 
 // Helper to transform TanStack Form errors to FieldError format
 function transformFormErrors(
@@ -59,6 +62,17 @@ function transformFormErrors(
 
 export const Route = createFileRoute("/(auth-pages)/signup")({
 	component: RouteComponent,
+	head: () => ({
+		meta: [
+			{ title: "Create Account - Inspo Snaps" },
+			{
+				name: "description",
+				content:
+					"Create a free Inspo Snaps account to start organizing and sharing your visual inspiration.",
+			},
+		],
+		links: [{ rel: "canonical", href: CANONICAL_URL }],
+	}),
 });
 
 const signupFormSchema = z.object({

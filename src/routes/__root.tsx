@@ -8,9 +8,15 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { Toaster } from "@/components/ui/sonner";
+import { clientEnv } from "@/config/env/client";
 import { type AuthQueryResult, authQueryOptions } from "@/lib/auth/queries";
 import { ThemeProvider } from "@/lib/ThemeProvider";
 import appCss from "@/styles.css?url";
+
+const DEFAULT_TITLE = "Inspo Snaps";
+const DEFAULT_DESCRIPTION =
+	"Organize, save, and share your visual inspiration. Create folders, upload images, and collaborate with others.";
+const OG_IMAGE_URL = `${clientEnv.VITE_BASE_URL}/og-image.png`;
 
 interface MyRouterContext {
 	queryClient: QueryClient;
@@ -29,22 +35,29 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 	},
 	head: () => ({
 		meta: [
-			{
-				charSet: "utf-8",
-			},
-			{
-				name: "viewport",
-				content: "width=device-width, initial-scale=1",
-			},
-			{
-				title: "Inspo Snaps",
-			},
+			{ charSet: "utf-8" },
+			{ name: "viewport", content: "width=device-width, initial-scale=1" },
+			{ title: DEFAULT_TITLE },
+			{ name: "description", content: DEFAULT_DESCRIPTION },
+			{ name: "theme-color", content: "#18181b" },
+			// Open Graph
+			{ property: "og:type", content: "website" },
+			{ property: "og:site_name", content: "Inspo Snaps" },
+			{ property: "og:title", content: DEFAULT_TITLE },
+			{ property: "og:description", content: DEFAULT_DESCRIPTION },
+			{ property: "og:image", content: OG_IMAGE_URL },
+			{ property: "og:locale", content: "en_US" },
+			// Twitter Card
+			{ name: "twitter:card", content: "summary_large_image" },
+			{ name: "twitter:title", content: DEFAULT_TITLE },
+			{ name: "twitter:description", content: DEFAULT_DESCRIPTION },
+			{ name: "twitter:image", content: OG_IMAGE_URL },
 		],
 		links: [
-			{
-				rel: "stylesheet",
-				href: appCss,
-			},
+			{ rel: "stylesheet", href: appCss },
+			{ rel: "icon", href: "/favicon.ico" },
+			{ rel: "apple-touch-icon", href: "/logo192.png" },
+			{ rel: "manifest", href: "/manifest.json" },
 		],
 	}),
 

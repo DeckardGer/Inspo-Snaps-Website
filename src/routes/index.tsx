@@ -2,10 +2,34 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
+import { clientEnv } from "@/config/env/client";
 import { authQueryOptions } from "@/lib/auth/queries";
+
+const CANONICAL_URL = clientEnv.VITE_BASE_URL;
 
 export const Route = createFileRoute("/")({
 	component: HomePage,
+	head: () => ({
+		meta: [
+			{ title: "Inspo Snaps - Organize & Share Visual Inspiration" },
+			{
+				name: "description",
+				content:
+					"Save, organize, and share your visual inspiration with Inspo Snaps. Create folders, upload images, and collaborate with friends and teams.",
+			},
+			{
+				property: "og:title",
+				content: "Inspo Snaps - Organize & Share Visual Inspiration",
+			},
+			{
+				property: "og:description",
+				content:
+					"Save, organize, and share your visual inspiration with Inspo Snaps. Create folders, upload images, and collaborate with friends and teams.",
+			},
+			{ property: "og:url", content: CANONICAL_URL },
+		],
+		links: [{ rel: "canonical", href: CANONICAL_URL }],
+	}),
 });
 
 function HomePage() {
