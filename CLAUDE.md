@@ -53,7 +53,7 @@ pnpm db:studio    # Open Drizzle Studio (database UI)
 - **Build Tool**: Vite with Nitro plugin for server-side capabilities
 - **Database**: PostgreSQL with Drizzle ORM
 - **Authentication**: Better Auth (email/password + Google OAuth)
-- **Storage**: AWS S3 for image files
+- **Storage**: AWS S3 for image files (avatars use public URLs, other images use presigned URLs)
 - **Type Safety**: TypeScript strict mode
 
 ### Development & Quality
@@ -256,9 +256,10 @@ src/
 - `addImageToFolder()` / `removeImageFromFolder()`
 - `deleteImage()` - Delete image and S3 object
 
-### Storage (`lib/storage/functions.ts`)
+### Storage (`lib/storage/s3.ts`)
 - `getUploadUrl()` - Generate S3 presigned upload URL
 - `getDownloadUrl()` - Generate S3 presigned download URL
+- `getPublicObjectUrl()` - Construct public S3 URL (used for avatars)
 
 ### Sharing (`lib/sharing/functions.ts`)
 - `createShareLink()` - Create public share link

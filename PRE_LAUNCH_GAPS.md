@@ -281,6 +281,8 @@ These features are well-implemented and ready for launch:
 - **Auth System** — Email/password + Google OAuth, username system with availability checking
 - **Breadcrumb Navigation** — Smart collapse for deep folder paths
 - **Form Validation** — TanStack Form with Zod schemas, real-time validation
+- **Auth Page Design** — Branded gradient panel with grain texture, logo, tagline (Gabarito font), clickable logo links
+- **Avatar Storage** — Public S3 URLs for avatars (never expire), presigned URLs for private folder images
 
 ---
 
@@ -292,7 +294,7 @@ These features are well-implemented and ready for launch:
 - Google OAuth login/signup
 - Username system (3-30 chars, alphanumeric + dots/underscores) with availability checking
 - Session management (90-day expiry, weekly refresh, cookie cache)
-- User profile (avatar upload to S3, username editing)
+- User profile (avatar upload to S3 with public URLs, username editing)
 - Auth middleware on all protected server functions
 - Chrome extension auth state synchronization
 - Role-based access control for team folders
@@ -392,3 +394,5 @@ These features are well-implemented and ready for launch:
 - ✅ **OAuth user detection** — Shows "Signed in with Google" for users without password credentials
 - ✅ **Shared password schema** — Consolidated validation rules across signup and password change
 - ✅ **SEO metadata** — Full meta tags, OG/Twitter cards, canonical URLs, robots.txt, sitemap.xml, dynamic OG on share links, noindex on protected routes, web app manifest, OG image
+- ✅ **Auth page branded panel** — Login/signup right panel with blue-to-purple gradient matching OG image, grain texture, BrandLogo, tagline, Gabarito font. Logo links to home on auth pages and sidebar.
+- ✅ **Avatar public URLs** — Switched avatars from expiring presigned S3 URLs to permanent public URLs. Requires S3 bucket policy allowing public reads on `avatars/*`. Folder images remain private with presigned URLs.
