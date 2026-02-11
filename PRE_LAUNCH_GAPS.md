@@ -209,10 +209,6 @@ No multi-select capability anywhere. No bulk delete, move, or organize functiona
 
 No guided tour or onboarding wizard for new users. Only empty state illustrations with CTAs serve as light onboarding ("Create your first folder").
 
-### 19. Session Management UI
-
-Sessions are stored with device info (IP address, user agent) but there is no UI for users to view active sessions, revoke sessions, or "logout from all devices."
-
 ### 20. Two-Factor Authentication (2FA / MFA)
 
 Not implemented. No authenticator app integration, no SMS verification, no backup codes.
@@ -221,9 +217,9 @@ Not implemented. No authenticator app integration, no SMS verification, no backu
 
 Email field is displayed but disabled in the settings UI. Users cannot change their email address.
 
-### 22. Image Metadata Viewer
+### ~~22. Image Metadata Viewer~~ ✅ DONE
 
-No modal or panel to view full image metadata (dimensions, file size, upload date, EXIF data).
+Upload date is shown via a calendar icon tooltip in the image lightbox. Full metadata (dimensions, file size, EXIF) not needed for an inspiration board app.
 
 ### ~~23. Legacy Gallery Components Cleanup~~ ✅ DONE
 
@@ -289,7 +285,6 @@ These features are well-implemented and ready for launch:
 - ~~Password change functionality~~ ✅ Implemented
 - ~~Rate limiting / brute force protection~~ ✅ Implemented
 - Account deletion / deactivation
-- Multiple device session management UI
 - 2FA / MFA support
 - Account lockout after failed attempts
 - Audit logging for auth events

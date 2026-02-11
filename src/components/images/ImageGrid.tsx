@@ -61,6 +61,7 @@ export function ImageGrid({
 		id: img.id,
 		src: img.imageUrl,
 		alt: img.filename,
+		addedAt: img.addedAt,
 	}));
 
 	return (

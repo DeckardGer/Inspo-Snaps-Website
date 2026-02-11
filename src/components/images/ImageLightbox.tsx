@@ -1,18 +1,25 @@
 import {
 	ArrowLeft01Icon,
 	ArrowRight01Icon,
+	Calendar02Icon,
 	Cancel01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 export interface LightboxImage {
 	id: string;
 	src: string;
 	alt: string;
+	addedAt: Date;
 }
 
 interface ImageLightboxProps {
@@ -208,19 +215,47 @@ export function ImageLightbox({
 			aria-modal="true"
 			role="dialog"
 		>
-			{/* Close button */}
-			<Button
-				variant="ghost"
-				size="icon"
-				onClick={handleClose}
+			{/* Top-right buttons */}
+			<div
 				className={cn(
-					"absolute top-4 right-4 z-10 bg-background/80 hover:bg-background transition-all duration-300",
+					"absolute top-4 right-4 z-10 flex items-center gap-2 transition-all duration-300",
 					isExpanded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2",
 				)}
 			>
-				<HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
-				<span className="sr-only">Close</span>
-			</Button>
+				<Tooltip>
+					<TooltipTrigger
+						render={
+							<Button
+								variant="ghost"
+								size="icon"
+								className="bg-background/80 hover:bg-background"
+							>
+								<HugeiconsIcon icon={Calendar02Icon} strokeWidth={2} />
+								<span className="sr-only">Image info</span>
+							</Button>
+						}
+					/>
+					<TooltipContent side="bottom">
+						<p>
+							Saved{" "}
+							{new Date(currentImage.addedAt).toLocaleDateString(undefined, {
+								year: "numeric",
+								month: "long",
+								day: "numeric",
+							})}
+						</p>
+					</TooltipContent>
+				</Tooltip>
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={handleClose}
+					className="bg-background/80 hover:bg-background"
+				>
+					<HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
+					<span className="sr-only">Close</span>
+				</Button>
+			</div>
 
 			{/* Previous button */}
 			{hasPrevious && (
