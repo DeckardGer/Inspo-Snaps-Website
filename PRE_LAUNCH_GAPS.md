@@ -168,14 +168,9 @@ Share links intentionally require authentication — users need an account to vi
 - `src/routes/(authenticated)/share/$linkId.tsx` — protected route (correct)
 - `src/lib/sharing/functions.ts` — all share link functions require auth
 
-### 12. Overview Dashboard Shows Mock Data
+### ~~12. Overview Dashboard Shows Mock Data~~ Removed
 
-`getOverviewStats()` returns hardcoded/mock data instead of real database queries. Stats cards display placeholder numbers.
-
-**Files involved:**
-
-- `src/lib/stats/functions.ts`
-- `src/components/overview/StatsCards.tsx`
+Overview page removed — My Folders is now the default authenticated landing page. Users go directly to their content instead of a dashboard with mock stats. Overview route, stats components, and stats server functions deleted.
 
 ### 13. Account Deletion / Data Export
 
@@ -369,7 +364,7 @@ These features are well-implemented and ready for launch:
 5. ~~Add rate limiting on auth + upload endpoints~~ ✅ DONE
 6. Set up error tracking (Sentry)
 7. Fix share link auth requirement (allow unauthenticated access)
-8. Wire up real overview stats
+~~8. Wire up real overview stats~~ Removed — overview page deleted, My Folders is the default page
 9. ~~Add SEO meta tags + Open Graph~~ ✅ DONE
 10. Set up CI/CD + production deployment
 11. ~~Write core tests (auth flows, folder CRUD, sharing)~~ ✅ DONE

@@ -78,7 +78,6 @@ src/
 │   │   ├── route.tsx             # Layout with sidebar + navbar
 │   │   ├── my-folders/
 │   │   │   └── {-$folderId}.tsx  # Folder view with nested routing
-│   │   ├── overview/index.tsx    # Dashboard with stats
 │   │   ├── shared-folders/       # Shared folders (WIP)
 │   │   ├── team-folders/         # Team folders (WIP)
 │   │   └── settings/             # User settings
@@ -121,9 +120,6 @@ src/
 │   ├── navbar/                   # Top navigation
 │   │   ├── NavBar.tsx
 │   │   └── HeaderBreadcrumbs.tsx
-│   ├── overview/                 # Dashboard components
-│   │   ├── StatsCards.tsx
-│   │   └── StatCard.tsx
 │   └── forms/                    # Form components
 │       └── FieldWrapper.tsx
 │
@@ -160,10 +156,6 @@ src/
 │   │   └── s3-client.ts          # AWS S3 client
 │   │
 │   ├── sharing/                  # Sharing/collaboration
-│   │   ├── functions.ts
-│   │   └── queries.ts
-│   │
-│   ├── stats/                    # Dashboard statistics
 │   │   ├── functions.ts
 │   │   └── queries.ts
 │   │
@@ -214,7 +206,6 @@ src/
 - URL-based folder navigation with breadcrumbs
 - Favorite folders
 - Folder statistics (nested count, image count)
-- Dashboard with stats cards
 - Light/dark/system theme
 - Responsive sidebar with collapsible navigation
 - Skeleton loading states and empty states

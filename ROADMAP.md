@@ -220,30 +220,6 @@ Add UI for moving folders into other folders. Backend support already exists.
 
 ---
 
-## Review todo.txt Items
-
-Review the components and routes listed in `todo.txt` and determine what needs attention.
-
-**Components:**
-
-- **Gallery** (`src/components/gallery/`)
-  - `ImageGallery.tsx` and `ImageCard.tsx` exist but need review
-  - Verify they work correctly with current image data and presigned URLs
-  - Check responsive layout, loading states, and error handling
-- **Overview** (`src/components/overview/`)
-  - `StatsCards.tsx`, `StatCard.tsx`, and `StatsCardsSkeleton.tsx` exist but need review
-  - `getOverviewStats` in `src/lib/stats/functions.ts` returns mock/hardcoded data — replace with actual database queries
-  - Wire up to real database queries
-
-**Routes:**
-
-- **Overview** (`src/routes/(authenticated)/overview/index.tsx`)
-  - Route exists but needs review
-  - Verify it renders correctly with current overview components
-  - Ensure stats display real data once stats functions are updated
-
----
-
 ## Unused Code to Wire Up or Remove
 
 Functions and query options that exist but are not currently used by any UI. Wire these up when building the corresponding features, or remove if no longer needed.
