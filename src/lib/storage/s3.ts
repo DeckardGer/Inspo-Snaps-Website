@@ -36,6 +36,23 @@ const getBucketName = createServerOnlyFn(() => {
 	return _bucketName;
 });
 
+/**
+ * Returns a public URL for an S3 object.
+ * Uses S3_PUBLIC_URL if set, otherwise constructs from endpoint/bucket config.
+ * Used for content that doesn't need presigned URLs (e.g. avatars).
+ */
+export function getPublicObjectUrl(storageKey: string): string {
+	const bucket = getBucketName();
+	const endpoint = serverEnv.S3_ENDPOINT;
+	if (endpoint && serverEnv.S3_FORCE_PATH_STYLE) {
+		// Path-style (MinIO local dev): http://localhost:9000/bucket/key
+		return `${endpoint.replace(/\/$/, "")}/${bucket}/${storageKey}`;
+	}
+
+	// Virtual-hosted style (AWS S3): https://bucket.s3.region.amazonaws.com/key
+	return `https://${bucket}.s3.${serverEnv.S3_REGION}.amazonaws.com/${storageKey}`;
+}
+
 // Cache durations
 const ONE_YEAR_SECONDS = 31536000;
 

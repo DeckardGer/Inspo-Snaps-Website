@@ -13,10 +13,13 @@ import {
 	uploadRateLimitMiddleware,
 	usernameCheckRateLimitMiddleware,
 } from "@/lib/rate-limit/middleware";
-import {
-	createPresignedDownloadUrl,
-	deleteStorageObject,
-} from "@/lib/storage/s3";
+import { deleteStorageObject, getPublicObjectUrl } from "@/lib/storage/s3";
+
+/** Extracts the S3 storage key from a public avatar URL (e.g. "avatars/userId/uuid.jpg") */
+function extractStorageKey(url: string): string | null {
+	const match = url.match(/(avatars\/.+)/);
+	return match?.[1] ?? null;
+}
 
 export const getUser = createServerFn({ method: "GET" }).handler(async () => {
 	const session = await auth.api.getSession({
@@ -172,13 +175,11 @@ export const updateAvatar = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.inputValidator(UpdateAvatarInput)
 	.handler(async ({ data, context }) => {
-		// Get the current user's image to delete old avatar if exists
-		const oldImageKey = context.user.image;
+		const oldImage = context.user.image;
 
-		// Generate a presigned download URL for the new avatar
-		const imageUrl = await createPresignedDownloadUrl(data.storageKey);
+		// Store a permanent public URL — no presigned URLs needed for avatars
+		const imageUrl = getPublicObjectUrl(data.storageKey);
 
-		// Update user with new image URL
 		await auth.api.updateUser({
 			headers: getRequest().headers,
 			body: {
@@ -187,14 +188,10 @@ export const updateAvatar = createServerFn({ method: "POST" })
 		});
 
 		// Delete old avatar from S3 if it was stored in our bucket
-		if (oldImageKey?.includes("avatars/")) {
+		if (oldImage?.includes("/avatars/")) {
 			try {
-				// Extract the storage key from the old URL
-				const urlParts = oldImageKey.split("avatars/");
-				if (urlParts[1]) {
-					const oldStorageKey = `avatars/${urlParts[1].split("?")[0]}`;
-					await deleteStorageObject(oldStorageKey);
-				}
+				const key = extractStorageKey(oldImage);
+				if (key) await deleteStorageObject(key);
 			} catch {
 				// Ignore errors when deleting old avatar
 			}
@@ -206,7 +203,7 @@ export const updateAvatar = createServerFn({ method: "POST" })
 export const removeAvatar = createServerFn({ method: "POST" })
 	.middleware([authMiddleware])
 	.handler(async ({ context }) => {
-		const oldImageKey = context.user.image;
+		const oldImage = context.user.image;
 
 		// Update user to remove image - use null to explicitly clear the field
 		await auth.api.updateUser({
@@ -217,13 +214,10 @@ export const removeAvatar = createServerFn({ method: "POST" })
 		});
 
 		// Delete avatar from S3 if it was stored in our bucket
-		if (oldImageKey?.includes("avatars/")) {
+		if (oldImage?.includes("/avatars/")) {
 			try {
-				const urlParts = oldImageKey.split("avatars/");
-				if (urlParts[1]) {
-					const oldStorageKey = `avatars/${urlParts[1].split("?")[0]}`;
-					await deleteStorageObject(oldStorageKey);
-				}
+				const key = extractStorageKey(oldImage);
+				if (key) await deleteStorageObject(key);
 			} catch {
 				// Ignore errors when deleting avatar
 			}

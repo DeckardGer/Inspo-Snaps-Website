@@ -73,7 +73,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<body>
 				<ThemeProvider>
 					{children}
-					<Toaster richColors />
+					<Toaster />
 				</ThemeProvider>
 
 				<TanStackDevtools
