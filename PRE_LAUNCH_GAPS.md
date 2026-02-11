@@ -151,15 +151,9 @@ SEO metadata is now fully implemented:
 
 No Sentry or similar service. Only a single `console.log` exists in the entire backend. Production errors will go unnoticed.
 
-### 10. Security Headers Missing
+### ~~10. Security Headers Missing~~ Removed
 
-No explicit security headers configured:
-
-- Content Security Policy (CSP)
-- X-Frame-Options
-- X-Content-Type-Options
-- HTTP Strict Transport Security (HSTS)
-- Referrer-Policy
+Not needed pre-launch. React 19 auto-escapes output (primary XSS defense), browsers default to `strict-origin-when-cross-origin` referrer policy, and deployment platforms (Vercel, Cloudflare, etc.) handle HSTS/X-Frame-Options automatically. CSP can be added as a post-launch hardening step once the app is stable in production.
 
 ### 11. ~~Share Links Require Authentication~~ ✅ Working as Intended
 
@@ -358,7 +352,7 @@ These features are well-implemented and ready for launch:
 - CI/CD pipeline (GitHub Actions or similar)
 - Production Dockerfile
 - ~~Rate limiting~~ ✅ Implemented
-- Security headers (CSP, HSTS, X-Frame-Options)
+- ~~Security headers (CSP, HSTS, X-Frame-Options)~~ Removed — not needed pre-launch, handled by deployment platform + framework defaults
 - Error tracking (Sentry or similar)
 - Application logging beyond console.log
 - Performance monitoring
@@ -379,7 +373,7 @@ These features are well-implemented and ready for launch:
 9. ~~Add SEO meta tags + Open Graph~~ ✅ DONE
 10. Set up CI/CD + production deployment
 11. ~~Write core tests (auth flows, folder CRUD, sharing)~~ ✅ DONE
-12. Add security headers
+12. ~~Add security headers~~ Removed — not needed pre-launch
 
 ---
 
