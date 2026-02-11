@@ -308,7 +308,7 @@ export const sendVerificationEmail = createServerFn({ method: "POST" })
 			headers: getRequest().headers,
 			body: {
 				email: context.user.email,
-				callbackURL: "/overview",
+				callbackURL: "/my-folders",
 			},
 		});
 

@@ -49,7 +49,12 @@ export function HeaderBreadcrumbs({ items }: HeaderBreadcrumbsProps) {
 						className="h-7 w-7"
 						nativeButton={false}
 						render={
-							<Link to="/overview">
+							<Link
+								to="/my-folders/{-$folderId}"
+								params={{
+									folderId: undefined,
+								}}
+							>
 								<HugeiconsIcon
 									icon={Home07Icon}
 									strokeWidth={2}

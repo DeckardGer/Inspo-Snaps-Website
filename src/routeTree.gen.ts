@@ -18,7 +18,6 @@ import { Route as authPagesLoginRouteImport } from './routes/(auth-pages)/login'
 import { Route as authPagesForgotPasswordRouteImport } from './routes/(auth-pages)/forgot-password'
 import { Route as authenticatedTeamFoldersIndexRouteImport } from './routes/(authenticated)/team-folders/index'
 import { Route as authenticatedSharedFoldersIndexRouteImport } from './routes/(authenticated)/shared-folders/index'
-import { Route as authenticatedOverviewIndexRouteImport } from './routes/(authenticated)/overview/index'
 import { Route as ApiExtensionOrganizationsRouteImport } from './routes/api/extension/organizations'
 import { Route as ApiExtensionImagesRouteImport } from './routes/api/extension/images'
 import { Route as ApiExtensionFoldersRouteImport } from './routes/api/extension/folders'
@@ -73,12 +72,6 @@ const authenticatedSharedFoldersIndexRoute =
   authenticatedSharedFoldersIndexRouteImport.update({
     id: '/shared-folders/',
     path: '/shared-folders/',
-    getParentRoute: () => authenticatedRouteRoute,
-  } as any)
-const authenticatedOverviewIndexRoute =
-  authenticatedOverviewIndexRouteImport.update({
-    id: '/overview/',
-    path: '/overview/',
     getParentRoute: () => authenticatedRouteRoute,
   } as any)
 const ApiExtensionOrganizationsRoute =
@@ -154,7 +147,6 @@ export interface FileRoutesByFullPath {
   '/api/extension/folders': typeof ApiExtensionFoldersRoute
   '/api/extension/images': typeof ApiExtensionImagesRoute
   '/api/extension/organizations': typeof ApiExtensionOrganizationsRoute
-  '/overview': typeof authenticatedOverviewIndexRoute
   '/shared-folders': typeof authenticatedSharedFoldersIndexRoute
   '/team-folders': typeof authenticatedTeamFoldersIndexRoute
   '/team-folders/$orgId/{-$folderId}': typeof authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route
@@ -174,7 +166,6 @@ export interface FileRoutesByTo {
   '/api/extension/folders': typeof ApiExtensionFoldersRoute
   '/api/extension/images': typeof ApiExtensionImagesRoute
   '/api/extension/organizations': typeof ApiExtensionOrganizationsRoute
-  '/overview': typeof authenticatedOverviewIndexRoute
   '/shared-folders': typeof authenticatedSharedFoldersIndexRoute
   '/team-folders': typeof authenticatedTeamFoldersIndexRoute
   '/team-folders/$orgId/{-$folderId}': typeof authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route
@@ -197,7 +188,6 @@ export interface FileRoutesById {
   '/api/extension/folders': typeof ApiExtensionFoldersRoute
   '/api/extension/images': typeof ApiExtensionImagesRoute
   '/api/extension/organizations': typeof ApiExtensionOrganizationsRoute
-  '/(authenticated)/overview/': typeof authenticatedOverviewIndexRoute
   '/(authenticated)/shared-folders/': typeof authenticatedSharedFoldersIndexRoute
   '/(authenticated)/team-folders/': typeof authenticatedTeamFoldersIndexRoute
   '/(authenticated)/team-folders/$orgId/{-$folderId}': typeof authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route
@@ -219,7 +209,6 @@ export interface FileRouteTypes {
     | '/api/extension/folders'
     | '/api/extension/images'
     | '/api/extension/organizations'
-    | '/overview'
     | '/shared-folders'
     | '/team-folders'
     | '/team-folders/$orgId/{-$folderId}'
@@ -239,7 +228,6 @@ export interface FileRouteTypes {
     | '/api/extension/folders'
     | '/api/extension/images'
     | '/api/extension/organizations'
-    | '/overview'
     | '/shared-folders'
     | '/team-folders'
     | '/team-folders/$orgId/{-$folderId}'
@@ -261,7 +249,6 @@ export interface FileRouteTypes {
     | '/api/extension/folders'
     | '/api/extension/images'
     | '/api/extension/organizations'
-    | '/(authenticated)/overview/'
     | '/(authenticated)/shared-folders/'
     | '/(authenticated)/team-folders/'
     | '/(authenticated)/team-folders/$orgId/{-$folderId}'
@@ -340,13 +327,6 @@ declare module '@tanstack/react-router' {
       path: '/shared-folders'
       fullPath: '/shared-folders'
       preLoaderRoute: typeof authenticatedSharedFoldersIndexRouteImport
-      parentRoute: typeof authenticatedRouteRoute
-    }
-    '/(authenticated)/overview/': {
-      id: '/(authenticated)/overview/'
-      path: '/overview'
-      fullPath: '/overview'
-      preLoaderRoute: typeof authenticatedOverviewIndexRouteImport
       parentRoute: typeof authenticatedRouteRoute
     }
     '/api/extension/organizations': {
@@ -446,7 +426,6 @@ interface authenticatedRouteRouteChildren {
   authenticatedShareLinkIdRoute: typeof authenticatedShareLinkIdRoute
   authenticatedSharedFoldersFolderIdRoute: typeof authenticatedSharedFoldersFolderIdRoute
   authenticatedTeamInviteInvitationIdRoute: typeof authenticatedTeamInviteInvitationIdRoute
-  authenticatedOverviewIndexRoute: typeof authenticatedOverviewIndexRoute
   authenticatedSharedFoldersIndexRoute: typeof authenticatedSharedFoldersIndexRoute
   authenticatedTeamFoldersIndexRoute: typeof authenticatedTeamFoldersIndexRoute
   authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route: typeof authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route
@@ -461,7 +440,6 @@ const authenticatedRouteRouteChildren: authenticatedRouteRouteChildren = {
     authenticatedSharedFoldersFolderIdRoute,
   authenticatedTeamInviteInvitationIdRoute:
     authenticatedTeamInviteInvitationIdRoute,
-  authenticatedOverviewIndexRoute: authenticatedOverviewIndexRoute,
   authenticatedSharedFoldersIndexRoute: authenticatedSharedFoldersIndexRoute,
   authenticatedTeamFoldersIndexRoute: authenticatedTeamFoldersIndexRoute,
   authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route:

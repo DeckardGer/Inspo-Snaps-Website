@@ -85,7 +85,14 @@ function UserAction() {
 		<div className="flex flex-col items-center gap-2">
 			<p>Welcome back, {user.name}!</p>
 			<Button type="button" className="mb-2 w-fit" size="lg">
-				<Link to="/overview">Go to Dashboard</Link>
+				<Link
+					to="/my-folders/{-$folderId}"
+					params={{
+						folderId: undefined,
+					}}
+				>
+					Go to My Folders
+				</Link>
 			</Button>
 			<div className="text-center text-xs sm:text-sm">
 				Session user:

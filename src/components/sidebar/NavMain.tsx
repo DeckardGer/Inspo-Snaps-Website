@@ -1,5 +1,4 @@
 import {
-	DashboardSquare01Icon,
 	Folder01Icon,
 	Share08Icon,
 	UserGroupIcon,
@@ -15,11 +14,6 @@ import {
 } from "@/components/ui/sidebar";
 
 const items = [
-	{
-		name: "Overview",
-		url: "/overview",
-		icon: DashboardSquare01Icon,
-	},
 	{
 		name: "My folders",
 		url: "/my-folders",

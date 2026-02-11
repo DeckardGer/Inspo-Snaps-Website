@@ -421,7 +421,7 @@ describe("Auth Functions", () => {
 				expect.objectContaining({
 					body: {
 						email: "unverified@example.com",
-						callbackURL: "/overview",
+						callbackURL: "/my-folders",
 					},
 				}),
 			);

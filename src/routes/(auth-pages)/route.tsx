@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { authQueryOptions } from "@/lib/auth/queries";
 
-const REDIRECT_PATH = "/overview";
+const REDIRECT_PATH = "/my-folders/{-$folderId}";
 const FRESH_LOGIN_PARAM = "freshLogin=true";
 
 export const Route = createFileRoute("/(auth-pages)")({
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/(auth-pages)")({
 		});
 
 		if (user) {
-			throw redirect({ to: REDIRECT_PATH });
+			throw redirect({ to: REDIRECT_PATH, params: { folderId: undefined } });
 		}
 
 		return {
