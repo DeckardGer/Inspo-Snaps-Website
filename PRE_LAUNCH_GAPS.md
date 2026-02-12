@@ -209,13 +209,13 @@ No multi-select capability anywhere. No bulk delete, move, or organize functiona
 
 No guided tour or onboarding wizard for new users. Only empty state illustrations with CTAs serve as light onboarding ("Create your first folder").
 
-### 20. Two-Factor Authentication (2FA / MFA)
+### 20. Two-Factor Authentication (2FA / MFA) — Post-Launch
 
-Not implemented. No authenticator app integration, no SMS verification, no backup codes.
+Not needed pre-launch. The app stores image collections (low risk profile), strong password validation is enforced, auth endpoints are rate-limited, and Google OAuth users already have Google's own 2FA. Better Auth's built-in `twoFactor` plugin (TOTP, backup codes, trusted devices) makes this straightforward to add as an opt-in setting post-launch.
 
-### 21. Email Change
+### 21. Email Change — Post-Launch
 
-Email field is displayed but disabled in the settings UI. Users cannot change their email address.
+Email field is displayed but disabled in settings UI. Not a launch blocker — most users won't need to change email in the first weeks. Better Auth supports `authClient.changeEmail` with built-in new-email verification, making this straightforward to add later. When implemented, will also need to handle OAuth account linking edge cases and email-based sharing references.
 
 ### ~~22. Image Metadata Viewer~~ ✅ DONE
 
@@ -285,7 +285,7 @@ These features are well-implemented and ready for launch:
 - ~~Password change functionality~~ ✅ Implemented
 - ~~Rate limiting / brute force protection~~ ✅ Implemented
 - Account deletion / deactivation
-- 2FA / MFA support
+- 2FA / MFA support (post-launch — see #20)
 - Account lockout after failed attempts
 - Audit logging for auth events
 - Login attempt notifications
