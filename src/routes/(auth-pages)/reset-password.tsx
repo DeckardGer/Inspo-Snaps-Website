@@ -46,7 +46,7 @@ export const Route = createFileRoute("/(auth-pages)/reset-password")({
 	validateSearch: resetPasswordSearchSchema,
 	head: () => ({
 		meta: [
-			{ title: "Set New Password - Inspo Snaps" },
+			{ title: "Set New Password - InspoSnaps" },
 			{ name: "robots", content: "noindex, nofollow" },
 		],
 	}),

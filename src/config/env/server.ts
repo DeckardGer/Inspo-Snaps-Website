@@ -15,7 +15,7 @@ export const serverEnv = createEnv({
 		S3_BUCKET_NAME: z.string().optional(),
 		S3_FORCE_PATH_STYLE: z.coerce.boolean().default(false),
 		RESEND_API_KEY: z.string().min(1),
-		EMAIL_FROM: z.email().default("Inspo Snaps <noreply@insposnaps.com>"),
+		EMAIL_FROM: z.email().default("InspoSnaps <noreply@insposnaps.com>"),
 	},
 	runtimeEnv: process.env,
 });

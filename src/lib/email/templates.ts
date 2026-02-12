@@ -4,7 +4,7 @@ export function passwordResetTemplate(resetUrl: string): {
 	text: string;
 } {
 	return {
-		subject: "Reset your Inspo Snaps password",
+		subject: "Reset your InspoSnaps password",
 		html: `
 <!DOCTYPE html>
 <html>
@@ -15,7 +15,7 @@ export function passwordResetTemplate(resetUrl: string): {
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <h1 style="color: #111; font-size: 24px; margin-bottom: 24px;">Reset your password</h1>
 
-  <p>We received a request to reset your Inspo Snaps password. Click the button below to choose a new password:</p>
+  <p>We received a request to reset your InspoSnaps password. Click the button below to choose a new password:</p>
 
   <a href="${resetUrl}" style="display: inline-block; background-color: #111; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; margin: 24px 0; font-weight: 500;">Reset Password</a>
 
@@ -26,11 +26,11 @@ export function passwordResetTemplate(resetUrl: string): {
 
   <hr style="border: none; border-top: 1px solid #eee; margin: 32px 0;">
 
-  <p style="color: #999; font-size: 12px;">Inspo Snaps — Organize your inspiration</p>
+  <p style="color: #999; font-size: 12px;">InspoSnaps — Organize your inspiration</p>
 </body>
 </html>
 `.trim(),
-		text: `Reset your Inspo Snaps password
+		text: `Reset your InspoSnaps password
 
 We received a request to reset your password. Visit this link to choose a new password:
 
@@ -38,7 +38,7 @@ ${resetUrl}
 
 This link will expire in 1 hour. If you didn't request a password reset, you can safely ignore this email.
 
-— Inspo Snaps`,
+— InspoSnaps`,
 	};
 }
 
@@ -48,7 +48,7 @@ export function emailVerificationTemplate(verificationUrl: string): {
 	text: string;
 } {
 	return {
-		subject: "Verify your Inspo Snaps email",
+		subject: "Verify your InspoSnaps email",
 		html: `
 <!DOCTYPE html>
 <html>
@@ -59,30 +59,30 @@ export function emailVerificationTemplate(verificationUrl: string): {
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <h1 style="color: #111; font-size: 24px; margin-bottom: 24px;">Verify your email address</h1>
 
-  <p>Thanks for signing up for Inspo Snaps! Please verify your email address by clicking the button below:</p>
+  <p>Thanks for signing up for InspoSnaps! Please verify your email address by clicking the button below:</p>
 
   <a href="${verificationUrl}" style="display: inline-block; background-color: #111; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; margin: 24px 0; font-weight: 500;">Verify Email</a>
 
-  <p style="color: #666; font-size: 14px;">If you didn't create an account with Inspo Snaps, you can safely ignore this email.</p>
+  <p style="color: #666; font-size: 14px;">If you didn't create an account with InspoSnaps, you can safely ignore this email.</p>
 
   <p style="color: #666; font-size: 14px;">If the button doesn't work, copy and paste this link into your browser:</p>
   <p style="color: #666; font-size: 14px; word-break: break-all;">${verificationUrl}</p>
 
   <hr style="border: none; border-top: 1px solid #eee; margin: 32px 0;">
 
-  <p style="color: #999; font-size: 12px;">Inspo Snaps — Organize your inspiration</p>
+  <p style="color: #999; font-size: 12px;">InspoSnaps — Organize your inspiration</p>
 </body>
 </html>
 `.trim(),
-		text: `Verify your Inspo Snaps email
+		text: `Verify your InspoSnaps email
 
 Thanks for signing up! Please verify your email address by visiting this link:
 
 ${verificationUrl}
 
-If you didn't create an account with Inspo Snaps, you can safely ignore this email.
+If you didn't create an account with InspoSnaps, you can safely ignore this email.
 
-— Inspo Snaps`,
+— InspoSnaps`,
 	};
 }
 
@@ -99,7 +99,7 @@ export function teamInvitationTemplate(params: {
 	const { inviteLink, inviterName, teamName, role } = params;
 
 	return {
-		subject: `You've been invited to join ${teamName} on Inspo Snaps`,
+		subject: `You've been invited to join ${teamName} on InspoSnaps`,
 		html: `
 <!DOCTYPE html>
 <html>
@@ -110,7 +110,7 @@ export function teamInvitationTemplate(params: {
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <h1 style="color: #111; font-size: 24px; margin-bottom: 24px;">You're invited!</h1>
 
-  <p><strong>${inviterName}</strong> has invited you to join <strong>${teamName}</strong> on Inspo Snaps as a <strong>${role}</strong>.</p>
+  <p><strong>${inviterName}</strong> has invited you to join <strong>${teamName}</strong> on InspoSnaps as a <strong>${role}</strong>.</p>
 
   <a href="${inviteLink}" style="display: inline-block; background-color: #111; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; margin: 24px 0; font-weight: 500;">Accept Invitation</a>
 
@@ -121,13 +121,13 @@ export function teamInvitationTemplate(params: {
 
   <hr style="border: none; border-top: 1px solid #eee; margin: 32px 0;">
 
-  <p style="color: #999; font-size: 12px;">Inspo Snaps — Organize your inspiration</p>
+  <p style="color: #999; font-size: 12px;">InspoSnaps — Organize your inspiration</p>
 </body>
 </html>
 `.trim(),
 		text: `You're invited to join ${teamName}!
 
-${inviterName} has invited you to join ${teamName} on Inspo Snaps as a ${role}.
+${inviterName} has invited you to join ${teamName} on InspoSnaps as a ${role}.
 
 Accept the invitation by visiting this link:
 
@@ -135,6 +135,6 @@ ${inviteLink}
 
 If you don't want to join this team, you can safely ignore this email.
 
-— Inspo Snaps`,
+— InspoSnaps`,
 	};
 }

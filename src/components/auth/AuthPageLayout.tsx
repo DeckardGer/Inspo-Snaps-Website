@@ -24,7 +24,7 @@ export function AuthPageLayout({ children }: AuthPageLayoutProps) {
 					</div>
 				</div>
 				<div className="text-sm text-muted-foreground py-4 px-8">
-					&copy; 2025 InspoSnaps.com
+					&copy; {new Date().getFullYear()} InspoSnaps
 				</div>
 			</div>
 			<div className="hidden lg:flex lg:w-3/5 flex-1 relative overflow-hidden rounded-2xl">

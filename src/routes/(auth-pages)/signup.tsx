@@ -39,8 +39,8 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import authClient from "@/lib/auth/auth-client";
 import { clientEnv } from "@/config/env/client";
+import authClient from "@/lib/auth/auth-client";
 import {
 	checkUsernameAvailability,
 	passwordSchema,
@@ -64,11 +64,11 @@ export const Route = createFileRoute("/(auth-pages)/signup")({
 	component: RouteComponent,
 	head: () => ({
 		meta: [
-			{ title: "Create Account - Inspo Snaps" },
+			{ title: "Create Account - InspoSnaps" },
 			{
 				name: "description",
 				content:
-					"Create a free Inspo Snaps account to start organizing and sharing your visual inspiration.",
+					"Create a free InspoSnaps account to start organizing and sharing your visual inspiration.",
 			},
 		],
 		links: [{ rel: "canonical", href: CANONICAL_URL }],

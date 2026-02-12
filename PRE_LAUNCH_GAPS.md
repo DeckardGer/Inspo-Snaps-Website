@@ -1,6 +1,6 @@
 # Pre-Launch Gap Analysis
 
-Comprehensive review of outstanding features, gaps, and priorities before launching Inspo Snaps.
+Comprehensive review of outstanding features, gaps, and priorities before launching InspoSnaps.
 
 ---
 
@@ -129,7 +129,7 @@ SEO metadata is now fully implemented:
 - Dynamic OG tags on share link pages (folder name + owner for social previews)
 - Page-specific titles across all routes
 - `noindex, nofollow` on all protected and utility routes
-- Web app manifest updated with Inspo Snaps branding
+- Web app manifest updated with InspoSnaps branding
 - OG image placeholder (`public/og-image.png`)
 
 **Files involved:**

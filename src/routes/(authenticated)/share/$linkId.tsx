@@ -39,30 +39,30 @@ export const Route = createFileRoute("/(authenticated)/share/$linkId")({
 
 		return {
 			meta: [
-				{ title: `${folderName} - Shared on Inspo Snaps` },
+				{ title: `${folderName} - Shared on InspoSnaps` },
 				{
 					name: "description",
-					content: `View "${folderName}" shared by ${ownerName} on Inspo Snaps.`,
+					content: `View "${folderName}" shared by ${ownerName} on InspoSnaps.`,
 				},
 				{ name: "robots", content: "noindex, nofollow" },
 				// Open Graph for social sharing previews
 				{
 					property: "og:title",
-					content: `${folderName} - Shared on Inspo Snaps`,
+					content: `${folderName} - Shared on InspoSnaps`,
 				},
 				{
 					property: "og:description",
-					content: `View "${folderName}" shared by ${ownerName} on Inspo Snaps.`,
+					content: `View "${folderName}" shared by ${ownerName} on InspoSnaps.`,
 				},
 				{ property: "og:image", content: OG_IMAGE_URL },
 				// Twitter Card
 				{
 					name: "twitter:title",
-					content: `${folderName} - Shared on Inspo Snaps`,
+					content: `${folderName} - Shared on InspoSnaps`,
 				},
 				{
 					name: "twitter:description",
-					content: `View "${folderName}" shared by ${ownerName} on Inspo Snaps.`,
+					content: `View "${folderName}" shared by ${ownerName} on InspoSnaps.`,
 				},
 				{ name: "twitter:image", content: OG_IMAGE_URL },
 			],

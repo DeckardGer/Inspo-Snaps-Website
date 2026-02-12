@@ -13,7 +13,7 @@ import { type AuthQueryResult, authQueryOptions } from "@/lib/auth/queries";
 import { ThemeProvider } from "@/lib/ThemeProvider";
 import appCss from "@/styles.css?url";
 
-const DEFAULT_TITLE = "Inspo Snaps";
+const DEFAULT_TITLE = "InspoSnaps";
 const DEFAULT_DESCRIPTION =
 	"Organize, save, and share your visual inspiration. Create folders, upload images, and collaborate with others.";
 const OG_IMAGE_URL = `${clientEnv.VITE_BASE_URL}/og-image.png`;
@@ -42,7 +42,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			{ name: "theme-color", content: "#18181b" },
 			// Open Graph
 			{ property: "og:type", content: "website" },
-			{ property: "og:site_name", content: "Inspo Snaps" },
+			{ property: "og:site_name", content: "InspoSnaps" },
 			{ property: "og:title", content: DEFAULT_TITLE },
 			{ property: "og:description", content: DEFAULT_DESCRIPTION },
 			{ property: "og:image", content: OG_IMAGE_URL },

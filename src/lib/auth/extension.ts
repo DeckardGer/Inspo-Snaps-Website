@@ -20,7 +20,7 @@ export interface ExtensionInfo {
 const CHROME_EXTENSION_ID = "logjliapdhfaooaeanbjojildfhilaab";
 
 /**
- * Check if the Inspo Snaps extension is installed.
+ * Check if the InspoSnaps extension is installed.
  * Works on both Chromium and Firefox browsers.
  * The extension must have a content script that listens for the probe event.
  */
@@ -52,7 +52,7 @@ export function checkExtensionInstalled(timeout = 300): Promise<ExtensionInfo> {
 }
 
 /**
- * Notify Inspo Snaps extension of auth state change.
+ * Notify InspoSnaps extension of auth state change.
  * - Chromium: uses externally_connectable (direct messaging)
  * - Firefox/other: falls back to postMessage (requires content script)
  */

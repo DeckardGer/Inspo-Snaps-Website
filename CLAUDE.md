@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Inspo Snaps** is a full-stack web application for managing, organizing, and sharing image collections through folders with collaborative features. Users can create hierarchical folder structures, store images, and share collections with others.
+**InspoSnaps** is a full-stack web application for managing, organizing, and sharing image collections through folders with collaborative features. Users can create hierarchical folder structures, store images, and share collections with others.
 
 ## Development Commands
 
