@@ -1,30 +1,38 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Suspense } from "react";
-import { Button } from "@/components/ui/button";
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { BenefitsSection } from "@/components/landing/BenefitsSection";
+import { FAQSection } from "@/components/landing/FAQSection";
+import { FeatureShowcase } from "@/components/landing/FeatureShowcase";
+import { FinalCTA } from "@/components/landing/FinalCTA";
+import { HeroSection } from "@/components/landing/HeroSection";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { LandingFooter } from "@/components/landing/LandingFooter";
+import { LandingNav } from "@/components/landing/LandingNav";
+import { PricingSection } from "@/components/landing/PricingSection";
+import { SocialProof } from "@/components/landing/SocialProof";
+import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { clientEnv } from "@/config/env/client";
-import { authQueryOptions } from "@/lib/auth/queries";
 
 const CANONICAL_URL = clientEnv.VITE_BASE_URL;
 
 export const Route = createFileRoute("/")({
-	component: HomePage,
+	component: LandingPage,
 	head: () => ({
 		meta: [
-			{ title: "Inspo Snaps - Organize & Share Visual Inspiration" },
+			{ title: "InspoSnaps — Organize & Share Visual Inspiration" },
 			{
 				name: "description",
 				content:
-					"Save, organize, and share your visual inspiration with Inspo Snaps. Create folders, upload images, and collaborate with friends and teams.",
+					"Save, organize, and share your visual inspiration with InspoSnaps. Create beautiful collections with smart folders, share with anyone, and never lose creative inspiration again.",
 			},
 			{
 				property: "og:title",
-				content: "Inspo Snaps - Organize & Share Visual Inspiration",
+				content: "InspoSnaps — Your Inspiration Deserves a Home",
 			},
 			{
 				property: "og:description",
 				content:
-					"Save, organize, and share your visual inspiration with Inspo Snaps. Create folders, upload images, and collaborate with friends and teams.",
+					"Create beautiful collections, organize with smart folders, and share your visual inspiration with anyone.",
 			},
 			{ property: "og:url", content: CANONICAL_URL },
 		],
@@ -32,81 +40,27 @@ export const Route = createFileRoute("/")({
 	}),
 });
 
-function HomePage() {
+function LandingPage() {
+	useEffect(() => {
+		document.documentElement.style.scrollBehavior = "smooth";
+		return () => {
+			document.documentElement.style.scrollBehavior = "";
+		};
+	}, []);
+
 	return (
-		<div className="flex min-h-svh flex-col items-center justify-center gap-10 p-2">
-			<div className="flex flex-col items-center gap-4">
-				<h1 className="text-3xl font-bold sm:text-4xl">React TanStarter</h1>
-				<div className="text-foreground/80 flex items-center gap-2 text-sm max-sm:flex-col">
-					This is an unprotected page:
-					<pre className="bg-card text-card-foreground rounded-md border p-1">
-						routes/index.tsx
-					</pre>
-				</div>
-			</div>
-
-			<Suspense fallback={<div className="py-6">Loading user...</div>}>
-				<UserAction />
-			</Suspense>
-
-			<div className="flex flex-col items-center gap-2">
-				<p className="text-foreground/80 max-sm:text-xs">
-					A minimal starter template for{" "}
-					<a
-						className="text-foreground group"
-						href="https://tanstack.com/start/latest"
-						target="_blank"
-						rel="noreferrer noopener"
-					>
-						🏝️ <span className="group-hover:underline">TanStack Start</span>
-					</a>
-					.
-				</p>
-				<div className="flex items-center gap-3">
-					<a
-						className="text-foreground/80 hover:text-foreground underline max-sm:text-sm"
-						href="https://github.com/dotnize/react-tanstarter"
-						target="_blank"
-						title="Template repository on GitHub"
-						rel="noreferrer noopener"
-					>
-						dotnize/react-tanstarter
-					</a>
-				</div>
-			</div>
-		</div>
-	);
-}
-
-function UserAction() {
-	const { data: user } = useSuspenseQuery(authQueryOptions());
-
-	return user ? (
-		<div className="flex flex-col items-center gap-2">
-			<p>Welcome back, {user.name}!</p>
-			<Button type="button" className="mb-2 w-fit" size="lg">
-				<Link
-					to="/my-folders/{-$folderId}"
-					params={{
-						folderId: undefined,
-					}}
-				>
-					Go to My Folders
-				</Link>
-			</Button>
-			<div className="text-center text-xs sm:text-sm">
-				Session user:
-				<pre className="max-w-screen overflow-x-auto px-2 text-start">
-					{JSON.stringify(user, null, 2)}
-				</pre>
-			</div>
-		</div>
-	) : (
-		<div className="flex flex-col items-center gap-2">
-			<p>You are not signed in.</p>
-			<Button type="button" className="w-fit" size="lg">
-				<Link to="/login">Log in</Link>
-			</Button>
+		<div className="min-h-svh bg-background text-foreground">
+			<LandingNav />
+			<HeroSection />
+			<SocialProof />
+			<BenefitsSection />
+			<HowItWorks />
+			<FeatureShowcase />
+			<PricingSection />
+			<TestimonialsSection />
+			<FAQSection />
+			<FinalCTA />
+			<LandingFooter />
 		</div>
 	);
 }
