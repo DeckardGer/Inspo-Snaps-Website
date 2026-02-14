@@ -265,7 +265,7 @@ export function HeroSection() {
 								</div>
 
 								{/* Main content */}
-								<div className="flex flex-1 flex-col">
+								<div className="flex flex-1 flex-col bg-background">
 									{/* Navbar */}
 									<div className="flex h-8 shrink-0 items-center justify-between border-b border-border/30 px-3 sm:px-4">
 										<div className="flex items-center gap-1 text-[9px] text-muted-foreground/50">

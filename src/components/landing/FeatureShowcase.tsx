@@ -274,8 +274,7 @@ export function FeatureShowcase() {
 								{[
 									"One-click shareable links for any collection",
 									"Invite collaborators by username",
-									"Granular permission controls",
-									"No account needed to view shared links",
+									"Real-time status tracking for invites",
 								].map((item) => (
 									<li key={item} className="flex items-start gap-3 text-sm">
 										<CheckMark className="mt-0.5 text-primary" />
