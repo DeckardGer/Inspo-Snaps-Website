@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as Landing3RouteImport } from './routes/landing3'
 import { Route as Landing2RouteImport } from './routes/landing2'
 import { Route as Landing1RouteImport } from './routes/landing1'
@@ -32,6 +33,11 @@ import { Route as authenticatedMyFoldersChar123FolderIdChar125RouteImport } from
 import { Route as authenticatedInviteFolderIdRouteImport } from './routes/(authenticated)/invite/$folderId'
 import { Route as authenticatedTeamFoldersOrgIdChar123FolderIdChar125RouteImport } from './routes/(authenticated)/team-folders/$orgId/{-$folderId}'
 
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const Landing3Route = Landing3RouteImport.update({
   id: '/landing3',
   path: '/landing3',
@@ -155,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/landing1': typeof Landing1Route
   '/landing2': typeof Landing2Route
   '/landing3': typeof Landing3Route
+  '/privacy': typeof PrivacyRoute
   '/forgot-password': typeof authPagesForgotPasswordRoute
   '/login': typeof authPagesLoginRoute
   '/reset-password': typeof authPagesResetPasswordRoute
@@ -177,6 +184,7 @@ export interface FileRoutesByTo {
   '/landing1': typeof Landing1Route
   '/landing2': typeof Landing2Route
   '/landing3': typeof Landing3Route
+  '/privacy': typeof PrivacyRoute
   '/forgot-password': typeof authPagesForgotPasswordRoute
   '/login': typeof authPagesLoginRoute
   '/reset-password': typeof authPagesResetPasswordRoute
@@ -202,6 +210,7 @@ export interface FileRoutesById {
   '/landing1': typeof Landing1Route
   '/landing2': typeof Landing2Route
   '/landing3': typeof Landing3Route
+  '/privacy': typeof PrivacyRoute
   '/(auth-pages)/forgot-password': typeof authPagesForgotPasswordRoute
   '/(auth-pages)/login': typeof authPagesLoginRoute
   '/(auth-pages)/reset-password': typeof authPagesResetPasswordRoute
@@ -226,6 +235,7 @@ export interface FileRouteTypes {
     | '/landing1'
     | '/landing2'
     | '/landing3'
+    | '/privacy'
     | '/forgot-password'
     | '/login'
     | '/reset-password'
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/landing1'
     | '/landing2'
     | '/landing3'
+    | '/privacy'
     | '/forgot-password'
     | '/login'
     | '/reset-password'
@@ -272,6 +283,7 @@ export interface FileRouteTypes {
     | '/landing1'
     | '/landing2'
     | '/landing3'
+    | '/privacy'
     | '/(auth-pages)/forgot-password'
     | '/(auth-pages)/login'
     | '/(auth-pages)/reset-password'
@@ -297,6 +309,7 @@ export interface RootRouteChildren {
   Landing1Route: typeof Landing1Route
   Landing2Route: typeof Landing2Route
   Landing3Route: typeof Landing3Route
+  PrivacyRoute: typeof PrivacyRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiExtensionFoldersRoute: typeof ApiExtensionFoldersRoute
   ApiExtensionImagesRoute: typeof ApiExtensionImagesRoute
@@ -305,6 +318,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/landing3': {
       id: '/landing3'
       path: '/landing3'
@@ -516,6 +536,7 @@ const rootRouteChildren: RootRouteChildren = {
   Landing1Route: Landing1Route,
   Landing2Route: Landing2Route,
   Landing3Route: Landing3Route,
+  PrivacyRoute: PrivacyRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiExtensionFoldersRoute: ApiExtensionFoldersRoute,
   ApiExtensionImagesRoute: ApiExtensionImagesRoute,
