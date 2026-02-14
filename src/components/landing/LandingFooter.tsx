@@ -55,7 +55,10 @@ export function LandingFooter() {
 						<ul className="flex flex-wrap gap-4 font-medium text-muted-foreground text-sm md:gap-6">
 							{navLinks.map((link) => (
 								<li key={link.label}>
-									<a className="hover:text-foreground" href={link.href}>
+									<a
+										className="rounded-md transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+										href={link.href}
+									>
 										{link.label}
 									</a>
 								</li>
@@ -73,7 +76,7 @@ export function LandingFooter() {
 						<span>Built by</span>
 						<a
 							aria-label="x/twitter"
-							className="inline-flex items-center gap-1 text-foreground/80 hover:text-foreground hover:underline"
+							className="inline-flex items-center gap-1 rounded-md text-foreground/80 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
 							href={"https://x.com/deckard_the_dev"}
 							rel="noreferrer"
 							target="_blank"
