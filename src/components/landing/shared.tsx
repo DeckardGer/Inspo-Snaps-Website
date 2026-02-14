@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useInView } from "@/hooks/use-in-view";
+import { cn } from "@/lib/utils";
 
 export const GABARITO = {
 	fontFamily: "'Gabarito Variable', sans-serif",
@@ -38,6 +39,25 @@ export function FadeIn({
 		>
 			{children}
 		</div>
+	);
+}
+
+export function CheckMark({ className }: { className?: string }) {
+	return (
+		<svg
+			className={cn("size-4 shrink-0", className)}
+			viewBox="0 0 16 16"
+			fill="none"
+			aria-hidden="true"
+		>
+			<path
+				d="M13 4.5L6.5 11 3 7.5"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
 	);
 }
 
