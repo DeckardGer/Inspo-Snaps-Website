@@ -80,7 +80,7 @@ export function LandingFooter() {
 						<img
 							alt="Deckard"
 							className="size-4 rounded-full"
-							src="/Deckard.png"
+							src="/images/about/deckard.png"
 						/>
 						Deckard
 					</a>

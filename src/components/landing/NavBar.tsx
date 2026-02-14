@@ -21,41 +21,42 @@ export function LandingNav() {
 
 	return (
 		<header
-			className={cn("sticky top-0 z-50 w-full border-transparent border-b", {
-				"border-border bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50":
-					scrolled,
-			})}
+			className={cn(
+				"fixed top-0 right-0 left-0 z-50 border-transparent border-b transition-all duration-300",
+				scrolled
+					? "border-border bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50"
+					: "bg-transparent",
+			)}
 		>
-			<nav className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4">
-				<a
-					className="flex items-center gap-2 rounded-md p-2 hover:bg-muted dark:hover:bg-muted/50"
-					href="/"
+			<nav className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-5 sm:px-8">
+				<Link
+					to="/"
+					className="flex items-center gap-2.5 rounded-md outline-offset-4 focus-visible:outline-2 focus-visible:outline-ring"
+					onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
 				>
-					<BrandLogo size={20} />
-					<span className="text-base font-bold" style={GABARITO}>
+					<BrandLogo size={28} />
+					<span className="text-lg font-bold tracking-tight" style={GABARITO}>
 						InspoSnaps
 					</span>
-				</a>
-				<div className="hidden items-center gap-2 md:flex">
+				</Link>
+				<div className="hidden items-center gap-9 md:flex">
 					{navLinks.map((link) => (
-						<Button
+						<Link
 							key={link.label}
-							size="sm"
-							variant="ghost"
-							render={<a href={link.href} />}
-							nativeButton={false}
+							to={link.href}
+							className="rounded-sm text-[13px] font-medium text-muted-foreground outline-offset-4 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
 						>
 							{link.label}
-						</Button>
+						</Link>
 					))}
-					<Button
-						size="sm"
-						variant="outline"
-						render={<Link to="/login" />}
-						nativeButton={false}
+				</div>
+				<div className="hidden items-center gap-3 md:flex">
+					<Link
+						to="/login"
+						className="rounded-sm text-[13px] font-medium text-muted-foreground outline-offset-4 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
 					>
 						Sign In
-					</Button>
+					</Link>
 					<Button size="sm" render={<Link to="/signup" />} nativeButton={false}>
 						Get Started
 					</Button>
@@ -95,7 +96,7 @@ function MobileNav() {
 				)}
 			</Button>
 			{open && (
-				<Portal className="top-14" id="mobile-menu">
+				<Portal className="top-16" id="mobile-menu">
 					<PortalBackdrop />
 					<div
 						className={cn(
@@ -110,7 +111,7 @@ function MobileNav() {
 									className="justify-start"
 									key={link.label}
 									variant="ghost"
-									render={<a href={link.href} />}
+									render={<Link to={link.href} />}
 									nativeButton={false}
 									onClick={() => setOpen(false)}
 								>
@@ -125,7 +126,7 @@ function MobileNav() {
 								render={<Link to="/login" />}
 								nativeButton={false}
 							>
-								Sign In
+								Log In
 							</Button>
 							<Button
 								className="w-full"

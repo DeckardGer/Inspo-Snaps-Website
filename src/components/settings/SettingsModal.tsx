@@ -88,9 +88,9 @@ const usernameSchema = z.object({
 // ─────────────────────────────────────────────────────────────────────────────
 
 const THEME_IMAGES: Record<UserTheme, string> = {
-	light: "/Light Mode Setting.png",
-	dark: "/Dark Mode Setting.png",
-	system: "/System Setting.png",
+	light: "/images/settings/light-mode.png",
+	dark: "/images/settings/dark-mode.png",
+	system: "/images/settings/system-mode.png",
 };
 
 function ThemeImageOption({
