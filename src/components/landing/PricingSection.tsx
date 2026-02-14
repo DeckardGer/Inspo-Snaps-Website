@@ -3,6 +3,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { CheckMark, FadeIn, GABARITO, SectionBadge } from "./shared";
 
@@ -94,35 +95,29 @@ export function PricingSection() {
 				{/* Billing toggle */}
 				<FadeIn delay={80}>
 					<div className="mt-8 flex items-center justify-center">
-						<div className="inline-flex items-center rounded-full border border-border/50 bg-muted/50 p-1">
-							<button
-								type="button"
-								className={cn(
-									"relative rounded-full px-5 py-1.5 text-[13px] font-medium transition-all duration-300",
-									billing === "monthly"
-										? "bg-background text-foreground shadow-sm"
-										: "text-muted-foreground hover:text-foreground",
-								)}
-								onClick={() => setBilling("monthly")}
-							>
-								Monthly
-							</button>
-							<button
-								type="button"
-								className={cn(
-									"relative flex items-center gap-2 rounded-full px-5 py-1.5 text-[13px] font-medium transition-all duration-300",
-									billing === "annual"
-										? "bg-background text-foreground shadow-sm"
-										: "text-muted-foreground hover:text-foreground",
-								)}
-								onClick={() => setBilling("annual")}
-							>
-								Annual
-								<span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-500">
-									Save 25%
-								</span>
-							</button>
-						</div>
+						<Tabs
+							value={billing}
+							onValueChange={(val) => setBilling(val as BillingCycle)}
+							className="gap-0"
+						>
+							<TabsList className="!h-auto rounded-full border border-border/50 bg-muted/50 p-1">
+								<TabsTrigger
+									value="monthly"
+									className="!h-auto rounded-full border-none px-5 py-1.5 text-[13px] shadow-none data-active:bg-background data-active:shadow-sm dark:data-active:bg-background dark:data-active:border-transparent"
+								>
+									Monthly
+								</TabsTrigger>
+								<TabsTrigger
+									value="annual"
+									className="!h-auto gap-2 rounded-full border-none px-5 py-1.5 text-[13px] shadow-none data-active:bg-background data-active:shadow-sm dark:data-active:bg-background dark:data-active:border-transparent"
+								>
+									Annual
+									<span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-500">
+										Save 25%
+									</span>
+								</TabsTrigger>
+							</TabsList>
+						</Tabs>
 					</div>
 				</FadeIn>
 
@@ -283,7 +278,7 @@ export function PricingSection() {
 						end-to-end encryption, and 24/7 uptime.{" "}
 						<Link
 							to="/signup"
-							className="font-medium text-primary underline-offset-4 hover:underline"
+							className="rounded-sm font-medium text-primary underline-offset-4 outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50"
 						>
 							Start with Free
 						</Link>

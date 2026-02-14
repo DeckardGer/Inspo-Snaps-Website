@@ -100,14 +100,13 @@ export function HowItWorks() {
 										}
 									`}</style>
 									<div
-										className="absolute top-0 -translate-x-1/2 -translate-y-1/2 h-0.5 w-10 rounded-full"
+										className="absolute top-0 -translate-x-1/2 -translate-y-1/2 h-0.5 w-10 rounded-full shadow-[0_0_4px_1px_color-mix(in_oklch,var(--primary)_25%,transparent),0_0_8px_3px_color-mix(in_oklch,var(--primary)_10%,transparent)] dark:shadow-[0_0_8px_2px_color-mix(in_oklch,var(--primary)_50%,transparent),0_0_16px_6px_color-mix(in_oklch,var(--primary)_20%,transparent)]"
 										style={{
 											opacity: 0,
-											animation: "hiw-pulse-travel 4.5s ease-in-out 2s infinite",
+											animation:
+												"hiw-pulse-travel 4.5s ease-in-out 2s infinite",
 											background:
 												"linear-gradient(90deg, transparent, var(--primary) 30%, var(--primary) 70%, transparent)",
-											boxShadow:
-												"0 0 8px 2px color-mix(in oklch, var(--primary) 50%, transparent), 0 0 16px 6px color-mix(in oklch, var(--primary) 20%, transparent)",
 										}}
 									/>
 								</>

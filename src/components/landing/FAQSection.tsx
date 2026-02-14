@@ -1,7 +1,11 @@
 import { Add01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from "@/components/ui/accordion";
 import { FadeIn, GABARITO, SectionBadge } from "./shared";
 
 const FAQS = [
@@ -32,8 +36,6 @@ const FAQS = [
 ] as const;
 
 export function FAQSection() {
-	const [open, setOpen] = useState<Set<number>>(new Set());
-
 	return (
 		<section id="faq" className="py-20 sm:py-28">
 			<div className="mx-auto max-w-3xl px-5 sm:px-8">
@@ -52,50 +54,29 @@ export function FAQSection() {
 					</div>
 				</FadeIn>
 
-				<div className="mt-12 space-y-3">
+				<Accordion multiple className="mt-12 space-y-3">
 					{FAQS.map((faq, i) => (
 						<FadeIn key={faq.q} delay={i * 50}>
-							<div className="overflow-hidden rounded-xl border border-border/50 bg-card/60 transition-colors hover:border-border">
-								<button
-									type="button"
-									className="flex w-full items-center justify-between px-6 py-4.5 text-left"
-									onClick={() =>
-										setOpen((prev) => {
-											const next = new Set(prev);
-											if (next.has(i)) next.delete(i);
-											else next.add(i);
-											return next;
-										})
-									}
-								>
+							<AccordionItem
+								value={String(i)}
+								className="rounded-xl border border-border/50 bg-card/60 transition-colors hover:border-border"
+							>
+								<AccordionTrigger className="items-center rounded-xl px-6 py-4.5 hover:no-underline **:data-[slot=accordion-trigger-icon]:hidden">
 									<span className="pr-4 text-[14px] font-semibold">
 										{faq.q}
 									</span>
 									<HugeiconsIcon
 										icon={Add01Icon}
-										className={cn(
-											"size-5 shrink-0 text-muted-foreground transition-transform duration-300",
-											open.has(i) && "rotate-45",
-										)}
+										className="ml-auto size-5 shrink-0 text-muted-foreground transition-transform duration-300 group-aria-expanded/accordion-trigger:rotate-45"
 									/>
-								</button>
-
-								<div
-									className="grid transition-all duration-300 ease-in-out"
-									style={{
-										gridTemplateRows: open.has(i) ? "1fr" : "0fr",
-									}}
-								>
-									<div className="overflow-hidden">
-										<p className="px-6 pb-5 text-[14px] leading-relaxed text-muted-foreground">
-											{faq.a}
-										</p>
-									</div>
-								</div>
-							</div>
+								</AccordionTrigger>
+								<AccordionContent className="px-6 pb-5 pt-0 text-[14px] leading-relaxed text-muted-foreground">
+									{faq.a}
+								</AccordionContent>
+							</AccordionItem>
 						</FadeIn>
 					))}
-				</div>
+				</Accordion>
 			</div>
 		</section>
 	);

@@ -130,9 +130,9 @@ export function HeroSection() {
 						<div className="mt-9 flex flex-wrap items-center justify-center gap-3">
 							<Link
 								to="/signup"
-								className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-md transition-all hover:bg-primary/90 hover:shadow-lg"
+								className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-md outline-none transition-all hover:bg-primary/90 hover:shadow-lg focus-visible:ring-[3px] focus-visible:ring-ring/50"
 							>
-								Start Free
+								Start free
 								<HugeiconsIcon
 									icon={ArrowRight02Icon}
 									size={16}
@@ -141,7 +141,7 @@ export function HeroSection() {
 							</Link>
 							<a
 								href="#how-it-works"
-								className="inline-flex items-center gap-2 rounded-lg border border-border/70 bg-card/50 px-5 py-2.5 text-sm font-medium text-muted-foreground backdrop-blur-sm transition-colors hover:bg-card hover:text-foreground"
+								className="inline-flex items-center gap-2 rounded-lg border border-border/70 bg-card/50 px-5 py-2.5 text-sm font-medium text-muted-foreground outline-none backdrop-blur-sm transition-colors hover:bg-card hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
 							>
 								See How It Works
 							</a>
