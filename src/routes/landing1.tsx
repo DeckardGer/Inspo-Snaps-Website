@@ -1,16 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { BenefitsSection } from "@/components/landing/BenefitsSection";
-import { FAQSection } from "@/components/landing/FAQSection";
-import { FeatureShowcase } from "@/components/landing/FeatureShowcase";
-import { FinalCTA } from "@/components/landing/FinalCTA";
-import { HeroSection } from "@/components/landing/HeroSection";
-import { HowItWorks } from "@/components/landing/HowItWorks";
-import { LandingFooter } from "@/components/landing/LandingFooter";
-import { LandingNav } from "@/components/landing/LandingNav";
-import { PricingSection } from "@/components/landing/PricingSection";
-import { SocialProof } from "@/components/landing/SocialProof";
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
+import { BenefitsSection } from "@/components/landing1/BenefitsSection";
+import { FAQSection } from "@/components/landing1/FAQSection";
+import { FeatureShowcase } from "@/components/landing1/FeatureShowcase";
+import { FinalCTA } from "@/components/landing1/FinalCTA";
+import { HeroSection } from "@/components/landing1/HeroSection";
+import { HowItWorks } from "@/components/landing1/HowItWorks";
+import { LandingFooter } from "@/components/landing1/LandingFooter";
+import { LandingNav } from "@/components/landing1/LandingNav";
+import { PricingSection } from "@/components/landing1/PricingSection";
+import { SocialProof } from "@/components/landing1/SocialProof";
+import { TestimonialsSection } from "@/components/landing1/TestimonialsSection";
 import { clientEnv } from "@/config/env/client";
 
 const CANONICAL_URL = clientEnv.VITE_BASE_URL;
