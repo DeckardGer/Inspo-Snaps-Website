@@ -22,7 +22,7 @@ export function SocialProof() {
 					{TRUSTED_BRANDS.map((brand) => (
 						<span
 							key={brand}
-							className="select-none text-lg font-semibold text-muted-foreground/30 transition-colors hover:text-muted-foreground/60"
+							className="select-none text-lg font-semibold text-muted-foreground/40 transition-colors hover:text-muted-foreground/70"
 							style={GABARITO}
 						>
 							{brand}

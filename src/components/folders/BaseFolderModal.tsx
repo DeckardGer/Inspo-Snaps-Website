@@ -5,7 +5,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useForm } from "@tanstack/react-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -120,6 +120,13 @@ export function BaseFolderModal({
 			onSubmit(value, isEditing);
 		},
 	});
+
+	// Reset form when dialog closes so it starts fresh next time
+	useEffect(() => {
+		if (!dialogOpen) {
+			form.reset();
+		}
+	}, [dialogOpen, form]);
 
 	return (
 		<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
