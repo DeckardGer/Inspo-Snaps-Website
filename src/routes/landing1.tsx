@@ -45,7 +45,7 @@ function LandingPage() {
 		document.documentElement.style.scrollBehavior = "smooth";
 		return () => {
 			document.documentElement.style.scrollBehavior = "";
-		}
+		};
 	}, []);
 
 	return (
@@ -62,5 +62,5 @@ function LandingPage() {
 			<FinalCTA />
 			<LandingFooter />
 		</div>
-	)
+	);
 }

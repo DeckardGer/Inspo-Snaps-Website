@@ -37,7 +37,7 @@ const MOCK_IMAGES = Array.from(
 
 export function HeroSection() {
 	return (
-		<section className="relative overflow-hidden pt-32 pb-16 sm:pt-40 sm:pb-24">
+		<section className="relative overflow-hidden pt-32 pb-16 sm:pt-40 sm:pb-22">
 			{/* Aurora mesh gradient */}
 			<div className="pointer-events-none absolute inset-0" aria-hidden>
 				<div className="absolute -top-[250px] -left-[5%] h-[700px] w-[700px] rounded-full bg-[#e535a0]/20 blur-[120px] dark:bg-[#e535a0]/[0.06]" />
@@ -158,7 +158,7 @@ export function HeroSection() {
 							aria-hidden
 						/>
 
-						<div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card shadow-2xl shadow-black/[0.06] dark:shadow-black/25">
+						<div className="relative select-none overflow-hidden rounded-2xl border border-border/50 bg-card shadow-2xl shadow-black/[0.06] dark:shadow-black/25">
 							{/* Title bar */}
 							<div className="flex items-center gap-2 border-b border-border/40 bg-muted/30 px-4 py-2.5">
 								<div className="flex gap-[6px]">
