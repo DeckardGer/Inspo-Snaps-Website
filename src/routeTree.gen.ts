@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as Landing3RouteImport } from './routes/landing3'
 import { Route as Landing2RouteImport } from './routes/landing2'
 import { Route as authenticatedRouteRouteImport } from './routes/(authenticated)/route'
 import { Route as authPagesRouteRouteImport } from './routes/(auth-pages)/route'
@@ -30,6 +31,11 @@ import { Route as authenticatedMyFoldersChar123FolderIdChar125RouteImport } from
 import { Route as authenticatedInviteFolderIdRouteImport } from './routes/(authenticated)/invite/$folderId'
 import { Route as authenticatedTeamFoldersOrgIdChar123FolderIdChar125RouteImport } from './routes/(authenticated)/team-folders/$orgId/{-$folderId}'
 
+const Landing3Route = Landing3RouteImport.update({
+  id: '/landing3',
+  path: '/landing3',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const Landing2Route = Landing2RouteImport.update({
   id: '/landing2',
   path: '/landing2',
@@ -141,6 +147,7 @@ const authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/landing2': typeof Landing2Route
+  '/landing3': typeof Landing3Route
   '/forgot-password': typeof authPagesForgotPasswordRoute
   '/login': typeof authPagesLoginRoute
   '/reset-password': typeof authPagesResetPasswordRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/landing2': typeof Landing2Route
+  '/landing3': typeof Landing3Route
   '/forgot-password': typeof authPagesForgotPasswordRoute
   '/login': typeof authPagesLoginRoute
   '/reset-password': typeof authPagesResetPasswordRoute
@@ -184,6 +192,7 @@ export interface FileRoutesById {
   '/(auth-pages)': typeof authPagesRouteRouteWithChildren
   '/(authenticated)': typeof authenticatedRouteRouteWithChildren
   '/landing2': typeof Landing2Route
+  '/landing3': typeof Landing3Route
   '/(auth-pages)/forgot-password': typeof authPagesForgotPasswordRoute
   '/(auth-pages)/login': typeof authPagesLoginRoute
   '/(auth-pages)/reset-password': typeof authPagesResetPasswordRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/landing2'
+    | '/landing3'
     | '/forgot-password'
     | '/login'
     | '/reset-password'
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/landing2'
+    | '/landing3'
     | '/forgot-password'
     | '/login'
     | '/reset-password'
@@ -248,6 +259,7 @@ export interface FileRouteTypes {
     | '/(auth-pages)'
     | '/(authenticated)'
     | '/landing2'
+    | '/landing3'
     | '/(auth-pages)/forgot-password'
     | '/(auth-pages)/login'
     | '/(auth-pages)/reset-password'
@@ -271,6 +283,7 @@ export interface RootRouteChildren {
   authPagesRouteRoute: typeof authPagesRouteRouteWithChildren
   authenticatedRouteRoute: typeof authenticatedRouteRouteWithChildren
   Landing2Route: typeof Landing2Route
+  Landing3Route: typeof Landing3Route
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiExtensionFoldersRoute: typeof ApiExtensionFoldersRoute
   ApiExtensionImagesRoute: typeof ApiExtensionImagesRoute
@@ -279,6 +292,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/landing3': {
+      id: '/landing3'
+      path: '/landing3'
+      fullPath: '/landing3'
+      preLoaderRoute: typeof Landing3RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/landing2': {
       id: '/landing2'
       path: '/landing2'
@@ -474,6 +494,7 @@ const rootRouteChildren: RootRouteChildren = {
   authPagesRouteRoute: authPagesRouteRouteWithChildren,
   authenticatedRouteRoute: authenticatedRouteRouteWithChildren,
   Landing2Route: Landing2Route,
+  Landing3Route: Landing3Route,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiExtensionFoldersRoute: ApiExtensionFoldersRoute,
   ApiExtensionImagesRoute: ApiExtensionImagesRoute,
