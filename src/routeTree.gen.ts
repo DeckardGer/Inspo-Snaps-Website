@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as Landing3RouteImport } from './routes/landing3'
 import { Route as Landing2RouteImport } from './routes/landing2'
+import { Route as Landing1RouteImport } from './routes/landing1'
 import { Route as authenticatedRouteRouteImport } from './routes/(authenticated)/route'
 import { Route as authPagesRouteRouteImport } from './routes/(auth-pages)/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -39,6 +40,11 @@ const Landing3Route = Landing3RouteImport.update({
 const Landing2Route = Landing2RouteImport.update({
   id: '/landing2',
   path: '/landing2',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Landing1Route = Landing1RouteImport.update({
+  id: '/landing1',
+  path: '/landing1',
   getParentRoute: () => rootRouteImport,
 } as any)
 const authenticatedRouteRoute = authenticatedRouteRouteImport.update({
@@ -146,6 +152,7 @@ const authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/landing1': typeof Landing1Route
   '/landing2': typeof Landing2Route
   '/landing3': typeof Landing3Route
   '/forgot-password': typeof authPagesForgotPasswordRoute
@@ -167,6 +174,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/landing1': typeof Landing1Route
   '/landing2': typeof Landing2Route
   '/landing3': typeof Landing3Route
   '/forgot-password': typeof authPagesForgotPasswordRoute
@@ -191,6 +199,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/(auth-pages)': typeof authPagesRouteRouteWithChildren
   '/(authenticated)': typeof authenticatedRouteRouteWithChildren
+  '/landing1': typeof Landing1Route
   '/landing2': typeof Landing2Route
   '/landing3': typeof Landing3Route
   '/(auth-pages)/forgot-password': typeof authPagesForgotPasswordRoute
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/landing1'
     | '/landing2'
     | '/landing3'
     | '/forgot-password'
@@ -235,6 +245,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/landing1'
     | '/landing2'
     | '/landing3'
     | '/forgot-password'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/'
     | '/(auth-pages)'
     | '/(authenticated)'
+    | '/landing1'
     | '/landing2'
     | '/landing3'
     | '/(auth-pages)/forgot-password'
@@ -282,6 +294,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   authPagesRouteRoute: typeof authPagesRouteRouteWithChildren
   authenticatedRouteRoute: typeof authenticatedRouteRouteWithChildren
+  Landing1Route: typeof Landing1Route
   Landing2Route: typeof Landing2Route
   Landing3Route: typeof Landing3Route
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -304,6 +317,13 @@ declare module '@tanstack/react-router' {
       path: '/landing2'
       fullPath: '/landing2'
       preLoaderRoute: typeof Landing2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/landing1': {
+      id: '/landing1'
+      path: '/landing1'
+      fullPath: '/landing1'
+      preLoaderRoute: typeof Landing1RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(authenticated)': {
@@ -493,6 +513,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   authPagesRouteRoute: authPagesRouteRouteWithChildren,
   authenticatedRouteRoute: authenticatedRouteRouteWithChildren,
+  Landing1Route: Landing1Route,
   Landing2Route: Landing2Route,
   Landing3Route: Landing3Route,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
