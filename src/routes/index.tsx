@@ -7,7 +7,7 @@ import { FinalCTA } from "@/components/landing/FinalCTA";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { LandingFooter } from "@/components/landing/LandingFooter";
-import { LandingNav } from "@/components/landing/LandingNav";
+import { LandingNav } from "@/components/landing/NavBar";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { SocialProof } from "@/components/landing/SocialProof";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
@@ -45,7 +45,7 @@ function LandingPage() {
 		document.documentElement.style.scrollBehavior = "smooth";
 		return () => {
 			document.documentElement.style.scrollBehavior = "";
-		}
+		};
 	}, []);
 
 	return (
@@ -62,5 +62,5 @@ function LandingPage() {
 			<FinalCTA />
 			<LandingFooter />
 		</div>
-	)
+	);
 }

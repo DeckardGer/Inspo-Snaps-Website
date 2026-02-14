@@ -1,6 +1,7 @@
 import { GithubIcon, NewTwitterIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Link } from "@tanstack/react-router";
+import { GABARITO } from "@/components/landing/shared";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/ui/svgs/BrandLogo";
 
@@ -24,10 +25,6 @@ const socialLinks = [
 		icon: <HugeiconsIcon icon={GithubIcon} strokeWidth={2} />,
 	},
 ];
-
-export const GABARITO = {
-	fontFamily: "'Gabarito Variable', sans-serif",
-} as const;
 
 export function LandingFooter() {
 	return (
