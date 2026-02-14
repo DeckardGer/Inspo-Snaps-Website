@@ -56,7 +56,7 @@ export function SocialProof() {
 			<p className="mb-6 text-center text-[11px] font-medium tracking-[0.2em] text-muted-foreground/50 uppercase">
 				Trusted by creative teams at
 			</p>
-			<div className="relative overflow-hidden">
+			<div className="relative mx-auto max-w-5xl overflow-hidden">
 				<div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-background to-transparent" />
 				<div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-background to-transparent" />
 
@@ -71,7 +71,7 @@ export function SocialProof() {
 							{BRANDS.map((brand) => (
 								<span
 									key={brand.name}
-									className="flex shrink-0 items-center gap-2.5 text-[17px] font-bold tracking-tight text-muted-foreground/25 transition-colors hover:text-muted-foreground/70 dark:text-muted-foreground/15 dark:hover:text-muted-foreground/60 select-none"
+									className="flex shrink-0 items-center gap-2.5 text-[17px] font-bold tracking-tight text-muted-foreground/40 transition-colors hover:text-muted-foreground/70 dark:text-muted-foreground/25 dark:hover:text-muted-foreground/60 select-none"
 									style={GABARITO}
 								>
 									<BrandIcon name={brand.name} path={brand.path} />
