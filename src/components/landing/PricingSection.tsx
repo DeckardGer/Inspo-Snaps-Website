@@ -272,7 +272,7 @@ export function PricingSection() {
 				</div>
 
 				{/* Bottom note */}
-				<FadeIn delay={500}>
+				<FadeIn delay={300}>
 					<p className="mt-10 text-center text-[13px] text-muted-foreground">
 						All prices in USD. All plans include the browser extension,
 						end-to-end encryption, and 24/7 uptime.{" "}

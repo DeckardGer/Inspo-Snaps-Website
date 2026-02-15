@@ -6,6 +6,7 @@ import {
 	AccordionItem,
 	AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useInView } from "@/hooks/use-in-view";
 import { FadeIn, GABARITO, SectionBadge } from "./shared";
 
 const FAQS = [
@@ -36,6 +37,8 @@ const FAQS = [
 ] as const;
 
 export function FAQSection() {
+	const { ref, visible } = useInView();
+
 	return (
 		<section id="faq" className="py-20 sm:py-28">
 			<div className="mx-auto max-w-3xl px-5 sm:px-8">
@@ -54,29 +57,40 @@ export function FAQSection() {
 					</div>
 				</FadeIn>
 
-				<Accordion multiple className="mt-12 space-y-3">
-					{FAQS.map((faq, i) => (
-						<FadeIn key={faq.q} delay={i * 50}>
-							<AccordionItem
-								value={String(i)}
-								className="rounded-xl border border-border/50 bg-card/60 transition-colors hover:border-border"
+				<div ref={ref}>
+					<Accordion multiple className="mt-12 space-y-3">
+						{FAQS.map((faq, i) => (
+							<div
+								key={faq.q}
+								style={{
+									opacity: visible ? 1 : 0,
+									transform: visible
+										? "translate3d(0,0,0)"
+										: "translate3d(0,28px,0)",
+									transition: `opacity 0.75s cubic-bezier(0.16,1,0.3,1) ${i * 80}ms, transform 0.75s cubic-bezier(0.16,1,0.3,1) ${i * 80}ms`,
+								}}
 							>
-								<AccordionTrigger className="items-center rounded-xl px-6 py-4.5 hover:no-underline **:data-[slot=accordion-trigger-icon]:hidden">
-									<span className="pr-4 text-[14px] font-semibold">
-										{faq.q}
-									</span>
-									<HugeiconsIcon
-										icon={Add01Icon}
-										className="ml-auto size-5 shrink-0 text-muted-foreground transition-transform duration-300 group-aria-expanded/accordion-trigger:rotate-45"
-									/>
-								</AccordionTrigger>
-								<AccordionContent className="px-6 pb-5 pt-0 text-[14px] leading-relaxed text-muted-foreground">
-									{faq.a}
-								</AccordionContent>
-							</AccordionItem>
-						</FadeIn>
-					))}
-				</Accordion>
+								<AccordionItem
+									value={String(i)}
+									className="rounded-xl border border-border/50 bg-card/60 transition-colors hover:border-border"
+								>
+									<AccordionTrigger className="items-center rounded-xl px-6 py-4.5 hover:no-underline **:data-[slot=accordion-trigger-icon]:hidden">
+										<span className="pr-4 text-[14px] font-semibold">
+											{faq.q}
+										</span>
+										<HugeiconsIcon
+											icon={Add01Icon}
+											className="ml-auto size-5 shrink-0 text-muted-foreground transition-transform duration-300 group-aria-expanded/accordion-trigger:rotate-45"
+										/>
+									</AccordionTrigger>
+									<AccordionContent className="px-6 pb-5 pt-0 text-[14px] leading-relaxed text-muted-foreground">
+										{faq.a}
+									</AccordionContent>
+								</AccordionItem>
+							</div>
+						))}
+					</Accordion>
+				</div>
 			</div>
 		</section>
 	);
