@@ -1,631 +1,290 @@
-import { type ReactNode, useCallback, useRef } from "react";
-import { cn } from "@/lib/utils";
-import { FadeIn, GABARITO, SectionBadge } from "./shared";
+import { Home07Icon, Link04Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { cn, generateUserGradient } from "@/lib/utils";
+import { CheckMark, FadeIn, GABARITO, SectionBadge } from "./shared";
 
-/* ─── BentoCard Shell ────────────────────────────────────────── */
-
-function BentoCard({
-	title,
-	description,
-	children,
-}: {
-	title: string;
-	description: string;
-	children: ReactNode;
-}) {
-	return (
-		<div data-bento-card className="group relative h-full rounded-2xl p-px">
-			{/* Default border background */}
-			<div className="absolute inset-0 rounded-2xl bg-border/60" />
-
-			{/* Mouse-tracking glow overlay — extends beyond border for corner visibility */}
-			<div
-				className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-300 group-hover/bento:opacity-100"
-				style={{
-					background:
-						"radial-gradient(500px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), color-mix(in srgb, var(--primary) 60%, transparent), transparent 40%)",
-				}}
-			/>
-
-			{/* Card content */}
-			<div className="relative flex h-full flex-col overflow-hidden rounded-[15px] bg-card">
-				<div
-					className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/[0.06] to-transparent"
-					aria-hidden
-				/>
-				<div className="px-5 pt-5 sm:px-6 sm:pt-6">
-					<h3
-						className="text-[15px] font-bold tracking-tight sm:text-base"
-						style={GABARITO}
-					>
-						{title}
-					</h3>
-					<p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground sm:text-sm">
-						{description}
-					</p>
-				</div>
-				<div className="flex flex-1 items-center justify-center overflow-hidden p-4 sm:p-5">
-					{children}
-				</div>
-			</div>
-		</div>
-	);
-}
-
-/* ─── 1. Save from Any Website ───────────────────────────────── */
-
-function SaveFromWebIllustration() {
-	return (
-		<div
-			className="relative mx-auto w-full max-w-[272px] select-none pointer-events-none"
-			aria-hidden
-		>
-			<div className="overflow-hidden rounded-lg border border-border/50 bg-background shadow-lg shadow-black/[0.05] dark:shadow-black/20">
-				{/* Browser chrome */}
-				<div className="flex items-center gap-2 border-b border-border/40 bg-muted/40 px-2.5 py-[5px]">
-					<div className="flex gap-[5px]">
-						<div className="size-[6px] rounded-full bg-[#ff5f57]/60 dark:bg-[#ff5f57]/40" />
-						<div className="size-[6px] rounded-full bg-[#febc2e]/60 dark:bg-[#febc2e]/40" />
-						<div className="size-[6px] rounded-full bg-[#28c840]/60 dark:bg-[#28c840]/40" />
-					</div>
-					<div className="flex-1 truncate rounded bg-background/60 px-2 py-[2px] text-[7px] text-muted-foreground/40">
-						dribbble.com/shots/popular
-					</div>
-				</div>
-
-				{/* Content area */}
-				<div className="relative px-2 pb-2.5">
-					{/* Floating InspoSnaps toolbar */}
-					<div className="flex justify-center py-2.5">
-						<div className="flex items-center gap-[5px] rounded-full border border-primary/20 bg-background/95 py-[3px] pl-2 pr-[3px] shadow-lg shadow-primary/[0.06] dark:bg-card/95 dark:shadow-primary/[0.12]">
-							<svg
-								aria-hidden="true"
-								className="size-[10px] shrink-0 text-primary"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="2.5"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							>
-								<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-							</svg>
-							<span className="whitespace-nowrap text-[7px] font-semibold text-foreground">
-								Photography
-							</span>
-							<svg
-								aria-hidden="true"
-								className="size-[5px] shrink-0 text-muted-foreground/50"
-								viewBox="0 0 6 6"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="1.5"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							>
-								<path d="M1 2L3 4L5 2" />
-							</svg>
-							<div className="ml-[2px] flex size-[14px] shrink-0 items-center justify-center rounded-full bg-primary">
-								<svg
-									aria-hidden="true"
-									className="size-[7px] text-primary-foreground"
-									viewBox="0 0 16 16"
-									fill="none"
-									stroke="currentColor"
-									strokeWidth="3"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								>
-									<path d="M13 4.5L6.5 11 3 7.5" />
-								</svg>
-							</div>
-						</div>
-					</div>
-
-					{/* Image grid 3×2 */}
-					<div className="relative grid grid-cols-3 gap-[5px]">
-						{[1, 2, 3, 4, 5, 6].map((n) => (
-							<div
-								key={n}
-								className={cn(
-									"relative aspect-[4/3] overflow-hidden rounded",
-									n === 4
-										? "z-10 scale-105 ring-2 ring-primary shadow-lg shadow-primary/20"
-										: "opacity-70",
-								)}
-							>
-								<img
-									src={`/landing/mock/${String(n).padStart(2, "0")}.jpg`}
-									alt=""
-									className="h-full w-full object-cover"
-								/>
-								{/* Cursor on selected image */}
-								{n === 4 && (
-									<svg
-										aria-hidden="true"
-										className="absolute bottom-0.5 right-0.5 size-4 drop-shadow-md"
-										viewBox="0 0 24 24"
-										fill="white"
-										stroke="black"
-										strokeWidth="1"
-									>
-										<path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87c.45 0 .67-.54.35-.85L5.86 2.36a.5.5 0 0 0-.36-.15z" />
-									</svg>
-								)}
-							</div>
-						))}
-					</div>
-				</div>
-			</div>
-		</div>
-	);
-}
-
-/* ─── 2. Folder Customisation ────────────────────────────────── */
-
-const FANNED_FOLDERS = [
+const MOCK_FOLDERS = [
 	{
-		emoji: "🎵",
-		bg: "bg-gradient-to-br from-orange-100 to-orange-300/80 dark:from-orange-500 dark:to-orange-700/80 dark:saturate-80",
-		fg: "bg-orange-300/70 dark:bg-orange-800/80",
-		rotate: -7,
-		x: 0,
+		name: "Buttons",
+		emoji: "🔲",
+		bg: "bg-gradient-to-br from-indigo-100 to-indigo-300/80 dark:from-indigo-500 dark:to-indigo-700/80 dark:saturate-80",
+		fg: "bg-indigo-300/70 dark:bg-indigo-800/80",
+		n: 18,
 	},
 	{
-		emoji: "📸",
-		bg: "bg-gradient-to-br from-rose-100 to-rose-300/80 dark:from-rose-500 dark:to-rose-700/80 dark:saturate-80",
-		fg: "bg-rose-300/70 dark:bg-rose-800/80",
-		rotate: -2,
-		x: 48,
-	},
-	{
+		name: "Navigation",
 		emoji: "🧭",
 		bg: "bg-gradient-to-br from-green-100 to-green-300/80 dark:from-green-500 dark:to-green-700/80 dark:saturate-80",
 		fg: "bg-green-300/70 dark:bg-green-800/80",
-		rotate: 3,
-		x: 94,
+		n: 24,
 	},
 	{
-		emoji: "🎨",
-		bg: "bg-gradient-to-br from-indigo-100 to-indigo-300/80 dark:from-indigo-500 dark:to-indigo-700/80 dark:saturate-80",
-		fg: "bg-indigo-300/70 dark:bg-indigo-800/80",
-		rotate: 7,
-		x: 140,
+		name: "Forms",
+		emoji: "📝",
+		bg: "bg-gradient-to-br from-orange-100 to-orange-300/80 dark:from-orange-500 dark:to-orange-700/80 dark:saturate-80",
+		fg: "bg-orange-300/70 dark:bg-orange-800/80",
+		n: 11,
 	},
-] as const;
+	{
+		name: "Cards",
+		emoji: "🃏",
+		bg: "bg-gradient-to-br from-rose-100 to-rose-300/80 dark:from-rose-500 dark:to-rose-700/80 dark:saturate-80",
+		fg: "bg-rose-300/70 dark:bg-rose-800/80",
+		n: 33,
+	},
+];
 
-function FolderCustomIllustration() {
+function FoldersMockup() {
 	return (
-		<div
-			className="flex items-center justify-center select-none pointer-events-none"
-			aria-hidden
-		>
-			<div className="relative h-[72px] w-[220px]">
-				{FANNED_FOLDERS.map((card, i) => (
-					<div
-						key={card.emoji}
-						className={cn(
-							"absolute top-1/2 h-[52px] w-[80px] rounded-xl shadow-md",
-							card.bg,
-						)}
-						style={{
-							left: card.x,
-							transform: `translateY(-50%) rotate(${card.rotate}deg)`,
-							zIndex: i,
-						}}
-					>
-						<div className="flex h-full flex-col items-center justify-center">
+		<div className="relative">
+			{/* Glow behind mockup */}
+			<div
+				className="absolute -inset-6 rounded-3xl bg-gradient-to-br from-[#818cf8]/12 via-[#6366f1]/6 to-[#4f46e5]/8 blur-2xl dark:from-[#818cf8]/6 dark:via-[#6366f1]/3 dark:to-[#4f46e5]/4"
+				aria-hidden
+			/>
+
+			<div className="relative select-none overflow-hidden rounded-xl border border-border/50 bg-background shadow-lg shadow-primary/[0.04]">
+				{/* Navbar with breadcrumbs */}
+				<div className="flex items-center border-b border-border/40 bg-card px-3 py-2 text-[10px] text-muted-foreground">
+					<div className="flex items-center gap-1">
+						<HugeiconsIcon
+							icon={Home07Icon}
+							size={12}
+							strokeWidth={2}
+							className="text-muted-foreground/50"
+						/>
+						<span className="mx-0.5 text-border">/</span>
+						<span>My Folders</span>
+						<span className="mx-0.5 text-border">/</span>
+						<span>Design</span>
+						<span className="mx-0.5 text-border">/</span>
+						<span className="font-medium text-foreground">UI Patterns</span>
+					</div>
+				</div>
+
+				{/* Folder section label */}
+				<div className="px-3">
+					<span className="text-[10px] font-medium text-muted-foreground">
+						Folders
+					</span>
+				</div>
+
+				{/* Folder grid */}
+				<div className="grid grid-cols-2 gap-3 p-3 pt-2">
+					{MOCK_FOLDERS.map((f) => (
+						<div key={f.name} className="rounded-xl bg-card shadow-md">
 							<div
 								className={cn(
-									"flex size-7 items-center justify-center rounded-full",
-									card.fg,
+									"flex h-28 items-center justify-center rounded-xl",
+									f.bg,
 								)}
 							>
-								<span className="text-sm drop-shadow-sm">{card.emoji}</span>
+								<div
+									className={cn(
+										"flex size-12 items-center justify-center rounded-full",
+										f.fg,
+									)}
+								>
+									<span className="text-xl leading-none">{f.emoji}</span>
+								</div>
+							</div>
+							<div className="m-2">
+								<div className="flex items-center justify-between">
+									<span className="text-[11px] font-semibold">{f.name}</span>
+									<span className="text-[10px] font-medium text-muted-foreground">
+										{f.n}
+									</span>
+								</div>
 							</div>
 						</div>
-					</div>
-				))}
+					))}
+				</div>
 			</div>
 		</div>
 	);
 }
 
-/* ─── 3. Share in One Click ──────────────────────────────────── */
+const MOCK_SHARED_USERS = [
+	{ name: "Sarah Chen", status: "accepted" },
+	{ name: "Aisha Patel", status: "pending" },
+];
 
-function ShareLinkIllustration() {
+function SharingMockup() {
 	return (
-		<div
-			className="relative mx-auto w-full max-w-[248px] select-none pointer-events-none"
-			aria-hidden
-		>
-			<div className="space-y-2.5">
-				{/* Link field */}
-				<div className="flex items-center gap-2 rounded-lg border border-border/50 bg-background px-2.5 py-[7px] shadow-sm">
-					<svg
-						aria-hidden="true"
-						className="size-3 shrink-0 text-muted-foreground/50"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					>
-						<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-						<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-					</svg>
-					<span className="flex-1 truncate text-[8px] text-muted-foreground/60">
-						insposnaps.com/s/a8k2xR...
-					</span>
-					<svg
-						aria-hidden="true"
-						className="size-2.5 shrink-0 text-muted-foreground/40"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					>
-						<rect width="14" height="14" x="8" y="8" rx="2" />
-						<path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-					</svg>
+		<div className="relative">
+			{/* Glow behind mockup */}
+			<div
+				className="absolute -inset-6 rounded-3xl bg-gradient-to-br from-[#e535a0]/10 via-[#8b5cf6]/6 to-[#6366f1]/8 blur-2xl dark:from-[#e535a0]/5 dark:via-[#8b5cf6]/3 dark:to-[#6366f1]/4"
+				aria-hidden
+			/>
+
+			<div className="relative select-none overflow-hidden rounded-xl border border-border/50 bg-background shadow-lg shadow-primary/[0.04]">
+				{/* Dialog header */}
+				<div className="px-4 pt-4 pb-3">
+					<p className="text-xs font-semibold">Share "Design Refs"</p>
+					<p className="mt-0.5 text-[10px] text-muted-foreground">
+						Create a link or share with specific users.
+					</p>
 				</div>
 
-				{/* Success toast */}
-				<div className="flex justify-center">
-					<div className="inline-flex items-center gap-1 rounded-full bg-emerald-100/80 px-2.5 py-[3px] text-[8px] font-medium text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
-						<svg
-							aria-hidden="true"
-							className="size-2"
-							viewBox="0 0 16 16"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2.5"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						>
-							<path d="M13 4.5L6.5 11 3 7.5" />
-						</svg>
-						Link copied!
+				<div className="space-y-3 px-4 pb-4">
+					{/* Generate link section */}
+					<div className="flex items-center gap-2.5 rounded-xl bg-muted/50 p-2.5">
+						<div className="flex size-8 shrink-0 items-center justify-center rounded-lg border bg-background">
+							<HugeiconsIcon icon={Link04Icon} size={14} strokeWidth={2} />
+						</div>
+						<div className="min-w-0 flex-1">
+							<p className="text-[10px] font-medium">Shareable link</p>
+							<p className="text-[9px] text-muted-foreground">
+								Generate a read-only link
+							</p>
+						</div>
+						<div className="shrink-0 rounded-md bg-primary px-2.5 py-1 text-[9px] font-semibold text-primary-foreground">
+							Generate
+						</div>
 					</div>
-				</div>
 
-				{/* Separator */}
-				<div className="h-px bg-border/40" />
+					{/* Separator */}
+					<div className="h-px bg-border" />
 
-				{/* Preview card */}
-				<div className="flex items-center gap-2.5 rounded-lg border border-border/50 bg-background p-2.5 shadow-sm">
-					<div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-100 to-indigo-300/80 dark:from-indigo-500/80 dark:to-indigo-700/60">
-						<span className="text-sm">🎨</span>
+					{/* Invite people */}
+					<div>
+						<p className="mb-1.5 text-[10px] font-medium">Invite people</p>
+						<div className="flex gap-1.5">
+							<div className="min-w-0 flex-1 rounded-md border px-2.5 py-1.5 text-[9px] text-muted-foreground/50">
+								Email or username
+							</div>
+							<div className="shrink-0 rounded-md bg-primary px-2.5 py-1.5 text-[9px] font-semibold text-primary-foreground">
+								Invite
+							</div>
+						</div>
 					</div>
-					<div className="min-w-0 flex-1">
-						<p className="text-[9px] font-semibold text-foreground">
-							Design Refs
+
+					{/* Shared users */}
+					<div>
+						<p className="mb-1.5 text-[9px] text-muted-foreground">
+							2 people have access
 						</p>
-						<p className="text-[7px] text-muted-foreground/60">24 images</p>
-					</div>
-					<svg
-						aria-hidden="true"
-						className="size-3 shrink-0 text-muted-foreground/25"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					>
-						<path d="M9 18l6-6-6-6" />
-					</svg>
-				</div>
-			</div>
-		</div>
-	);
-}
-
-/* ─── 4. Built for Teams ─────────────────────────────────────── */
-
-const TEAM_AVATARS = [
-	{ gradient: "from-rose-400 to-pink-500", initials: "JD" },
-	{ gradient: "from-sky-400 to-blue-500", initials: "SK" },
-	{ gradient: "from-amber-400 to-orange-500", initials: "AM" },
-	{ gradient: "from-emerald-400 to-teal-500", initials: "LW" },
-] as const;
-
-const ROLE_BADGES = [
-	{
-		label: "Owner",
-		cls: "bg-primary/10 text-primary border-primary/20",
-	},
-	{
-		label: "Editor",
-		cls: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
-	},
-	{
-		label: "Viewer",
-		cls: "bg-muted text-muted-foreground border-border/50",
-	},
-] as const;
-
-function TeamAvatarsIllustration() {
-	return (
-		<div
-			className="flex flex-col items-center gap-3.5 select-none pointer-events-none"
-			aria-hidden
-		>
-			{/* Overlapping avatars */}
-			<div className="flex justify-center">
-				<div className="flex -space-x-2.5">
-					{TEAM_AVATARS.map((avatar, i) => (
-						<div
-							key={avatar.initials}
-							className={cn(
-								"flex size-10 items-center justify-center rounded-full bg-gradient-to-br ring-2 ring-card",
-								avatar.gradient,
-							)}
-							style={{ zIndex: TEAM_AVATARS.length - i }}
-						>
-							<span className="text-[10px] font-bold text-white/90">
-								{avatar.initials}
-							</span>
-						</div>
-					))}
-				</div>
-			</div>
-
-			{/* Role badges */}
-			<div className="flex items-center gap-1.5">
-				{ROLE_BADGES.map((r) => (
-					<span
-						key={r.label}
-						className={cn(
-							"rounded-full border px-2 py-[2px] text-[7px] font-semibold",
-							r.cls,
-						)}
-					>
-						{r.label}
-					</span>
-				))}
-			</div>
-		</div>
-	);
-}
-
-/* ─── 5. Private by Default ──────────────────────────────────── */
-
-function PrivateByDefaultIllustration() {
-	return (
-		<div
-			className="relative flex items-center justify-center select-none pointer-events-none"
-			aria-hidden
-		>
-			{/* Outer glow */}
-			<div className="absolute inset-0 flex items-center justify-center">
-				<div className="size-40 rounded-full bg-primary/[0.08] blur-2xl dark:bg-primary/[0.15]" />
-			</div>
-			<div className="absolute inset-0 flex items-center justify-center">
-				<div className="size-24 rounded-full bg-primary/[0.12] blur-xl dark:bg-primary/[0.2]" />
-			</div>
-
-			<div className="relative flex flex-col items-center">
-				{/* Lock shackle */}
-				<div className="relative z-10 mx-auto h-[44px] w-[44px]">
-					<div className="absolute inset-x-[4px] top-0 h-full rounded-t-full border-[5px] border-primary/70 border-b-0 dark:border-primary/50" />
-				</div>
-
-				{/* Lock body */}
-				<div className="relative mt-[0.5px] flex h-[54px] w-[64px] items-center justify-center rounded-xl bg-gradient-to-b from-primary/80 to-primary shadow-lg shadow-primary/20 dark:from-primary/60 dark:to-primary/80 dark:shadow-primary/30">
-					{/* Face plate highlight */}
-					<div className="absolute inset-x-1.5 top-1.5 h-3 rounded-t-lg bg-white/[0.08]" />
-
-					{/* Keyhole */}
-					<div className="relative flex flex-col items-center">
-						<div className="size-3 rounded-full bg-background/90 dark:bg-background/80" />
-						<div className="-mt-[2px] h-2.5 w-[5px] rounded-b-sm bg-background/90 dark:bg-background/80" />
-					</div>
-
-					{/* Bottom edge highlight */}
-					<div className="absolute inset-x-1.5 bottom-1.5 h-px bg-white/[0.06]" />
-				</div>
-			</div>
-		</div>
-	);
-}
-
-/* ─── 6. Sync Everywhere ─────────────────────────────────────── */
-
-function DeviceSyncIllustration() {
-	return (
-		<div
-			className="flex items-center justify-center gap-3 select-none pointer-events-none"
-			aria-hidden
-		>
-			{/* Laptop — landscape screen */}
-			<div className="flex flex-col items-center">
-				<div className="w-[120px] overflow-hidden rounded-t-md border border-border/50 bg-background shadow-sm">
-					<div className="border-b border-border/30 bg-muted/30 px-1.5 py-[3px]">
-						<div className="flex gap-[3px]">
-							<div className="size-[4px] rounded-full bg-muted-foreground/20" />
-							<div className="size-[4px] rounded-full bg-muted-foreground/20" />
-							<div className="size-[4px] rounded-full bg-muted-foreground/20" />
+						<div className="space-y-1.5">
+							{MOCK_SHARED_USERS.map((u) => {
+								const g = generateUserGradient(u.name);
+								return (
+									<div
+										key={u.name}
+										className="flex items-center gap-2 rounded-lg border p-2"
+									>
+										<div
+											className="size-5 shrink-0 rounded-full"
+											style={{ background: g.css }}
+										/>
+										<span className="min-w-0 flex-1 text-[10px] font-medium">
+											{u.name}
+										</span>
+										<span
+											className={cn(
+												"rounded-full border px-1.5 py-0.5 text-[8px] font-medium",
+												u.status === "accepted"
+													? "text-green-500"
+													: "text-muted-foreground",
+											)}
+										>
+											{u.status === "accepted" ? "Accepted" : "Pending"}
+										</span>
+									</div>
+								);
+							})}
 						</div>
 					</div>
-					<div className="grid grid-cols-3 gap-[2px] p-[3px]">
-						{[7, 8, 9, 10, 11, 12].map((n) => (
-							<div
-								key={n}
-								className="aspect-[4/3] overflow-hidden rounded-[2px]"
-							>
-								<img
-									src={`/landing/mock/${String(n).padStart(2, "0")}.jpg`}
-									alt=""
-									className="h-full w-full object-cover"
-								/>
-							</div>
-						))}
-					</div>
 				</div>
-				<div className="h-[4px] w-[136px] rounded-b-sm border-x border-b border-border/40 bg-muted/40" />
-			</div>
-
-			{/* Sync arrows — vertically stacked for proper alignment */}
-			<div className="flex flex-col items-center gap-1">
-				<svg
-					aria-hidden="true"
-					className="h-2.5 w-7 text-primary"
-					viewBox="0 0 28 10"
-					fill="none"
-					stroke="currentColor"
-					strokeWidth="1.5"
-					strokeLinecap="round"
-					strokeLinejoin="round"
-				>
-					<path d="M0 5h22" />
-					<path d="M19 2l4 3-4 3" />
-				</svg>
-				<svg
-					aria-hidden="true"
-					className="h-2.5 w-7 text-primary"
-					viewBox="0 0 28 10"
-					fill="none"
-					stroke="currentColor"
-					strokeWidth="1.5"
-					strokeLinecap="round"
-					strokeLinejoin="round"
-				>
-					<path d="M28 5H6" />
-					<path d="M9 2L5 5l4 3" />
-				</svg>
-			</div>
-
-			{/* Phone — portrait screen */}
-			<div className="w-[48px] overflow-hidden rounded-lg border border-border/50 bg-background shadow-sm">
-				<div className="flex justify-center py-[3px]">
-					<div className="h-[2px] w-4 rounded-full bg-muted-foreground/15" />
-				</div>
-				<div className="grid grid-cols-2 gap-[2px] px-[3px] pb-[3px]">
-					{[7, 8, 9, 10, 11, 12].map((n) => (
-						<div
-							key={n}
-							className="aspect-square overflow-hidden rounded-[2px]"
-						>
-							<img
-								src={`/landing/mock/${String(n).padStart(2, "0")}.jpg`}
-								alt=""
-								className="h-full w-full object-cover"
-							/>
-						</div>
-					))}
-				</div>
-				<div className="h-[4px]" />
 			</div>
 		</div>
 	);
 }
-
-/* ─── Section ────────────────────────────────────────────────── */
 
 export function BenefitsSection() {
-	const gridRef = useRef<HTMLDivElement>(null);
-
-	const handleMouseMove = useCallback((e: React.MouseEvent) => {
-		const cards =
-			gridRef.current?.querySelectorAll<HTMLElement>("[data-bento-card]");
-		cards?.forEach((card) => {
-			const rect = card.getBoundingClientRect();
-			card.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
-			card.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
-		});
-	}, []);
-
 	return (
-		<section className="py-20 sm:py-28">
-			<div className="mx-auto max-w-6xl px-5 sm:px-8">
-				{/* Section header */}
-				<FadeIn>
-					<div className="mx-auto max-w-2xl text-center">
-						<SectionBadge>Features</SectionBadge>
-						<h2
-							className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.75rem]"
-							style={GABARITO}
+		<section className="py-24 sm:py-32">
+			<div className="mx-auto max-w-7xl px-5 sm:px-8">
+				{/* Feature 1 — Smart Organization */}
+				<FadeIn className="mb-28">
+					<div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
+						<div className="lg:order-1">
+							<SectionBadge>Smart Organization</SectionBadge>
+							<h3
+								className="mt-5 text-2xl font-bold tracking-tight sm:text-3xl"
+								style={GABARITO}
+							>
+								Folders That Actually
+								<br />
+								Make Sense
+							</h3>
+							<p className="mt-4 text-muted-foreground">
+								Build your own organizational hierarchy that mirrors how you
+								think. Nest folders as deep as you need, personalize with colors
+								and emojis, and find anything instantly.
+							</p>
+							<ul className="mt-6 space-y-3">
+								{[
+									"Unlimited nesting depth for complex projects",
+									"9 beautiful colors to categorize visually",
+									"Add emojis for instant recognition",
+									"One image can live in multiple folders",
+								].map((item) => (
+									<li key={item} className="flex items-start gap-3 text-sm">
+										<CheckMark className="mt-0.5 text-primary" />
+										<span className="text-muted-foreground">{item}</span>
+									</li>
+								))}
+							</ul>
+						</div>
+						<FadeIn
+							direction="left"
+							className="mx-auto w-full max-w-[576px] lg:mx-0 lg:order-2"
 						>
-							Everything you need, nothing you don't
-						</h2>
-						<p className="mt-3 text-base text-muted-foreground">
-							Powerful tools to capture, organize, and share your visual
-							inspiration.
-						</p>
+							<FoldersMockup />
+						</FadeIn>
 					</div>
 				</FadeIn>
 
-				{/* Staggered 3-column bento */}
-				{/* biome-ignore lint/a11y/noStaticElementInteractions: decorative mouse tracking for border glow effect */}
-				<div
-					ref={gridRef}
-					className="group/bento mt-14 grid grid-cols-1 gap-4 lg:grid-cols-3"
-					onMouseMove={handleMouseMove}
-				>
-					{/* Column 1 — 3:2 split */}
-					<div className="flex flex-col gap-4">
-						<FadeIn className="lg:flex-[3] lg:min-h-0">
-							<BentoCard
-								title="Save from Any Website"
-								description="Browse the web as usual. When something catches your eye, activate the toolbar and click to save — straight to any folder, from any site."
-							>
-								<SaveFromWebIllustration />
-							</BentoCard>
+				{/* Feature 2 — Collaboration */}
+				<FadeIn>
+					<div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
+						<FadeIn
+							direction="right"
+							className="order-2 mx-auto w-full max-w-[576px] lg:mx-0 lg:order-1"
+						>
+							<SharingMockup />
 						</FadeIn>
-						<FadeIn delay={80} className="lg:flex-[2] lg:min-h-0">
-							<BentoCard
-								title="Built for Teams"
-								description="Create workspaces, invite your team, and assign Viewer or Editor roles to keep everyone in sync."
+						<div className="order-1 lg:order-2">
+							<SectionBadge>Collaboration</SectionBadge>
+							<h3
+								className="mt-5 text-2xl font-bold tracking-tight sm:text-3xl"
+								style={GABARITO}
 							>
-								<TeamAvatarsIllustration />
-							</BentoCard>
-						</FadeIn>
+								Sharing Made
+								<br />
+								Effortless
+							</h3>
+							<p className="mt-4 text-muted-foreground">
+								Share your curated collections with a single link, or invite
+								specific people to collaborate. Control who sees what, and keep
+								your creative process flowing.
+							</p>
+							<ul className="mt-6 space-y-3">
+								{[
+									"One-click shareable links for any collection",
+									"Invite collaborators by username",
+									"Real-time status tracking for invites",
+								].map((item) => (
+									<li key={item} className="flex items-start gap-3 text-sm">
+										<CheckMark className="mt-0.5 text-primary" />
+										<span className="text-muted-foreground">{item}</span>
+									</li>
+								))}
+							</ul>
+						</div>
 					</div>
-
-					{/* Column 2 — 2:3 split */}
-					<div className="flex flex-col gap-4">
-						<FadeIn delay={100} className="lg:flex-[2] lg:min-h-0">
-							<BentoCard
-								title="Make It Yours"
-								description="Nest folders as deep as you need, pick from 9 colors, and add emojis for instant recognition."
-							>
-								<FolderCustomIllustration />
-							</BentoCard>
-						</FadeIn>
-						<FadeIn delay={180} className="lg:flex-[3] lg:min-h-0">
-							<BentoCard
-								title="Share in One Click"
-								description="Generate a link to any collection and share it instantly. No sign-up required to view."
-							>
-								<ShareLinkIllustration />
-							</BentoCard>
-						</FadeIn>
-					</div>
-
-					{/* Column 3 — 3:2 split */}
-					<div className="flex flex-col gap-4">
-						<FadeIn delay={200} className="lg:flex-[3] lg:min-h-0">
-							<BentoCard
-								title="Private by Default"
-								description="Your collections are yours. Nothing is public unless you explicitly choose to share it."
-							>
-								<PrivateByDefaultIllustration />
-							</BentoCard>
-						</FadeIn>
-						<FadeIn delay={280} className="lg:flex-[2] lg:min-h-0">
-							<BentoCard
-								title="Sync Everywhere"
-								description="Save on your laptop, browse on your phone. Your collections follow you across every device."
-							>
-								<DeviceSyncIllustration />
-							</BentoCard>
-						</FadeIn>
-					</div>
-				</div>
+				</FadeIn>
 			</div>
 		</section>
 	);

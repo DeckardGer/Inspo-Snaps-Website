@@ -53,9 +53,9 @@ function LandingPage() {
 			<LandingNav />
 			<HeroSection />
 			<SocialProof />
-			<BenefitsSection />
-			<HowItWorks />
 			<FeatureShowcase />
+			<HowItWorks />
+			<BenefitsSection />
 			<PricingSection />
 			<TestimonialsSection />
 			<FAQSection />
