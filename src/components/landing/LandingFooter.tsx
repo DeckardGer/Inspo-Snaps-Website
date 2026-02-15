@@ -1,9 +1,21 @@
-import { GithubIcon, NewTwitterIcon } from "@hugeicons/core-free-icons";
+import {
+	ComputerIcon,
+	GithubIcon,
+	Moon02Icon,
+	NewTwitterIcon,
+	Sun03Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Link } from "@tanstack/react-router";
 import { GABARITO } from "@/components/landing/shared";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/ui/svgs/BrandLogo";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { type UserTheme, useTheme } from "@/lib/ThemeProvider";
 
 const navLinks = [
 	{ href: "#features", label: "Features" },
@@ -26,7 +38,19 @@ const socialLinks = [
 	},
 ];
 
+const themeCycle: Record<
+	UserTheme,
+	{ next: UserTheme; icon: typeof Sun03Icon; label: string }
+> = {
+	light: { next: "dark", icon: Sun03Icon, label: "Switch to dark mode" },
+	dark: { next: "system", icon: Moon02Icon, label: "Switch to system theme" },
+	system: { next: "light", icon: ComputerIcon, label: "Switch to light mode" },
+};
+
 export function LandingFooter() {
+	const { userTheme, setTheme } = useTheme();
+	const current = themeCycle[userTheme];
+
 	return (
 		<footer className="border-t border-border/40">
 			<div className="mx-auto max-w-5xl *:px-4 *:md:px-6">
@@ -39,6 +63,25 @@ export function LandingFooter() {
 							</span>
 						</div>
 						<div className="flex items-center">
+							<Tooltip>
+								<TooltipTrigger
+									render={
+										<Button
+											size="icon-sm"
+											variant="ghost"
+											onClick={() => setTheme(current.next)}
+											aria-label={current.label}
+										>
+											<HugeiconsIcon
+												icon={current.icon}
+												strokeWidth={2}
+											/>
+										</Button>
+									}
+								/>
+								<TooltipContent>Toggle theme</TooltipContent>
+							</Tooltip>
+							<div className="mx-1.5 h-4 w-px bg-border/50" />
 							{socialLinks.map(({ href, label, icon }) => (
 								<Button
 									key={label}
