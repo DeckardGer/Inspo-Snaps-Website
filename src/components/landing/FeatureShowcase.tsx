@@ -400,33 +400,30 @@ function PrivateByDefaultIllustration() {
 			className="relative flex items-center justify-center select-none pointer-events-none"
 			aria-hidden
 		>
-			{/* Outer glow */}
-			<div className="absolute inset-0 flex items-center justify-center">
-				<div className="size-40 rounded-full bg-primary/[0.08] blur-2xl dark:bg-primary/[0.15]" />
-			</div>
-			<div className="absolute inset-0 flex items-center justify-center">
-				<div className="size-24 rounded-full bg-primary/[0.12] blur-xl dark:bg-primary/[0.2]" />
+			{/* Glow behind lock */}
+			<div className="absolute inset-0 flex items-center justify-center translate-y-3">
+				<div className="size-20 rounded-full bg-primary/[0.12] blur-xl dark:bg-primary/[0.2]" />
 			</div>
 
 			<div className="relative flex flex-col items-center">
 				{/* Lock shackle */}
-				<div className="relative z-10 mx-auto h-[44px] w-[44px]">
-					<div className="absolute inset-x-[4px] top-0 h-full rounded-t-full border-[5px] border-primary/70 border-b-0 dark:border-primary/50" />
+				<div className="relative z-10 mx-auto h-[56px] w-[56px]">
+					<div className="absolute inset-x-[5px] top-0 h-full rounded-t-full border-[6px] border-primary/70 border-b-0 dark:border-primary/50" />
 				</div>
 
 				{/* Lock body */}
-				<div className="relative mt-[0.5px] flex h-[54px] w-[64px] items-center justify-center rounded-xl bg-gradient-to-b from-primary/80 to-primary shadow-lg shadow-primary/20 dark:from-primary/60 dark:to-primary/80 dark:shadow-primary/30">
+				<div className="relative flex h-[68px] w-[82px] items-center justify-center rounded-xl bg-gradient-to-b from-primary/80 to-primary shadow-lg shadow-primary/20 dark:from-primary/60 dark:to-primary/80 dark:shadow-primary/30">
 					{/* Face plate highlight */}
-					<div className="absolute inset-x-1.5 top-1.5 h-3 rounded-t-lg bg-white/[0.08]" />
+					<div className="absolute inset-x-2 top-2 h-4 rounded-t-lg bg-white/[0.08]" />
 
 					{/* Keyhole */}
 					<div className="relative flex flex-col items-center">
-						<div className="size-3 rounded-full bg-background/90 dark:bg-background/80" />
-						<div className="-mt-[2px] h-2.5 w-[5px] rounded-b-sm bg-background/90 dark:bg-background/80" />
+						<div className="size-4 rounded-full bg-background/90 dark:bg-background/80" />
+						<div className="-mt-[3px] h-3.5 w-[7px] rounded-b-sm bg-background/90 dark:bg-background/80" />
 					</div>
 
 					{/* Bottom edge highlight */}
-					<div className="absolute inset-x-1.5 bottom-1.5 h-px bg-white/[0.06]" />
+					<div className="absolute inset-x-2 bottom-2 h-px bg-white/[0.06]" />
 				</div>
 			</div>
 		</div>
