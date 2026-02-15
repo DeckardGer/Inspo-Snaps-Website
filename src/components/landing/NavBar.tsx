@@ -1,5 +1,6 @@
-import { Cancel01Icon, Menu01Icon } from "@hugeicons/core-free-icons";
+import { ArrowRight02Icon, Cancel01Icon, Menu01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import React from "react";
 import { GABARITO } from "@/components/landing/shared";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Portal, PortalBackdrop } from "@/components/ui/portal";
 import { BrandLogo } from "@/components/ui/svgs/BrandLogo";
 import { useScroll } from "@/hooks/use-scroll";
+import { authQueryOptions } from "@/lib/auth/queries";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -16,8 +18,12 @@ const navLinks = [
 	{ label: "FAQ", href: "#faq" },
 ];
 
+const dashboardRoute = "/my-folders/{-$folderId}" as const;
+const dashboardParams = { folderId: undefined } as const;
+
 export function LandingNav() {
 	const scrolled = useScroll(10);
+	const { data: user } = useQuery(authQueryOptions());
 
 	return (
 		<header
@@ -51,23 +57,46 @@ export function LandingNav() {
 					))}
 				</div>
 				<div className="hidden items-center gap-3 md:flex">
-					<Link
-						to="/login"
-						className="rounded-sm text-[13px] font-medium text-muted-foreground outline-offset-4 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
-					>
-						Sign In
-					</Link>
-					<Button size="sm" render={<Link to="/signup" />} nativeButton={false}>
-						Get Started
-					</Button>
+					{user ? (
+						<Button
+							size="sm"
+							render={
+								<Link to={dashboardRoute} params={dashboardParams} />
+							}
+							nativeButton={false}
+						>
+							Dashboard
+							<HugeiconsIcon
+								icon={ArrowRight02Icon}
+								size={15}
+								strokeWidth={2}
+							/>
+						</Button>
+					) : (
+						<>
+							<Link
+								to="/login"
+								className="rounded-sm text-[13px] font-medium text-muted-foreground outline-offset-4 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+							>
+								Log In
+							</Link>
+							<Button
+								size="sm"
+								render={<Link to="/signup" />}
+								nativeButton={false}
+							>
+								Get Started
+							</Button>
+						</>
+					)}
 				</div>
-				<MobileNav />
+				<MobileNav isLoggedIn={!!user} />
 			</nav>
 		</header>
 	);
 }
 
-function MobileNav() {
+function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
 	const [open, setOpen] = React.useState(false);
 
 	return (
@@ -120,21 +149,43 @@ function MobileNav() {
 							))}
 						</div>
 						<div className="mt-12 flex flex-col gap-2">
-							<Button
-								className="w-full"
-								variant="outline"
-								render={<Link to="/login" />}
-								nativeButton={false}
-							>
-								Log In
-							</Button>
-							<Button
-								className="w-full"
-								render={<Link to="/signup" />}
-								nativeButton={false}
-							>
-								Get Started
-							</Button>
+							{isLoggedIn ? (
+								<Button
+									className="w-full"
+									render={
+										<Link
+											to={dashboardRoute}
+											params={dashboardParams}
+										/>
+									}
+									nativeButton={false}
+								>
+									Dashboard
+									<HugeiconsIcon
+										icon={ArrowRight02Icon}
+										size={15}
+										strokeWidth={2}
+									/>
+								</Button>
+							) : (
+								<>
+									<Button
+										className="w-full"
+										variant="outline"
+										render={<Link to="/login" />}
+										nativeButton={false}
+									>
+										Log In
+									</Button>
+									<Button
+										className="w-full"
+										render={<Link to="/signup" />}
+										nativeButton={false}
+									>
+										Get Started
+									</Button>
+								</>
+							)}
 						</div>
 					</div>
 				</Portal>
