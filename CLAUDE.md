@@ -8,6 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
+**Note:** Do NOT run `pnpm dev` or `pnpm build`.
+
 ```bash
 # Install dependencies
 pnpm install

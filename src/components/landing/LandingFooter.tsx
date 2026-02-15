@@ -72,10 +72,7 @@ export function LandingFooter() {
 											onClick={() => setTheme(current.next)}
 											aria-label={current.label}
 										>
-											<HugeiconsIcon
-												icon={current.icon}
-												strokeWidth={2}
-											/>
+											<HugeiconsIcon icon={current.icon} strokeWidth={2} />
 										</Button>
 									}
 								/>
