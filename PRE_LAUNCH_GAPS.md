@@ -13,6 +13,7 @@ What's left before launching InspoSnaps.
 | 3 | **Payments / subscriptions** | Critical | No billing integration. Pricing page exists but isn't wired to anything. |
 | 4 | **Account deletion / data export** | High | No way for users to delete account or export data. May be a legal requirement (GDPR, CCPA). |
 | 5 | **Application logging** | High | Only a single `console.log` in the entire backend. Need structured logging for production debugging. |
+| 6 | **Local folder & image viewing** | High | No way to view folders and images stored locally. Need to be able to browse and view content without requiring S3/cloud storage. |
 
 ---
 
@@ -20,37 +21,37 @@ What's left before launching InspoSnaps.
 
 | # | Item | Priority | Notes |
 |---|------|----------|-------|
-| 6 | **Search / command palette (Cmd+K)** | Medium | See [detail](#6-search--command-palette). |
-| 7 | **Move folder UI** | Medium | See [detail](#7-move-folder-ui). |
-| 8 | **Move / copy images between folders** | Medium | Backend `addImageToFolder()` / `removeImageFromFolder()` exist but no folder picker UI. Shares the folder picker component with #7. |
-| 9 | **Email templates styling** | Medium | Current templates are inline HTML/CSS strings. Could refactor to React Email for maintainability. |
-| 10 | **User onboarding flow** | Medium | No guided tour or wizard. Only empty state CTAs ("Create your first folder"). |
-| 11 | **Image caching improvements** | Medium | See [detail](#11-image-caching-improvements). |
-| 12 | **Settings page polish** | Medium | Storage usage calculation, confirmation dialogs for danger zone actions, mobile layout improvements. Review progress/switch/radio-group component styling. |
-| 13 | **Bulk operations** | Low | No multi-select, bulk delete, bulk move, or select-all in gallery. |
-| 14 | **Email change** | Low | Field is displayed but disabled in settings. Better Auth supports `changeEmail` — straightforward to add. |
-| 15 | **2FA / MFA** | Low | Low risk profile (image collections). Better Auth `twoFactor` plugin makes this easy to add as opt-in. |
-| 16 | **OAuth account linking / unlinking** | Low | Can't link/unlink Google account from settings. |
-| 17 | **Account lockout after failed attempts** | Low | Rate limiting covers most abuse; lockout is an extra layer. |
-| 18 | **Auth audit logging** | Low | No logging for login attempts, password changes, or suspicious activity. |
-| 19 | **Share link password protection** | Low | Share links have expiration but no optional password. |
-| 20 | **Folder download as ZIP** | Low | No way to download a folder's images as a ZIP archive. |
-| 21 | **Share analytics** | Low | No tracking of link access counts or sharing activity. |
-| 22 | **Collaborative editing on shared folders** | Low | Shared folders are read-only. |
-| 23 | **Performance monitoring / analytics** | Low | No APM, no user analytics. |
-| 24 | **Login attempt notifications** | Low | No email alerts for suspicious login activity. |
-| 25 | **Anonymous share link viewing** | Low | Share links require authentication. Could allow unauthenticated viewing as an option. |
-| 26 | **Activity / audit logs for sharing** | Low | No logging of share link access or collaboration activity. |
-| 27 | **Auto-expiring user-to-user shares** | Low | User shares persist indefinitely. No option to set an expiration. |
-| 28 | **Custom per-folder permissions** | Low | Team folders use role-based permissions. No granular per-folder overrides. |
-| 29 | **Monitor "action is not a function" error** | Low | TanStack Start server function error seen during HMR in dev. Likely doesn't occur in production but needs verification after deploy. See [TanStack issue #4486](https://github.com/TanStack/router/issues/4486). |
-| 30 | **Clean up unused code** | Low | `getFolder` / `folderQueryOptions` in folders, `getSharedFolderContents` (unauthenticated version) in sharing. Wire up or remove. |
+| 7 | **Search / command palette (Cmd+K)** | Medium | See [detail](#7-search--command-palette). |
+| 8 | **Move folder UI** | Medium | See [detail](#8-move-folder-ui). |
+| 9 | **Move / copy images between folders** | Medium | Backend `addImageToFolder()` / `removeImageFromFolder()` exist but no folder picker UI. Shares the folder picker component with #8. |
+| 10 | **Email templates styling** | Medium | Current templates are inline HTML/CSS strings. Could refactor to React Email for maintainability. |
+| 11 | **User onboarding flow** | Medium | No guided tour or wizard. Only empty state CTAs ("Create your first folder"). |
+| 12 | **Image caching improvements** | Medium | See [detail](#12-image-caching-improvements). |
+| 13 | **Settings page polish** | Medium | Storage usage calculation, confirmation dialogs for danger zone actions, mobile layout improvements. Review progress/switch/radio-group component styling. |
+| 14 | **Bulk operations** | Low | No multi-select, bulk delete, bulk move, or select-all in gallery. |
+| 15 | **Email change** | Low | Field is displayed but disabled in settings. Better Auth supports `changeEmail` — straightforward to add. |
+| 16 | **2FA / MFA** | Low | Low risk profile (image collections). Better Auth `twoFactor` plugin makes this easy to add as opt-in. |
+| 17 | **OAuth account linking / unlinking** | Low | Can't link/unlink Google account from settings. |
+| 18 | **Account lockout after failed attempts** | Low | Rate limiting covers most abuse; lockout is an extra layer. |
+| 19 | **Auth audit logging** | Low | No logging for login attempts, password changes, or suspicious activity. |
+| 20 | **Share link password protection** | Low | Share links have expiration but no optional password. |
+| 21 | **Folder download as ZIP** | Low | No way to download a folder's images as a ZIP archive. |
+| 22 | **Share analytics** | Low | No tracking of link access counts or sharing activity. |
+| 23 | **Collaborative editing on shared folders** | Low | Shared folders are read-only. |
+| 24 | **Performance monitoring / analytics** | Low | No APM, no user analytics. |
+| 25 | **Login attempt notifications** | Low | No email alerts for suspicious login activity. |
+| 26 | **Anonymous share link viewing** | Low | Share links require authentication. Could allow unauthenticated viewing as an option. |
+| 27 | **Activity / audit logs for sharing** | Low | No logging of share link access or collaboration activity. |
+| 28 | **Auto-expiring user-to-user shares** | Low | User shares persist indefinitely. No option to set an expiration. |
+| 29 | **Custom per-folder permissions** | Low | Team folders use role-based permissions. No granular per-folder overrides. |
+| 30 | **Monitor "action is not a function" error** | Low | TanStack Start server function error seen during HMR in dev. Likely doesn't occur in production but needs verification after deploy. See [TanStack issue #4486](https://github.com/TanStack/router/issues/4486). |
+| 31 | **Clean up unused code** | Low | `getFolder` / `folderQueryOptions` in folders, `getSharedFolderContents` (unauthenticated version) in sharing. Wire up or remove. |
 
 ---
 
 ## Detail
 
-### 6. Search / command palette
+### 7. Search / command palette
 
 Universal command palette (Cmd+K / Ctrl+K) as the central hub for all app functionality.
 
@@ -59,7 +60,7 @@ Universal command palette (Cmd+K / Ctrl+K) as the central hub for all app functi
 - **Recent items** for quick access
 - Consider `cmdk` library, dynamically registered actions, inline keyboard shortcut hints
 
-### 7. Move folder UI
+### 8. Move folder UI
 
 Backend `moveFolder()` exists with circular reference detection. Need the UI layer.
 
@@ -69,7 +70,7 @@ Backend `moveFolder()` exists with circular reference detection. Need the UI lay
 - [ ] Update clone shared folder mutation to accept destination `parentId`
 - [ ] Fix clone mutation invalidation — currently invalidates root, should invalidate destination folder
 
-### 11. Image caching improvements
+### 12. Image caching improvements
 
 Current state: presigned URLs expire after 7 days, rounded to daily intervals.
 
