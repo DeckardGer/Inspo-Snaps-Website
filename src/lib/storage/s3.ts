@@ -56,10 +56,6 @@ export function getPublicObjectUrl(storageKey: string): string {
 // Cache durations
 const ONE_YEAR_SECONDS = 31536000;
 
-// Cache-Control header value for uploaded images
-// Exported so the client can send the same header during upload
-export const IMAGE_CACHE_CONTROL = `public, max-age=${ONE_YEAR_SECONDS}, immutable`;
-
 export async function createPresignedUploadUrl(
 	storageKey: string,
 	contentType: string,
@@ -91,16 +87,16 @@ const SEVEN_DAYS_SECONDS = 7 * 24 * 60 * 60;
  * each unique URL = a new download, even for the same image.
  *
  * THE SOLUTION:
- * Round the signing time to 24-hour intervals (midnight UTC). All requests
- * within the same day get the EXACT same URL, enabling browser cache hits.
+ * Round the signing time to 7-day intervals. All requests within the same
+ * 7-day window get the EXACT same URL, enabling browser cache hits.
  *
- * Example with 24-hour rounding:
- * - Request at Mon 10:05 → signs as Mon 00:00 → URL valid for 7 days
- * - Request at Mon 18:30 → signs as Mon 00:00 → SAME URL! Browser uses cache
- * - Request at Tue 09:00 → signs as Tue 00:00 → New URL (new day)
+ * Example with 7-day rounding:
+ * - Request on Day 1 at 10:05 → signs as window start → URL valid for 7 days
+ * - Request on Day 5 at 18:30 → signs as window start → SAME URL! Cache hit
+ * - Request on Day 8 at 09:00 → new window start → New URL (new window)
  *
- * We use 24-hour intervals with 7-day expiration, ensuring URLs remain valid
- * well beyond the rounding window.
+ * The 7-day rounding matches the 7-day presigned URL expiration (the max
+ * allowed by AWS for IAM credentials), maximizing browser cache lifetime.
  */
 export async function createPresignedDownloadUrl(
 	storageKey: string,
@@ -110,11 +106,11 @@ export async function createPresignedDownloadUrl(
 		Key: storageKey,
 	});
 
-	// Round to the start of the current day (midnight UTC) for cache-friendly signatures
-	// All requests within the same day get the exact same URL
-	const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+	// Round to the start of the current 7-day window for cache-friendly signatures
+	// All requests within the same window get the exact same URL
+	const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 	const signingDate = new Date(
-		Math.floor(Date.now() / TWENTY_FOUR_HOURS_MS) * TWENTY_FOUR_HOURS_MS,
+		Math.floor(Date.now() / SEVEN_DAYS_MS) * SEVEN_DAYS_MS,
 	);
 
 	return getSignedUrl(getS3Client(), command, {
