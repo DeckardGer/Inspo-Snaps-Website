@@ -28,7 +28,7 @@ function BentoCard({
 			/>
 
 			{/* Card content */}
-			<div className="relative flex h-full flex-col overflow-hidden rounded-[15px] bg-card">
+			<div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-2xl)-1px)] bg-card">
 				<div
 					className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/[0.06] to-transparent"
 					aria-hidden
