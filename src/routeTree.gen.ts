@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as authenticatedRouteRouteImport } from './routes/(authenticated)/route'
 import { Route as authPagesRouteRouteImport } from './routes/(auth-pages)/route'
@@ -30,6 +31,11 @@ import { Route as authenticatedMyFoldersChar123FolderIdChar125RouteImport } from
 import { Route as authenticatedInviteFolderIdRouteImport } from './routes/(authenticated)/invite/$folderId'
 import { Route as authenticatedTeamFoldersOrgIdChar123FolderIdChar125RouteImport } from './routes/(authenticated)/team-folders/$orgId/{-$folderId}'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -141,6 +147,7 @@ const authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/forgot-password': typeof authPagesForgotPasswordRoute
   '/login': typeof authPagesLoginRoute
   '/reset-password': typeof authPagesResetPasswordRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/forgot-password': typeof authPagesForgotPasswordRoute
   '/login': typeof authPagesLoginRoute
   '/reset-password': typeof authPagesResetPasswordRoute
@@ -184,6 +192,7 @@ export interface FileRoutesById {
   '/(auth-pages)': typeof authPagesRouteRouteWithChildren
   '/(authenticated)': typeof authenticatedRouteRouteWithChildren
   '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/(auth-pages)/forgot-password': typeof authPagesForgotPasswordRoute
   '/(auth-pages)/login': typeof authPagesLoginRoute
   '/(auth-pages)/reset-password': typeof authPagesResetPasswordRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/privacy'
+    | '/terms'
     | '/forgot-password'
     | '/login'
     | '/reset-password'
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/privacy'
+    | '/terms'
     | '/forgot-password'
     | '/login'
     | '/reset-password'
@@ -248,6 +259,7 @@ export interface FileRouteTypes {
     | '/(auth-pages)'
     | '/(authenticated)'
     | '/privacy'
+    | '/terms'
     | '/(auth-pages)/forgot-password'
     | '/(auth-pages)/login'
     | '/(auth-pages)/reset-password'
@@ -271,6 +283,7 @@ export interface RootRouteChildren {
   authPagesRouteRoute: typeof authPagesRouteRouteWithChildren
   authenticatedRouteRoute: typeof authenticatedRouteRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiExtensionFoldersRoute: typeof ApiExtensionFoldersRoute
   ApiExtensionImagesRoute: typeof ApiExtensionImagesRoute
@@ -279,6 +292,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -474,6 +494,7 @@ const rootRouteChildren: RootRouteChildren = {
   authPagesRouteRoute: authPagesRouteRouteWithChildren,
   authenticatedRouteRoute: authenticatedRouteRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiExtensionFoldersRoute: ApiExtensionFoldersRoute,
   ApiExtensionImagesRoute: ApiExtensionImagesRoute,

@@ -23,6 +23,7 @@ const navLinks = [
 	{ href: "#pricing", label: "Pricing" },
 	{ href: "#faq", label: "FAQ" },
 	{ href: "/privacy", label: "Privacy" },
+	{ href: "/terms", label: "Terms" },
 ];
 
 const socialLinks = [
