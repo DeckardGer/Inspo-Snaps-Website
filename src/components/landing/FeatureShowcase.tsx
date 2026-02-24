@@ -23,7 +23,7 @@ function BentoCard({
 				className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-300 group-hover/bento:opacity-100"
 				style={{
 					background:
-						"radial-gradient(500px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), color-mix(in srgb, var(--primary) 60%, transparent), transparent 40%)",
+						"radial-gradient(500px circle at var(--mouse-x, -1000px) var(--mouse-y, -1000px), color-mix(in srgb, var(--primary) 60%, transparent), transparent 40%)",
 				}}
 			/>
 
