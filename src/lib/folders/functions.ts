@@ -19,6 +19,7 @@ import {
 } from "@/lib/folders/constants";
 import { createFolderAccessRevokedNotification } from "@/lib/notifications/create";
 import { deleteStorageObjects } from "@/lib/storage/functions";
+import { writeAccessMiddleware } from "@/lib/subscriptions/middleware";
 
 const CreateFolderInput = z.object({
 	name: z.string().min(FOLDER_NAME_MIN_LENGTH).max(FOLDER_NAME_MAX_LENGTH),
@@ -67,7 +68,7 @@ export type Folder = {
 };
 
 export const createFolder = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([writeAccessMiddleware])
 	.inputValidator(CreateFolderInput)
 	.handler(async ({ data, context }) => {
 		if (data.parentId) {
@@ -156,7 +157,7 @@ export const getFolder = createServerFn({ method: "GET" })
 	});
 
 export const updateFolder = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([writeAccessMiddleware])
 	.inputValidator(UpdateFolderInput)
 	.handler(async ({ data, context }) => {
 		const { id, ...updates } = data;
@@ -180,7 +181,7 @@ export const updateFolder = createServerFn({ method: "POST" })
 	});
 
 export const moveFolder = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([writeAccessMiddleware])
 	.inputValidator(MoveFolderInput)
 	.handler(async ({ data, context }) => {
 		const existingFolder = await db.query.folder.findFirst({
@@ -220,7 +221,7 @@ export const moveFolder = createServerFn({ method: "POST" })
 	});
 
 export const deleteFolder = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([writeAccessMiddleware])
 	.inputValidator(FolderIdInput)
 	.handler(async ({ data, context }) => {
 		const allFolderIds = await getDescendantIds(data.id, context.user.id);
@@ -653,7 +654,7 @@ export type TeamFolder = {
 };
 
 export const createTeamFolder = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([writeAccessMiddleware])
 	.inputValidator(CreateTeamFolderInput)
 	.handler(async ({ data, context }) => {
 		// Verify user is member of organization
@@ -748,7 +749,7 @@ export const getTeamFolders = createServerFn({ method: "GET" })
 	});
 
 export const updateTeamFolder = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([writeAccessMiddleware])
 	.inputValidator(UpdateTeamFolderInput)
 	.handler(async ({ data, context }) => {
 		const { id, organizationId, ...updates } = data;
@@ -792,7 +793,7 @@ export const updateTeamFolder = createServerFn({ method: "POST" })
 	});
 
 export const deleteTeamFolder = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([writeAccessMiddleware])
 	.inputValidator(TeamFolderIdInput)
 	.handler(async ({ data, context }) => {
 		const existingFolder = await db.query.folder.findFirst({

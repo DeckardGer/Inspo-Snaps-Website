@@ -78,6 +78,13 @@
       "when": 1770294291842,
       "tag": "0010_fluffy_thor_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1772525404036,
+      "tag": "0011_tense_scarlet_witch",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
@@ -14,6 +14,9 @@ export const user = pgTable("user", {
 		.notNull(),
 	username: text("username").unique(),
 	displayUsername: text("display_username"),
+	trialEndsAt: timestamp("trial_ends_at")
+		.default(sql`NOW() + INTERVAL '14 days'`)
+		.notNull(),
 });
 
 export const session = pgTable(

@@ -1,3 +1,5 @@
+import { checkout, polar, portal, webhooks } from "@polar-sh/better-auth";
+import { Polar } from "@polar-sh/sdk";
 import { createServerOnlyFn } from "@tanstack/react-start";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -10,6 +12,7 @@ import {
 	sendTeamInvitationEmail,
 	sendVerificationEmail,
 } from "@/lib/email/send";
+import { upsertSubscription } from "@/lib/subscriptions/sync";
 import { ac, roles } from "./permissions";
 
 const getAuthConfig = createServerOnlyFn(() =>
@@ -60,6 +63,57 @@ const getAuthConfig = createServerOnlyFn(() =>
 						role: data.role,
 					});
 				},
+			}),
+			polar({
+				client: new Polar({
+					accessToken: serverEnv.POLAR_ACCESS_TOKEN,
+					server:
+						process.env.NODE_ENV === "production" ? "production" : "sandbox",
+				}),
+				createCustomerOnSignUp: true,
+				use: [
+					checkout({
+						products: [
+							{
+								productId: "6b7dc528-6d34-48b0-af3a-6b62c72d374f",
+								slug: "pro-monthly",
+							},
+							{
+								productId: "8ab63a02-f7b5-46a7-ab21-884030c820f1",
+								slug: "pro-annual",
+							},
+							{
+								productId: "ac1ff4bf-5edd-46ab-9e4e-52ce9d78de09",
+								slug: "team-monthly",
+							},
+							{
+								productId: "d153bd52-c282-404a-b55a-28a4fc4093cd",
+								slug: "team-annual",
+							},
+						],
+						successUrl: "/my-folders?checkout=success",
+						authenticatedUsersOnly: true,
+					}),
+					portal(),
+					webhooks({
+						secret: serverEnv.POLAR_WEBHOOK_SECRET,
+						onSubscriptionCreated: async (payload) => {
+							await upsertSubscription(payload.data);
+						},
+						onSubscriptionUpdated: async (payload) => {
+							await upsertSubscription(payload.data);
+						},
+						onSubscriptionActive: async (payload) => {
+							await upsertSubscription(payload.data);
+						},
+						onSubscriptionCanceled: async (payload) => {
+							await upsertSubscription(payload.data);
+						},
+						onSubscriptionRevoked: async (payload) => {
+							await upsertSubscription(payload.data);
+						},
+					}),
+				],
 			}),
 			tanstackStartCookies(),
 		], // Make sure tanstackStartCookies is the last plugin in the array

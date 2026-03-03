@@ -8,6 +8,7 @@ import {
 	deleteStorageObject,
 	deleteStorageObjects,
 } from "@/lib/storage/s3";
+import { writeAccessMiddleware } from "@/lib/subscriptions/middleware";
 
 const GetUploadUrlInput = z.object({
 	filename: z.string(),
@@ -26,7 +27,7 @@ export function generateStorageKey(userId: string, filename: string): string {
 }
 
 export const getUploadUrl = createServerFn({ method: "POST" })
-	.middleware([authMiddleware, uploadRateLimitMiddleware])
+	.middleware([writeAccessMiddleware, uploadRateLimitMiddleware])
 	.inputValidator(GetUploadUrlInput)
 	.handler(async ({ data, context }) => {
 		const storageKey = generateStorageKey(context.user.id, data.filename);

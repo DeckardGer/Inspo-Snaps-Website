@@ -16,6 +16,8 @@ export const serverEnv = createEnv({
 		S3_FORCE_PATH_STYLE: z.coerce.boolean().default(false),
 		RESEND_API_KEY: z.string().min(1),
 		EMAIL_FROM: z.email().default("InspoSnaps <noreply@insposnaps.com>"),
+		POLAR_ACCESS_TOKEN: z.string().min(1),
+		POLAR_WEBHOOK_SECRET: z.string().min(1),
 	},
 	runtimeEnv: process.env,
 });

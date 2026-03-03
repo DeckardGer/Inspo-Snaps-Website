@@ -10,6 +10,7 @@ import {
 	createPresignedDownloadUrl,
 	deleteStorageObject,
 } from "@/lib/storage/functions";
+import { writeAccessMiddleware } from "@/lib/subscriptions/middleware";
 
 const SaveImageInput = z.object({
 	filename: z.string(),
@@ -41,7 +42,7 @@ const FolderIdInput = z.object({
 });
 
 export const saveImage = createServerFn({ method: "POST" })
-	.middleware([authMiddleware, uploadRateLimitMiddleware])
+	.middleware([writeAccessMiddleware, uploadRateLimitMiddleware])
 	.inputValidator(SaveImageInput)
 	.handler(async ({ data, context }) => {
 		const targetFolder = await db.query.folder.findFirst({
@@ -77,7 +78,7 @@ export const saveImage = createServerFn({ method: "POST" })
 	});
 
 export const addImageToFolder = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([writeAccessMiddleware])
 	.inputValidator(AddToFolderInput)
 	.handler(async ({ data, context }) => {
 		const img = await db.query.image.findFirst({
@@ -113,7 +114,7 @@ export const addImageToFolder = createServerFn({ method: "POST" })
 	});
 
 export const removeImageFromFolder = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([writeAccessMiddleware])
 	.inputValidator(RemoveFromFolderInput)
 	.handler(async ({ data, context }) => {
 		// Check if user owns the folder
@@ -232,7 +233,7 @@ const RemoveTeamImageInput = z.object({
 });
 
 export const saveTeamImage = createServerFn({ method: "POST" })
-	.middleware([authMiddleware, uploadRateLimitMiddleware])
+	.middleware([writeAccessMiddleware, uploadRateLimitMiddleware])
 	.inputValidator(SaveTeamImageInput)
 	.handler(async ({ data, context }) => {
 		// Verify user is member of organization
@@ -325,7 +326,7 @@ export const getTeamFolderImages = createServerFn({ method: "GET" })
 	});
 
 export const removeTeamImageFromFolder = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([writeAccessMiddleware])
 	.inputValidator(RemoveTeamImageInput)
 	.handler(async ({ data, context }) => {
 		// Verify user is member of organization

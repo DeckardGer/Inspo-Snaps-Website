@@ -2,6 +2,7 @@ import {
 	ArrowUpRight01Icon,
 	AtIcon,
 	BrowserIcon,
+	CreditCardIcon,
 	Loading03Icon,
 	PaintBrush04Icon,
 	Tick02Icon,
@@ -11,6 +12,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useForm } from "@tanstack/react-form";
 import {
 	useMutation,
+	useQuery,
 	useQueryClient,
 	useSuspenseQuery,
 } from "@tanstack/react-query";
@@ -35,6 +37,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import authClient from "@/lib/auth/auth-client";
 import {
 	checkUsernameAvailability,
 	getAvatarUploadUrl,
@@ -45,6 +48,7 @@ import {
 } from "@/lib/auth/functions";
 import { authQueryOptions, hasPasswordQueryOptions } from "@/lib/auth/queries";
 import { MAX_AVATAR_SIZE_BYTES } from "@/lib/images/constants";
+import { planStateQueryOptions } from "@/lib/subscriptions/queries";
 import { type UserTheme, useTheme } from "@/lib/ThemeProvider";
 import { cn } from "@/lib/utils";
 
@@ -58,7 +62,7 @@ interface SettingsModalProps {
 	onOpenChange?: (open: boolean) => void;
 }
 
-type Section = "account" | "appearance" | "extension";
+type Section = "account" | "billing" | "appearance" | "extension";
 
 const SECTIONS: {
 	id: Section;
@@ -66,6 +70,7 @@ const SECTIONS: {
 	icon: typeof UserCircle02Icon;
 }[] = [
 	{ id: "account", label: "Account", icon: UserCircle02Icon },
+	{ id: "billing", label: "Billing", icon: CreditCardIcon },
 	{ id: "appearance", label: "Appearance", icon: PaintBrush04Icon },
 	{ id: "extension", label: "Extension", icon: BrowserIcon },
 ];
@@ -181,9 +186,11 @@ export function SettingsModal({
 	if (!user) throw new Error("User not found");
 
 	const { data: passwordData } = useSuspenseQuery(hasPasswordQueryOptions());
+	const { data: planState } = useQuery(planStateQueryOptions());
 
 	const sectionRefs = useRef<Record<Section, HTMLElement | null>>({
 		account: null,
+		billing: null,
 		appearance: null,
 		extension: null,
 	});
@@ -792,6 +799,83 @@ export function SettingsModal({
 										</span>
 									)}
 								</SettingRow>
+							</div>
+						</section>
+
+						{/* Billing Section */}
+						<section
+							ref={(el) => {
+								sectionRefs.current.billing = el;
+							}}
+							data-section="billing"
+							className="px-5 py-5"
+						>
+							<h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+								Billing
+							</h3>
+
+							<div className="space-y-1">
+								<SettingRow
+									label="Current plan"
+									description={
+										planState?.status === "trialing" &&
+										planState.trialDaysRemaining !== null
+											? `Trial ends in ${planState.trialDaysRemaining} ${planState.trialDaysRemaining === 1 ? "day" : "days"}`
+											: planState?.status === "expired"
+												? "Your trial has ended"
+												: undefined
+									}
+								>
+									<Badge
+										variant="secondary"
+										className={cn(
+											"h-5 px-1.5 text-[10px]",
+											planState?.status === "active" &&
+												"text-green-600 dark:text-green-400",
+											planState?.status === "trialing" &&
+												"text-blue-600 dark:text-blue-400",
+											planState?.status === "expired" &&
+												"text-amber-600 dark:text-amber-400",
+											planState?.status === "canceled" &&
+												"text-orange-600 dark:text-orange-400",
+										)}
+									>
+										{planState?.status === "active" && "Pro"}
+										{planState?.status === "trialing" && "Trial"}
+										{planState?.status === "expired" && "Trial expired"}
+										{planState?.status === "canceled" && "Canceled"}
+										{!planState && "Loading..."}
+									</Badge>
+								</SettingRow>
+
+								<div className="h-px bg-border/50" />
+
+								<div className="py-3">
+									{planState?.status === "active" ||
+									planState?.status === "canceled" ? (
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() => {
+												authClient.customer.portal();
+											}}
+										>
+											Manage subscription
+										</Button>
+									) : (
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() => {
+												authClient.checkout({
+													slug: "pro-monthly",
+												});
+											}}
+										>
+											Upgrade to Pro
+										</Button>
+									)}
+								</div>
 							</div>
 						</section>
 
