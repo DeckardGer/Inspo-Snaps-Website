@@ -21,6 +21,7 @@ import {
 	createTeamMemberRemovedNotification,
 	createTeamRoleChangedNotification,
 } from "@/lib/notifications/create";
+import { writeAccessMiddleware } from "@/lib/subscriptions/middleware";
 
 const OrganizationIdInput = z.object({
 	organizationId: z.string(),
@@ -57,6 +58,50 @@ const InvitationIdInput = z.object({
 	organizationId: z.string(),
 	invitationId: z.string(),
 });
+
+const CreateTeamInput = z.object({
+	name: z.string().min(1).max(100),
+	slug: z.string().min(1),
+});
+
+const UpdateTeamInput = z.object({
+	organizationId: z.string(),
+	name: z.string().min(1).max(100),
+});
+
+export const createTeam = createServerFn({ method: "POST" })
+	.middleware([writeAccessMiddleware])
+	.inputValidator(CreateTeamInput)
+	.handler(async ({ data }) => {
+		const headers = getRequest().headers;
+
+		const result = await auth.api.createOrganization({
+			headers,
+			body: {
+				name: data.name,
+				slug: data.slug,
+			},
+		});
+
+		return { id: result.id, name: result.name, slug: result.slug };
+	});
+
+export const updateTeam = createServerFn({ method: "POST" })
+	.middleware([writeAccessMiddleware])
+	.inputValidator(UpdateTeamInput)
+	.handler(async ({ data }) => {
+		const headers = getRequest().headers;
+
+		await auth.api.updateOrganization({
+			headers,
+			body: {
+				organizationId: data.organizationId,
+				data: { name: data.name },
+			},
+		});
+
+		return { success: true };
+	});
 
 export type UserOrganization = {
 	id: string;
@@ -253,7 +298,7 @@ export const getOrganizationById = createServerFn({ method: "GET" })
 	});
 
 export const createInviteLink = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([writeAccessMiddleware])
 	.inputValidator(InviteLinkInput)
 	.handler(async ({ data, context }) => {
 		const headers = getRequest().headers;
@@ -517,7 +562,7 @@ export const leaveOrganization = createServerFn({ method: "POST" })
 	});
 
 export const createInvitation = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([writeAccessMiddleware])
 	.inputValidator(CreateInvitationInput)
 	.handler(async ({ data, context }) => {
 		const headers = getRequest().headers;

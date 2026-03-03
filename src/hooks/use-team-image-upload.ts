@@ -11,7 +11,7 @@ export function useTeamImageUpload(organizationId: string, folderId: string) {
 	const [isUploading, setIsUploading] = useState(false);
 
 	const uploadFile = useCallback(
-		async (file: File): Promise<boolean> => {
+		async (file: File): Promise<boolean | string> => {
 			// Validate file
 			const validation = validateFile(file);
 			if (!validation.valid) {
@@ -53,7 +53,8 @@ export function useTeamImageUpload(organizationId: string, folderId: string) {
 				});
 
 				return true;
-			} catch {
+			} catch (error) {
+				if (error instanceof Error) return error.message;
 				return false;
 			}
 		},
@@ -68,8 +69,11 @@ export function useTeamImageUpload(organizationId: string, folderId: string) {
 
 			try {
 				const results = await Promise.all(files.map(uploadFile));
-				const successCount = results.filter(Boolean).length;
+				const successCount = results.filter((r) => r === true).length;
 				const failCount = results.length - successCount;
+				const serverError = results.find((r) => typeof r === "string") as
+					| string
+					| undefined;
 
 				// Invalidate queries once after all uploads complete
 				if (successCount > 0) {
@@ -83,7 +87,12 @@ export function useTeamImageUpload(organizationId: string, folderId: string) {
 					});
 				}
 
-				if (successCount > 0 && failCount === 0) {
+				if (serverError) {
+					toast.error(
+						`Failed to upload ${failCount} image${failCount > 1 ? "s" : ""}`,
+						{ description: serverError },
+					);
+				} else if (successCount > 0 && failCount === 0) {
 					toast.success(
 						`${successCount} image${successCount > 1 ? "s" : ""} uploaded`,
 					);

@@ -23,7 +23,7 @@ import {
 	FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import authClient from "@/lib/auth/auth-client";
+import { createTeam, updateTeam } from "@/lib/organizations/functions";
 import { userOrganizationsQueryOptions } from "@/lib/organizations/queries";
 
 const formSchema = z.object({
@@ -70,15 +70,12 @@ export function TeamModal({
 
 			try {
 				if (isEditMode) {
-					const result = await authClient.organization.update({
-						organizationId: team.id,
-						data: { name: value.name.trim() },
+					await updateTeam({
+						data: {
+							organizationId: team.id,
+							name: value.name.trim(),
+						},
 					});
-
-					if (result.error) {
-						toast.error(result.error.message || "Failed to update team");
-						return;
-					}
 
 					await Promise.all([
 						queryClient.invalidateQueries({
@@ -100,15 +97,12 @@ export function TeamModal({
 						.replace(/-+/g, "-")
 						.replace(/^-|-$/g, "");
 
-					const result = await authClient.organization.create({
-						name: value.name.trim(),
-						slug: `team-${slug}-${Date.now()}`,
+					const result = await createTeam({
+						data: {
+							name: value.name.trim(),
+							slug: `team-${slug}-${Date.now()}`,
+						},
 					});
-
-					if (result.error) {
-						toast.error(result.error.message || "Failed to create team");
-						return;
-					}
 
 					// Invalidate organizations query to refresh the list
 					await queryClient.invalidateQueries({
@@ -121,14 +115,17 @@ export function TeamModal({
 
 					navigate({
 						to: "/team-folders/$orgId/{-$folderId}",
-						params: { orgId: result.data.id },
+						params: { orgId: result.id },
 					});
 				}
 			} catch (error) {
-				console.error(error);
-				toast.error(
-					isEditMode ? "Failed to update team" : "Failed to create team",
-				);
+				const fallback = isEditMode
+					? "Failed to update team"
+					: "Failed to create team";
+				const serverMessage = error instanceof Error ? error.message : null;
+				toast.error(fallback, {
+					description: serverMessage ?? undefined,
+				});
 			} finally {
 				setIsSubmitting(false);
 			}

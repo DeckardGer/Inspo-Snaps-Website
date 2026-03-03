@@ -38,7 +38,7 @@ export function useImageUpload(folderId: string) {
 	const [isUploading, setIsUploading] = useState(false);
 
 	const uploadFile = useCallback(
-		async (file: File): Promise<boolean> => {
+		async (file: File): Promise<boolean | string> => {
 			// Validate file
 			const validation = validateFile(file);
 			if (!validation.valid) {
@@ -79,7 +79,9 @@ export function useImageUpload(folderId: string) {
 				});
 
 				return true;
-			} catch {
+			} catch (error) {
+				// Return server error message (e.g. trial expired) to show to user
+				if (error instanceof Error) return error.message;
 				return false;
 			}
 		},
@@ -94,8 +96,12 @@ export function useImageUpload(folderId: string) {
 
 			try {
 				const results = await Promise.all(files.map(uploadFile));
-				const successCount = results.filter(Boolean).length;
+				const successCount = results.filter((r) => r === true).length;
 				const failCount = results.length - successCount;
+				// Check if any failure returned a server error message
+				const serverError = results.find((r) => typeof r === "string") as
+					| string
+					| undefined;
 
 				// Invalidate queries once after all uploads complete
 				if (successCount > 0) {
@@ -109,7 +115,12 @@ export function useImageUpload(folderId: string) {
 					});
 				}
 
-				if (successCount > 0 && failCount === 0) {
+				if (serverError) {
+					toast.error(
+						`Failed to upload ${failCount} image${failCount > 1 ? "s" : ""}`,
+						{ description: serverError },
+					);
+				} else if (successCount > 0 && failCount === 0) {
 					toast.success(
 						`${successCount} image${successCount > 1 ? "s" : ""} uploaded`,
 					);
