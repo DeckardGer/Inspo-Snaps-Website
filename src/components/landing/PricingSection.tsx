@@ -20,34 +20,29 @@ interface PricingTier {
 	features: (string | { text: string; soon?: boolean })[];
 }
 
+const TRIAL_FEATURES = [
+	"Full access to all Pro features",
+	"Unlimited folders & images",
+	"Browser extension",
+	"Sync across all devices",
+	"No credit card required",
+];
+
 const TIERS: PricingTier[] = [
-	{
-		name: "Free",
-		tagline: "For casual collectors getting started",
-		monthlyPrice: 0,
-		annualPrice: 0,
-		cta: "Get Started",
-		ctaVariant: "outline",
-		features: [
-			"Unlimited folders & images",
-			"Stored locally on your device",
-			"Browser extension",
-			"Folder organization & colors",
-			"View collections on insposnaps.com",
-		],
-	},
 	{
 		name: "Pro",
 		tagline: "For creatives who need more power",
 		monthlyPrice: 8,
 		annualPrice: 6,
-		cta: "Get Started",
+		cta: "Choose Pro",
 		ctaVariant: "default",
 		popular: true,
 		features: [
-			"Everything in Free",
+			"Unlimited folders & images",
 			"Unlimited cloud storage",
+			"Browser extension",
 			"Sync across all devices",
+			"Folder organization & colors",
 			"Share view-only folders with anyone",
 			"Nested folder structures",
 			"Priority support",
@@ -59,7 +54,7 @@ const TIERS: PricingTier[] = [
 		tagline: "For teams building together",
 		monthlyPrice: 16,
 		annualPrice: 12,
-		cta: "Get Started",
+		cta: "Choose Team",
 		ctaVariant: "outline",
 		features: [
 			"Everything in Pro",
@@ -87,7 +82,7 @@ export function PricingSection() {
 							Simple pricing, no surprises
 						</h2>
 						<p className="mt-3 text-base text-muted-foreground">
-							Start free, upgrade when you're ready. Cancel anytime.
+							Start with a 14-day free trial. Pick a plan when you're ready.
 						</p>
 					</div>
 				</FadeIn>
@@ -123,8 +118,74 @@ export function PricingSection() {
 
 				{/* Pricing cards */}
 				<div className="mt-12 grid gap-5 lg:grid-cols-3">
+					{/* Trial card */}
+					<FadeIn delay={160}>
+						<div className="relative flex h-full flex-col rounded-2xl border border-border/50 bg-card/60 p-7 transition-colors hover:border-border">
+							{/* Name & tagline */}
+							<h3 className="text-xl font-bold" style={GABARITO}>
+								Free Trial
+							</h3>
+							<p className="mt-1 text-[13px] text-muted-foreground">
+								Explore everything, no strings attached
+							</p>
+
+							{/* Price */}
+							<div className="mt-5 flex items-baseline gap-1.5">
+								<span
+									className="text-4xl font-bold tracking-tight"
+									style={GABARITO}
+								>
+									$0
+								</span>
+								<span className="text-sm text-muted-foreground">
+									for 14 days
+								</span>
+							</div>
+							<p className="mt-1 text-[12px] text-muted-foreground">
+								No credit card required
+							</p>
+
+							{/* CTA */}
+							<div className="mt-4">
+								<Button
+									className="w-full"
+									size="default"
+									render={<Link to="/signup" />}
+									nativeButton={false}
+								>
+									Start free trial
+									<HugeiconsIcon
+										icon={ArrowRight02Icon}
+										size={15}
+										strokeWidth={2}
+									/>
+								</Button>
+							</div>
+
+							{/* Divider */}
+							<div className="my-6 h-px bg-border/50" />
+
+							{/* Features */}
+							<p className="text-[12px] font-semibold tracking-wide text-muted-foreground/70 uppercase">
+								What's included
+							</p>
+							<ul className="mt-3 flex flex-col gap-2.5">
+								{TRIAL_FEATURES.map((feature) => (
+									<li
+										key={feature}
+										className="flex items-center gap-2.5 text-[13.5px]"
+									>
+										<CheckMark className="text-muted-foreground" />
+										{feature}
+									</li>
+								))}
+							</ul>
+						</div>
+					</FadeIn>
+
+					{/* Paid tier cards */}
 					{TIERS.map((tier, i) => (
-						<FadeIn key={tier.name} delay={i * 100 + 160}>
+						<FadeIn key={tier.name} delay={i * 100 + 260}>
 							<div
 								className={cn(
 									"relative flex h-full flex-col rounded-2xl border p-7 transition-colors",
@@ -145,10 +206,10 @@ export function PricingSection() {
 									/>
 								)}
 
-								{/* Popular badge — centered at top of card */}
+								{/* Popular badge */}
 								{tier.popular && (
 									<span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-primary/20 bg-background px-3.5 py-1 text-[11px] font-semibold text-primary shadow-sm">
-										Popular
+										Most popular
 									</span>
 								)}
 
@@ -171,28 +232,14 @@ export function PricingSection() {
 											? tier.monthlyPrice
 											: tier.annualPrice}
 									</span>
-									<span className="text-sm text-muted-foreground">
-										{tier.monthlyPrice === 0 ? "forever" : "/ month"}
-									</span>
+									<span className="text-sm text-muted-foreground">/ month</span>
 								</div>
-								<p
-									className={cn(
-										"relative mt-1 text-[12px] text-muted-foreground",
-										tier.monthlyPrice === 0 && "invisible",
-									)}
-								>
-									{tier.monthlyPrice > 0
-										? billing === "monthly"
-											? "Billed monthly"
-											: `Billed $${tier.annualPrice * 12}/year`
-										: "Placeholder"}
-									{tier.monthlyPrice > 0 && (
-										<span
-											className={cn(
-												"absolute top-1/2 ml-1.5 -translate-y-1/2 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-500",
-												billing === "monthly" ? "opacity-0" : "opacity-100",
-											)}
-										>
+								<p className="relative mt-1 text-[12px] text-muted-foreground">
+									{billing === "monthly"
+										? "Billed monthly, after trial"
+										: `Billed $${tier.annualPrice * 12}/year, after trial`}
+									{billing === "annual" && (
+										<span className="absolute top-1/2 ml-1.5 -translate-y-1/2 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-500">
 											25% off
 										</span>
 									)}
@@ -272,7 +319,7 @@ export function PricingSection() {
 				</div>
 
 				{/* Bottom note */}
-				<FadeIn delay={300}>
+				<FadeIn delay={400}>
 					<p className="mt-10 text-center text-[13px] text-muted-foreground">
 						All prices in USD. All plans include the browser extension,
 						end-to-end encryption, and 24/7 uptime.{" "}
@@ -280,7 +327,7 @@ export function PricingSection() {
 							to="/signup"
 							className="rounded-sm font-medium text-primary underline-offset-4 outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50"
 						>
-							Start with Free
+							Start your free trial
 						</Link>
 					</p>
 				</FadeIn>

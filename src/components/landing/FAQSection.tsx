@@ -11,28 +11,28 @@ import { FadeIn, GABARITO, SectionBadge } from "./shared";
 
 const FAQS = [
 	{
-		q: "Is InspoSnaps really free to use?",
-		a: "Yes! Just create a free account and you can store folders and images locally on your device. No credit card required. Upgrade to Pro when you want cloud sync, more storage, and sharing features.",
-	},
-	{
-		q: "How does sharing work?",
-		a: "Sharing is available on the Pro plan. You can share folders with other InspoSnaps users — they'll need a free account to view your shared collections. This keeps your content secure and only visible to the people you choose.",
+		q: "What is InspoSnaps?",
+		a: "InspoSnaps is a private workspace for collecting and organizing visual inspiration. Save images into nested folders, tag them with colors and emojis, and access your collections from any device — without the noise of a social platform.",
 	},
 	{
 		q: "How is InspoSnaps different from Pinterest?",
 		a: "Pinterest is a social discovery platform — InspoSnaps is your private workspace. You own your collections, organize them your way with nested folders, and share only what you choose. No algorithms, no ads, no distractions.",
 	},
 	{
-		q: "Is my data private and secure?",
-		a: "Your collections are private by default. On the free plan, everything stays on your device. On Pro, your cloud data is encrypted and securely stored. Only people you explicitly share with can see your folders.",
+		q: "How does folder organization work?",
+		a: "Create unlimited nested folders to mirror the way you think. Assign colors and emojis for quick recognition, drag images between folders, and use the browser extension to save inspiration from anywhere on the web.",
+	},
+	{
+		q: "How does sharing work?",
+		a: "Share folders with other InspoSnaps users or generate view-only links for anyone. Your content stays secure and only visible to the people you choose.",
+	},
+	{
+		q: "Can I try InspoSnaps before committing?",
+		a: "Every plan comes with a 14-day free trial — no credit card required. You get full access to all features so you can see if InspoSnaps is right for you.",
 	},
 	{
 		q: "Can I cancel my subscription anytime?",
-		a: "Yes, cancel anytime with no questions asked. Your data stays accessible on the free plan. We believe in earning your business every month.",
-	},
-	{
-		q: "What happens to my images if I downgrade?",
-		a: "Your cloud images remain accessible for download, so you'll never lose anything. Once back on the free plan, your collections continue to work locally on your device. We never delete your data.",
+		a: "Yes, cancel anytime with no questions asked. If you cancel during your trial, you won't be charged. We believe in earning your business every month.",
 	},
 ] as const;
 

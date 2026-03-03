@@ -132,7 +132,7 @@ export function HeroSection() {
 								to="/signup"
 								className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-md outline-none transition-all hover:bg-primary/90 hover:shadow-lg focus-visible:ring-[3px] focus-visible:ring-ring/50"
 							>
-								Start free
+								Start free trial
 								<HugeiconsIcon
 									icon={ArrowRight02Icon}
 									size={16}

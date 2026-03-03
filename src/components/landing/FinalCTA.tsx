@@ -51,7 +51,7 @@ export function FinalCTA() {
 								render={<Link to="/signup" />}
 								nativeButton={false}
 							>
-								Get Started Free
+								Start Free Trial
 								<HugeiconsIcon
 									icon={ArrowRight02Icon}
 									size={16}
@@ -60,7 +60,7 @@ export function FinalCTA() {
 							</Button>
 						</div>
 						<p className="mt-4 text-[12px] text-white/70">
-							No credit card required &middot; Free plan forever
+							No credit card required &middot; 14-day free trial
 						</p>
 					</div>
 				</div>
