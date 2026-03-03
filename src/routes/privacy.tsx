@@ -1,5 +1,4 @@
-import { Link } from "@tanstack/react-router";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingNav } from "@/components/landing/NavBar";
 
@@ -17,9 +16,7 @@ function PrivacyPage() {
 
 			<main className="mx-auto max-w-3xl px-4 pt-28 pb-16 md:px-6">
 				<header>
-					<h1 className="font-bold text-3xl tracking-tight">
-						Privacy Policy
-					</h1>
+					<h1 className="font-bold text-3xl tracking-tight">Privacy Policy</h1>
 					<p className="mt-2 text-muted-foreground text-sm">
 						Last updated — February 24, 2026
 					</p>
@@ -27,9 +24,9 @@ function PrivacyPage() {
 
 				<div className="mt-10 space-y-8 text-[15px] leading-relaxed text-foreground/90">
 					<p>
-						Your privacy is important to us. It is InspoSnaps' policy to
-						respect your privacy regarding any information we may collect from
-						you across our website and service.
+						Your privacy is important to us. It is InspoSnaps' policy to respect
+						your privacy regarding any information we may collect from you
+						across our website and service.
 					</p>
 
 					<p>
@@ -43,9 +40,9 @@ function PrivacyPage() {
 						<h2 className="font-semibold text-lg">What we collect</h2>
 						<p className="mt-3">
 							When you create an account we collect your name, email address,
-							and a username. You can sign up with your Google account, in
-							which case your name, email, and profile picture are used to
-							pre-fill your account.
+							and a username. You can sign up with your Google account, in which
+							case your name, email, and profile picture are used to pre-fill
+							your account.
 						</p>
 						<p className="mt-3">
 							Images you upload are stored on secure cloud servers. We store
@@ -54,8 +51,8 @@ function PrivacyPage() {
 						</p>
 						<p className="mt-3">
 							We collect basic technical data such as IP address and user agent
-							when you sign in. This is used for session management and
-							security — not for tracking or advertising.
+							when you sign in. This is used for session management and security
+							— not for tracking or advertising.
 						</p>
 					</section>
 
@@ -64,9 +61,7 @@ function PrivacyPage() {
 						<ul className="mt-3 list-disc space-y-1.5 pl-5 text-foreground/80">
 							<li>Operate and maintain InspoSnaps</li>
 							<li>Authenticate your account and manage sessions</li>
-							<li>
-								Enable sharing features you choose to use
-							</li>
+							<li>Enable sharing features you choose to use</li>
 							<li>Send transactional emails (password resets, verification)</li>
 						</ul>
 						<p className="mt-3">

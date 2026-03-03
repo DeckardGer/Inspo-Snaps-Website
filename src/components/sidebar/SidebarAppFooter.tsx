@@ -6,8 +6,14 @@ import {
 	UserAccountIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import {
+	useQuery,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
+import { useState } from "react";
+import { PricingDialog } from "@/components/subscriptions/PricingDialog";
 import { UserAvatar } from "@/components/UserAvatar";
 import {
 	DropdownMenu,
@@ -27,15 +33,24 @@ import {
 import authClient from "@/lib/auth/auth-client";
 import { notifyInspoSnapsExtension } from "@/lib/auth/extension";
 import { authQueryOptions } from "@/lib/auth/queries";
+import { planStateQueryOptions } from "@/lib/subscriptions/queries";
 import { cn } from "@/lib/utils";
 
-export function SidebarAppFooter() {
+export function SidebarAppFooter({
+	onOpenSettings,
+}: {
+	onOpenSettings: () => void;
+}) {
 	const queryClient = useQueryClient();
 	const router = useRouter();
 	const { isMobile, state } = useSidebar();
+	const [pricingOpen, setPricingOpen] = useState(false);
 
 	// Use query directly for reactive updates when user data changes
 	const { data: user } = useSuspenseQuery(authQueryOptions());
+	const { data: planState } = useQuery(planStateQueryOptions());
+	const isPaidPlan =
+		planState?.status === "active" || planState?.status === "canceled";
 	if (!user) throw new Error("User not found");
 
 	return (
@@ -90,19 +105,23 @@ export function SidebarAppFooter() {
 							</DropdownMenuLabel>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
+						{!isPaidPlan && (
+							<>
+								<DropdownMenuGroup>
+									<DropdownMenuItem onClick={() => setPricingOpen(true)}>
+										<HugeiconsIcon icon={SparklesIcon} />
+										Upgrade to Pro
+									</DropdownMenuItem>
+								</DropdownMenuGroup>
+								<DropdownMenuSeparator />
+							</>
+						)}
 						<DropdownMenuGroup>
-							<DropdownMenuItem>
-								<HugeiconsIcon icon={SparklesIcon} />
-								Upgrade to Pro
-							</DropdownMenuItem>
-						</DropdownMenuGroup>
-						<DropdownMenuSeparator />
-						<DropdownMenuGroup>
-							<DropdownMenuItem>
+							<DropdownMenuItem onClick={onOpenSettings}>
 								<HugeiconsIcon icon={UserAccountIcon} />
 								Account
 							</DropdownMenuItem>
-							<DropdownMenuItem>
+							<DropdownMenuItem onClick={() => authClient.customer.portal()}>
 								<HugeiconsIcon icon={Invoice03Icon} />
 								Billing
 							</DropdownMenuItem>
@@ -130,6 +149,7 @@ export function SidebarAppFooter() {
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
+				<PricingDialog open={pricingOpen} onOpenChange={setPricingOpen} />
 			</SidebarMenuItem>
 		</SidebarMenu>
 	);

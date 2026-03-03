@@ -3,8 +3,6 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { AppSidebar } from "@/components/sidebar/AppSidebar";
-import { TrialBanner } from "@/components/subscriptions/TrialBanner";
-import { UpgradeBanner } from "@/components/subscriptions/UpgradeBanner";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import authClient from "@/lib/auth/auth-client";
 import { notifyInspoSnapsExtension } from "@/lib/auth/extension";
@@ -91,8 +89,6 @@ function RouteComponent() {
 		<SidebarProvider>
 			<AppSidebar />
 			<SidebarInset>
-				<UpgradeBanner />
-				<TrialBanner />
 				<Outlet />
 			</SidebarInset>
 		</SidebarProvider>

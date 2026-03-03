@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { subscription, user } from "@/lib/db/schema";
 import {
@@ -8,7 +8,14 @@ import {
 	type UserPlanState,
 } from "./constants";
 
-const ACTIVE_STATUSES = ["active", "trialing"];
+function resolvePlan(sub: {
+	planSlug: string | null;
+	productName: string | null;
+}): PlanKey {
+	if (sub.planSlug) return PLAN_SLUGS[sub.planSlug] ?? "pro";
+	if (sub.productName?.toLowerCase().includes("team")) return "team";
+	return "pro";
+}
 
 export async function resolveUserPlanState(
 	userId: string,
@@ -27,21 +34,41 @@ export async function resolveUserPlanState(
 			trialEndsAt: null,
 			trialDaysRemaining: null,
 			activeSlug: null,
+			canceledAt: null,
+			periodEnd: null,
 		};
 	}
 
-	// Check for active subscription
+	// Find an active or trialing subscription (most recent first).
+	// Polar keeps status "active" during a cancel grace period (canceledAt is
+	// set but status stays "active" until the billing period actually ends).
+	// When access truly ends — either the period expires or an immediate
+	// revoke — Polar sets status to "canceled".  So we only need to check
+	// for active/trialing rows; a "canceled" row always means no access.
 	const activeSub = await db.query.subscription.findFirst({
 		where: and(
 			eq(subscription.userId, userId),
-			inArray(subscription.status, ACTIVE_STATUSES),
+			inArray(subscription.status, ["active", "trialing"]),
 		),
+		orderBy: desc(subscription.updatedAt),
 	});
 
 	if (activeSub) {
-		const plan: PlanKey = activeSub.planSlug
-			? (PLAN_SLUGS[activeSub.planSlug] ?? "pro")
-			: "pro";
+		const plan = resolvePlan(activeSub);
+
+		// canceledAt set = user canceled but still within their paid period
+		if (activeSub.canceledAt) {
+			return {
+				plan,
+				status: "canceled",
+				canWrite: true,
+				trialEndsAt: dbUser.trialEndsAt,
+				trialDaysRemaining: null,
+				activeSlug: activeSub.planSlug,
+				canceledAt: activeSub.canceledAt,
+				periodEnd: activeSub.currentPeriodEnd,
+			};
+		}
 
 		return {
 			plan,
@@ -50,36 +77,12 @@ export async function resolveUserPlanState(
 			trialEndsAt: dbUser.trialEndsAt,
 			trialDaysRemaining: null,
 			activeSlug: activeSub.planSlug,
+			canceledAt: null,
+			periodEnd: activeSub.currentPeriodEnd,
 		};
 	}
 
-	// Check for canceled subscription (still within period)
-	const canceledSub = await db.query.subscription.findFirst({
-		where: and(
-			eq(subscription.userId, userId),
-			eq(subscription.status, "canceled"),
-		),
-	});
-
-	if (
-		canceledSub?.currentPeriodEnd &&
-		canceledSub.currentPeriodEnd > new Date()
-	) {
-		const plan: PlanKey = canceledSub.planSlug
-			? (PLAN_SLUGS[canceledSub.planSlug] ?? "pro")
-			: "pro";
-
-		return {
-			plan,
-			status: "canceled",
-			canWrite: true,
-			trialEndsAt: dbUser.trialEndsAt,
-			trialDaysRemaining: null,
-			activeSlug: canceledSub.planSlug,
-		};
-	}
-
-	// Check trial
+	// No active subscription — check trial
 	const now = new Date();
 	const trialEndsAt = dbUser.trialEndsAt;
 	const trialActive = trialEndsAt > now;
@@ -95,6 +98,8 @@ export async function resolveUserPlanState(
 			trialEndsAt,
 			trialDaysRemaining: daysRemaining,
 			activeSlug: null,
+			canceledAt: null,
+			periodEnd: null,
 		};
 	}
 
@@ -106,5 +111,7 @@ export async function resolveUserPlanState(
 		trialEndsAt,
 		trialDaysRemaining: 0,
 		activeSlug: null,
+		canceledAt: null,
+		periodEnd: null,
 	};
 }

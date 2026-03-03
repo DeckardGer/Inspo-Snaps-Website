@@ -262,7 +262,7 @@ export const createInviteLink = createServerFn({ method: "POST" })
 		const { success } = await auth.api.hasPermission({
 			headers,
 			body: {
-				permission: {
+				permissions: {
 					invitation: ["create"],
 				},
 				organizationId: data.organizationId,
@@ -615,7 +615,7 @@ export const resendInvitation = createServerFn({ method: "POST" })
 		const { success } = await auth.api.hasPermission({
 			headers,
 			body: {
-				permission: {
+				permissions: {
 					invitation: ["create"],
 				},
 				organizationId: data.organizationId,

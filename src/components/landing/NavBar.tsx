@@ -1,4 +1,8 @@
-import { ArrowRight02Icon, Cancel01Icon, Menu01Icon } from "@hugeicons/core-free-icons";
+import {
+	ArrowRight02Icon,
+	Cancel01Icon,
+	Menu01Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -60,9 +64,7 @@ export function LandingNav() {
 					{user ? (
 						<Button
 							size="sm"
-							render={
-								<Link to={dashboardRoute} params={dashboardParams} />
-							}
+							render={<Link to={dashboardRoute} params={dashboardParams} />}
 							nativeButton={false}
 						>
 							Dashboard
@@ -152,12 +154,7 @@ function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
 							{isLoggedIn ? (
 								<Button
 									className="w-full"
-									render={
-										<Link
-											to={dashboardRoute}
-											params={dashboardParams}
-										/>
-									}
+									render={<Link to={dashboardRoute} params={dashboardParams} />}
 									nativeButton={false}
 								>
 									Dashboard

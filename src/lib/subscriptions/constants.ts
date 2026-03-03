@@ -15,6 +15,10 @@ export interface UserPlanState {
 	trialEndsAt: Date | null;
 	trialDaysRemaining: number | null;
 	activeSlug: string | null;
+	/** When the subscription was canceled (set immediately on cancel) */
+	canceledAt: Date | null;
+	/** When the current billing period ends (access continues until this date) */
+	periodEnd: Date | null;
 }
 
 export const PLAN_SLUGS: Record<string, PlanKey> = {

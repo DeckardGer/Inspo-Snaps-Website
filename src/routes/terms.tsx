@@ -1,5 +1,4 @@
-import { Link } from "@tanstack/react-router";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingNav } from "@/components/landing/NavBar";
 
@@ -63,9 +62,8 @@ function TermsPage() {
 						</h2>
 						<p className="mt-3">
 							When you share a folder via a link or invite another user, you
-							control what content is visible. InspoSnaps is not responsible
-							for how recipients use or redistribute content you choose to
-							share.
+							control what content is visible. InspoSnaps is not responsible for
+							how recipients use or redistribute content you choose to share.
 						</p>
 					</section>
 
@@ -85,21 +83,20 @@ function TermsPage() {
 							5. Warranties & Limitation of Liability
 						</h2>
 						<p className="mt-3">
-							InspoSnaps makes no guarantees as to the quality or fitness of
-							the service. To the maximum extent permitted by law, InspoSnaps
-							and its operators shall not be liable for any indirect,
-							incidental, special, consequential, or punitive damages, or any
-							loss of data, profits, or goodwill arising from your use of the
-							service.
+							InspoSnaps makes no guarantees as to the quality or fitness of the
+							service. To the maximum extent permitted by law, InspoSnaps and
+							its operators shall not be liable for any indirect, incidental,
+							special, consequential, or punitive damages, or any loss of data,
+							profits, or goodwill arising from your use of the service.
 						</p>
 					</section>
 
 					<section>
 						<h2 className="font-semibold text-lg">6. Termination</h2>
 						<p className="mt-3">
-							You may stop using InspoSnaps at any time. We reserve the right
-							to suspend or terminate your account if you violate these terms
-							or engage in activity that harms the service or other users. Upon
+							You may stop using InspoSnaps at any time. We reserve the right to
+							suspend or terminate your account if you violate these terms or
+							engage in activity that harms the service or other users. Upon
 							termination, your right to use the service ceases immediately. We
 							may delete your data in accordance with our{" "}
 							<Link
@@ -113,9 +110,7 @@ function TermsPage() {
 					</section>
 
 					<section>
-						<h2 className="font-semibold text-lg">
-							7. Changes to These Terms
-						</h2>
+						<h2 className="font-semibold text-lg">7. Changes to These Terms</h2>
 						<p className="mt-3">
 							We may update these terms from time to time. Continued use of
 							InspoSnaps after changes are posted constitutes acceptance of the

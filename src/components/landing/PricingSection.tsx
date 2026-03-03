@@ -1,24 +1,15 @@
 import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import authClient from "@/lib/auth/auth-client";
+import { authQueryOptions } from "@/lib/auth/queries";
+import { type BillingCycle, TIERS } from "@/lib/subscriptions/pricing";
 import { cn } from "@/lib/utils";
 import { CheckMark, FadeIn, GABARITO, SectionBadge } from "./shared";
-
-type BillingCycle = "monthly" | "annual";
-
-interface PricingTier {
-	name: string;
-	tagline: string;
-	monthlyPrice: number;
-	annualPrice: number;
-	cta: string;
-	ctaVariant: "outline" | "default";
-	popular?: boolean;
-	features: (string | { text: string; soon?: boolean })[];
-}
 
 const TRIAL_FEATURES = [
 	"Full access to all Pro features",
@@ -28,45 +19,10 @@ const TRIAL_FEATURES = [
 	"No credit card required",
 ];
 
-const TIERS: PricingTier[] = [
-	{
-		name: "Pro",
-		tagline: "For creatives who need more power",
-		monthlyPrice: 8,
-		annualPrice: 6,
-		cta: "Choose Pro",
-		ctaVariant: "default",
-		popular: true,
-		features: [
-			"Unlimited folders & images",
-			"Unlimited cloud storage",
-			"Browser extension",
-			"Sync across all devices",
-			"Folder organization & colors",
-			"Share view-only folders with anyone",
-			"Nested folder structures",
-			"Priority support",
-			{ text: "AI auto-tagging & smart search", soon: true },
-		],
-	},
-	{
-		name: "Team",
-		tagline: "For teams building together",
-		monthlyPrice: 16,
-		annualPrice: 12,
-		cta: "Choose Team",
-		ctaVariant: "outline",
-		features: [
-			"Everything in Pro",
-			"Unlimited team workspaces",
-			"Viewer & editor roles",
-			"Dedicated support",
-		],
-	},
-];
-
 export function PricingSection() {
 	const [billing, setBilling] = useState<BillingCycle>("monthly");
+	const { data: user } = useQuery(authQueryOptions());
+	const isLoggedIn = !!user;
 
 	return (
 		<section id="pricing" className="py-20 sm:py-28">
@@ -150,15 +106,22 @@ export function PricingSection() {
 								<Button
 									className="w-full"
 									size="default"
-									render={<Link to="/signup" />}
-									nativeButton={false}
+									disabled={isLoggedIn}
+									{...(isLoggedIn
+										? {}
+										: {
+												render: <Link to="/signup" />,
+												nativeButton: false,
+											})}
 								>
-									Start free trial
-									<HugeiconsIcon
-										icon={ArrowRight02Icon}
-										size={15}
-										strokeWidth={2}
-									/>
+									{isLoggedIn ? "Already signed up" : "Start free trial"}
+									{!isLoggedIn && (
+										<HugeiconsIcon
+											icon={ArrowRight02Icon}
+											size={15}
+											strokeWidth={2}
+										/>
+									)}
 								</Button>
 							</div>
 
@@ -247,36 +210,31 @@ export function PricingSection() {
 
 								{/* CTA */}
 								<div className="mt-4">
-									{tier.ctaVariant === "default" ? (
-										<Button
-											className="w-full"
-											size="default"
-											render={<Link to="/signup" />}
-											nativeButton={false}
-										>
-											{tier.cta}
-											<HugeiconsIcon
-												icon={ArrowRight02Icon}
-												size={15}
-												strokeWidth={2}
-											/>
-										</Button>
-									) : (
-										<Button
-											variant="outline"
-											className="w-full"
-											size="default"
-											render={<Link to="/signup" />}
-											nativeButton={false}
-										>
-											{tier.cta}
-											<HugeiconsIcon
-												icon={ArrowRight02Icon}
-												size={15}
-												strokeWidth={2}
-											/>
-										</Button>
-									)}
+									<Button
+										variant={
+											tier.ctaVariant === "default" ? "default" : "outline"
+										}
+										className="w-full"
+										size="default"
+										{...(isLoggedIn
+											? {
+													onClick: () =>
+														authClient.checkout({
+															slug: `${tier.slug}-${billing}`,
+														}),
+												}
+											: {
+													render: <Link to="/signup" />,
+													nativeButton: false,
+												})}
+									>
+										{tier.cta}
+										<HugeiconsIcon
+											icon={ArrowRight02Icon}
+											size={15}
+											strokeWidth={2}
+										/>
+									</Button>
 								</div>
 
 								{/* Divider */}
@@ -323,12 +281,14 @@ export function PricingSection() {
 					<p className="mt-10 text-center text-[13px] text-muted-foreground">
 						All prices in USD. All plans include the browser extension,
 						end-to-end encryption, and 24/7 uptime.{" "}
-						<Link
-							to="/signup"
-							className="rounded-sm font-medium text-primary underline-offset-4 outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50"
-						>
-							Start your free trial
-						</Link>
+						{!isLoggedIn && (
+							<Link
+								to="/signup"
+								className="rounded-sm font-medium text-primary underline-offset-4 outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50"
+							>
+								Start your free trial
+							</Link>
+						)}
 					</p>
 				</FadeIn>
 			</div>

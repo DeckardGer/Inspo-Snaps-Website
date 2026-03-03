@@ -12,6 +12,7 @@ import { NavMain } from "@/components/sidebar/NavMain";
 import { NavSecondary } from "@/components/sidebar/NavSecondary";
 import { SidebarAppFooter } from "@/components/sidebar/SidebarAppFooter";
 import { SidebarAppHeader } from "@/components/sidebar/SidebarAppHeader";
+import { SidebarUpgradeCard } from "@/components/subscriptions/SidebarUpgradeCard";
 import {
 	Sidebar,
 	SidebarContent,
@@ -58,13 +59,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					<Suspense fallback={<FavouritesFallback />}>
 						<FavouritesContent />
 					</Suspense>
-					<NavSecondary
-						className="mt-auto"
-						onOpenSettings={() => setSettingsOpen(true)}
-					/>
+					<SidebarUpgradeCard />
+					<NavSecondary onOpenSettings={() => setSettingsOpen(true)} />
 				</SidebarContent>
 				<SidebarFooter>
-					<SidebarAppFooter />
+					<SidebarAppFooter onOpenSettings={() => setSettingsOpen(true)} />
 				</SidebarFooter>
 				<SidebarRail />
 			</Sidebar>

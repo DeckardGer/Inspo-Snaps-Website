@@ -36,6 +36,7 @@ export async function upsertSubscription(data: Subscription) {
 			currentPeriodStart: data.currentPeriodStart,
 			currentPeriodEnd: data.currentPeriodEnd,
 			canceledAt: data.canceledAt,
+			endedAt: data.endedAt,
 		})
 		.onConflictDoUpdate({
 			target: subscription.id,
@@ -48,6 +49,7 @@ export async function upsertSubscription(data: Subscription) {
 				currentPeriodStart: data.currentPeriodStart,
 				currentPeriodEnd: data.currentPeriodEnd,
 				canceledAt: data.canceledAt,
+				endedAt: data.endedAt,
 			},
 		});
 }

@@ -5,6 +5,7 @@ import {
 	CreditCardIcon,
 	Loading03Icon,
 	PaintBrush04Icon,
+	SparklesIcon,
 	Tick02Icon,
 	UserCircle02Icon,
 } from "@hugeicons/core-free-icons";
@@ -20,6 +21,7 @@ import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { ChangePasswordDialog } from "@/components/settings/ChangePasswordDialog";
+import { PricingDialog } from "@/components/subscriptions/PricingDialog";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,6 +50,7 @@ import {
 } from "@/lib/auth/functions";
 import { authQueryOptions, hasPasswordQueryOptions } from "@/lib/auth/queries";
 import { MAX_AVATAR_SIZE_BYTES } from "@/lib/images/constants";
+import { TIERS } from "@/lib/subscriptions/pricing";
 import { planStateQueryOptions } from "@/lib/subscriptions/queries";
 import { type UserTheme, useTheme } from "@/lib/ThemeProvider";
 import { cn } from "@/lib/utils";
@@ -177,6 +180,7 @@ export function SettingsModal({
 	const [activeSection, setActiveSection] = useState<Section>("account");
 	const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 	const [nestedDialogOpen, setNestedDialogOpen] = useState(false);
+	const [pricingDialogOpen, setPricingDialogOpen] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const { userTheme, setTheme } = useTheme();
 	const queryClient = useQueryClient();
@@ -434,7 +438,7 @@ export function SettingsModal({
 				showCloseButton={false}
 				className={cn(
 					"flex h-[520px] max-h-[85vh] w-[calc(100%-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl sm:flex-row",
-					nestedDialogOpen && "blur-xs",
+					(nestedDialogOpen || pricingDialogOpen) && "blur-xs",
 				)}
 			>
 				{/* Mobile Header + Tabs */}
@@ -815,63 +819,142 @@ export function SettingsModal({
 							</h3>
 
 							<div className="space-y-1">
-								<SettingRow
-									label="Current plan"
-									description={
-										planState?.status === "trialing" &&
-										planState.trialDaysRemaining !== null
-											? `Trial ends in ${planState.trialDaysRemaining} ${planState.trialDaysRemaining === 1 ? "day" : "days"}`
-											: planState?.status === "expired"
-												? "Your trial has ended"
-												: undefined
-									}
-								>
+								{/* Current plan row */}
+								<SettingRow label="Current plan">
 									<Badge
 										variant="secondary"
 										className={cn(
 											"h-5 px-1.5 text-[10px]",
-											planState?.status === "active" &&
+											(planState?.status === "active" ||
+												planState?.status === "canceled") &&
 												"text-green-600 dark:text-green-400",
 											planState?.status === "trialing" &&
 												"text-blue-600 dark:text-blue-400",
 											planState?.status === "expired" &&
 												"text-amber-600 dark:text-amber-400",
-											planState?.status === "canceled" &&
-												"text-orange-600 dark:text-orange-400",
 										)}
 									>
-										{planState?.status === "active" && "Pro"}
+										{(planState?.status === "active" ||
+											planState?.status === "canceled") &&
+											(planState.plan === "team" ? "Team" : "Pro")}
 										{planState?.status === "trialing" && "Trial"}
 										{planState?.status === "expired" && "Trial expired"}
-										{planState?.status === "canceled" && "Canceled"}
 										{!planState && "Loading..."}
 									</Badge>
 								</SettingRow>
 
+								{/* Billing cycle row — only for active/canceled subscribers */}
+								{(planState?.status === "active" ||
+									planState?.status === "canceled") &&
+									planState.activeSlug && (
+										<>
+											<div className="h-px bg-border/50" />
+											<SettingRow
+												label="Billing cycle"
+												description={(() => {
+													const tier = TIERS.find(
+														(t) => t.slug === planState.plan,
+													);
+													if (!tier) return undefined;
+													const isAnnual =
+														planState.activeSlug?.includes("annual");
+													return isAnnual
+														? `$${tier.annualPrice * 12}/year ($${tier.annualPrice}/mo)`
+														: `$${tier.monthlyPrice}/month`;
+												})()}
+											>
+												<span className="text-sm">
+													{planState.activeSlug?.includes("annual")
+														? "Annual"
+														: "Monthly"}
+												</span>
+											</SettingRow>
+										</>
+									)}
+
+								{/* Renewal / cancellation info */}
+								{(planState?.status === "active" ||
+									planState?.status === "canceled") &&
+									planState.periodEnd && (
+										<>
+											<div className="h-px bg-border/50" />
+											<SettingRow
+												label={
+													planState.status === "canceled" ? "Cancels" : "Renews"
+												}
+											>
+												<span
+													className={cn(
+														"text-sm",
+														planState.status === "canceled" &&
+															"text-orange-600 dark:text-orange-400",
+													)}
+												>
+													{new Date(planState.periodEnd).toLocaleDateString(
+														undefined,
+														{
+															month: "short",
+															day: "numeric",
+															year: "numeric",
+														},
+													)}
+												</span>
+											</SettingRow>
+										</>
+									)}
+
+								{/* Trial progress — only for trialing users */}
+								{planState?.status === "trialing" &&
+									planState.trialDaysRemaining !== null && (
+										<>
+											<div className="h-px bg-border/50" />
+											<div className="py-3">
+												<div className="mb-1.5 flex items-center justify-between">
+													<span className="text-xs text-muted-foreground">
+														Free trial
+													</span>
+													<span className="text-xs font-medium">
+														{planState.trialDaysRemaining}{" "}
+														{planState.trialDaysRemaining === 1
+															? "day"
+															: "days"}{" "}
+														left
+													</span>
+												</div>
+												<div className="h-1.5 overflow-hidden rounded-full bg-muted">
+													<div
+														className="h-full rounded-full bg-blue-500 transition-all"
+														style={{
+															width: `${Math.min(Math.max(((14 - planState.trialDaysRemaining) / 14) * 100, 0), 100)}%`,
+														}}
+													/>
+												</div>
+											</div>
+										</>
+									)}
+
 								<div className="h-px bg-border/50" />
 
+								{/* Actions */}
 								<div className="py-3">
 									{planState?.status === "active" ||
 									planState?.status === "canceled" ? (
 										<Button
 											variant="outline"
 											size="sm"
-											onClick={() => {
-												authClient.customer.portal();
+											onClick={async () => {
+												await authClient.customer.portal();
 											}}
 										>
 											Manage subscription
 										</Button>
 									) : (
 										<Button
-											variant="outline"
 											size="sm"
-											onClick={() => {
-												authClient.checkout({
-													slug: "pro-monthly",
-												});
-											}}
+											onClick={() => setPricingDialogOpen(true)}
+											className="gap-1.5"
 										>
+											<HugeiconsIcon icon={SparklesIcon} className="size-3.5" />
 											Upgrade to Pro
 										</Button>
 									)}
@@ -964,6 +1047,10 @@ export function SettingsModal({
 					</div>
 				</div>
 			</DialogContent>
+			<PricingDialog
+				open={pricingDialogOpen}
+				onOpenChange={setPricingDialogOpen}
+			/>
 		</Dialog>
 	);
 }

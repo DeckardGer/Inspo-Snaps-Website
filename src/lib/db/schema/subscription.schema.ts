@@ -18,6 +18,7 @@ export const subscription = pgTable(
 		currentPeriodStart: timestamp("current_period_start"),
 		currentPeriodEnd: timestamp("current_period_end"),
 		canceledAt: timestamp("canceled_at"),
+		endedAt: timestamp("ended_at"),
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 		updatedAt: timestamp("updated_at")
 			.defaultNow()
