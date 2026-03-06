@@ -58,12 +58,18 @@ function RouteComponent() {
 
 		authClient.getSession().then(({ data }) => {
 			if (data?.user && data?.session) {
+				const session = data.session as typeof data.session & {
+					plan: string;
+					canWrite: boolean;
+				};
 				notifyInspoSnapsExtension({
 					user: data.user,
 					session: {
-						id: data.session.id,
-						expiresAt: data.session.expiresAt.toISOString(),
-						updatedAt: data.session.updatedAt.toISOString(),
+						id: session.id,
+						expiresAt: session.expiresAt.toISOString(),
+						updatedAt: session.updatedAt.toISOString(),
+						plan: session.plan,
+						canWrite: session.canWrite,
 					},
 				});
 			}
@@ -76,9 +82,28 @@ function RouteComponent() {
 		if (params.get("checkout") === "success") {
 			queryClient.invalidateQueries({ queryKey: ["planState"] });
 			// Force session refresh to pick up new subscription in cookie cache
-			authClient.getSession({
-				fetchOptions: { cache: "no-cache" },
-			});
+			authClient
+				.getSession({
+					fetchOptions: { cache: "no-cache" },
+				})
+				.then(({ data }) => {
+					if (data?.user && data?.session) {
+						const session = data.session as typeof data.session & {
+							plan: string;
+							canWrite: boolean;
+						};
+						notifyInspoSnapsExtension({
+							user: data.user,
+							session: {
+								id: session.id,
+								expiresAt: session.expiresAt.toISOString(),
+								updatedAt: session.updatedAt.toISOString(),
+								plan: session.plan,
+								canWrite: session.canWrite,
+							},
+						});
+					}
+				});
 			toast.success("Welcome to Pro!", {
 				description: "Your subscription is now active.",
 			});

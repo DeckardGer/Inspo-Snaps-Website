@@ -9,6 +9,8 @@ export interface ExtensionAuthSession {
 		id: string;
 		expiresAt: string;
 		updatedAt: string;
+		plan: string;
+		canWrite: boolean;
 	};
 }
 

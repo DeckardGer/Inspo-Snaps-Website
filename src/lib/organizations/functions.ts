@@ -148,7 +148,8 @@ export const getUserOrganizationsWithActive = createServerFn({ method: "GET" })
 		});
 
 		const activeOrganizationId =
-			sessionData?.session?.activeOrganizationId ?? null;
+			(sessionData?.session as { activeOrganizationId?: string | null })
+				?.activeOrganizationId ?? null;
 
 		// Get user's organizations
 		const memberships = await db.query.member.findMany({

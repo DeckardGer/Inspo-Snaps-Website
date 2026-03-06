@@ -1,6 +1,7 @@
 import { createMiddleware } from "@tanstack/react-start";
 import { getRequest, setResponseStatus } from "@tanstack/react-start/server";
 import { auth } from "@/lib/auth/auth";
+import type { AppSession, AppUser } from "@/lib/auth/types";
 
 // https://tanstack.com/start/latest/docs/framework/react/guide/middleware
 // This is just an example middleware that you can modify and use in your server functions or routes.
@@ -18,5 +19,10 @@ export const authMiddleware = createMiddleware().server(async ({ next }) => {
 		throw new Error("Unauthorized");
 	}
 
-	return next({ context: { user: session.user, session: session.session } });
+	return next({
+		context: {
+			user: session.user as AppUser,
+			session: session.session as AppSession,
+		},
+	});
 });

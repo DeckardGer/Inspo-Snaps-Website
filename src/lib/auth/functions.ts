@@ -5,6 +5,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth/auth";
 import authClient from "@/lib/auth/auth-client";
 import { authMiddleware } from "@/lib/auth/middleware";
+import type { AppUser } from "@/lib/auth/types";
 import { db } from "@/lib/db";
 import { account } from "@/lib/db/schema/auth.schema";
 import { MAX_AVATAR_SIZE_BYTES } from "@/lib/images/constants";
@@ -33,7 +34,7 @@ export const getUser = createServerFn({ method: "GET" }).handler(async () => {
 		setResponseHeader("Set-Cookie", cookies);
 	}
 
-	return session.response?.user || null;
+	return (session.response?.user as AppUser | undefined) ?? null;
 });
 
 const UsernameInputSchema = z.object({
