@@ -3,7 +3,7 @@ import { Polar } from "@polar-sh/sdk";
 import { createServerOnlyFn } from "@tanstack/react-start";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { organization, username } from "better-auth/plugins";
+import { customSession, organization, username } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { serverEnv } from "@/config/env/server";
 import { db } from "@/lib/db";
@@ -12,6 +12,7 @@ import {
 	sendTeamInvitationEmail,
 	sendVerificationEmail,
 } from "@/lib/email/send";
+import { resolveUserPlanState } from "@/lib/subscriptions/resolve";
 import { upsertSubscription } from "@/lib/subscriptions/sync";
 import { ac, roles } from "./permissions";
 
@@ -117,6 +118,22 @@ const getAuthConfig = createServerOnlyFn(() =>
 						},
 					}),
 				],
+			}),
+			customSession(async ({ user, session }) => {
+				const planState = await resolveUserPlanState(user.id);
+				return {
+					user,
+					session: {
+						...session,
+						plan: planState.plan,
+						planStatus: planState.status,
+						canWrite: planState.canWrite,
+						trialDaysRemaining: planState.trialDaysRemaining,
+						activeSlug: planState.activeSlug,
+						canceledAt: planState.canceledAt,
+						periodEnd: planState.periodEnd,
+					},
+				};
 			}),
 			tanstackStartCookies(),
 		], // Make sure tanstackStartCookies is the last plugin in the array

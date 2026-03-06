@@ -75,6 +75,10 @@ function RouteComponent() {
 		const params = new URLSearchParams(window.location.search);
 		if (params.get("checkout") === "success") {
 			queryClient.invalidateQueries({ queryKey: ["planState"] });
+			// Force session refresh to pick up new subscription in cookie cache
+			authClient.getSession({
+				fetchOptions: { cache: "no-cache" },
+			});
 			toast.success("Welcome to Pro!", {
 				description: "Your subscription is now active.",
 			});

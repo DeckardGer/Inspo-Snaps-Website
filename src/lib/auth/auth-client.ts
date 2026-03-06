@@ -1,7 +1,12 @@
 import { polarClient } from "@polar-sh/better-auth/client";
-import { organizationClient, usernameClient } from "better-auth/client/plugins";
+import {
+	customSessionClient,
+	organizationClient,
+	usernameClient,
+} from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import { clientEnv } from "@/config/env/client";
+import type { auth } from "./auth";
 import { ac, roles } from "./permissions";
 
 const authClient = createAuthClient({
@@ -14,6 +19,7 @@ const authClient = createAuthClient({
 			roles,
 		}),
 		polarClient(),
+		customSessionClient<typeof auth>(),
 	],
 });
 

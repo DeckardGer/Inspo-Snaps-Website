@@ -43,7 +43,7 @@ export async function resolveUserPlanState(
 	// Polar keeps status "active" during a cancel grace period (canceledAt is
 	// set but status stays "active" until the billing period actually ends).
 	// When access truly ends — either the period expires or an immediate
-	// revoke — Polar sets status to "canceled".  So we only need to check
+	// revoke — Polar sets status to "canceled". So we only need to check
 	// for active/trialing rows; a "canceled" row always means no access.
 	const activeSub = await db.query.subscription.findFirst({
 		where: and(
