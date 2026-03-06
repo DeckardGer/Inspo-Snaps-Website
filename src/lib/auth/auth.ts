@@ -112,6 +112,9 @@ const getAuthConfig = createServerOnlyFn(() =>
 						onSubscriptionRevoked: async (payload) => {
 							await upsertSubscription(payload.data);
 						},
+						onSubscriptionUncanceled: async (payload) => {
+							await upsertSubscription(payload.data);
+						},
 					}),
 				],
 			}),
