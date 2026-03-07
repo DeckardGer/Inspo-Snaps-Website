@@ -32,10 +32,9 @@ pnpm format    # Format code
 pnpm check     # Run both linting and formatting checks
 
 # Database operations (Drizzle ORM)
+# IMPORTANT: Always use generate + migrate for schema changes. Never use db:push.
 pnpm db:generate  # Generate migrations from schema
 pnpm db:migrate   # Run migrations
-pnpm db:push      # Push schema changes directly to database
-pnpm db:pull      # Pull schema from database
 pnpm db:studio    # Open Drizzle Studio (database UI)
 ```
 
@@ -377,6 +376,7 @@ VITE_BASE_URL=http://localhost:3000
 **Database Change**:
 1. Modify schema in `src/lib/db/schema/`
 2. Run `pnpm db:generate` then `pnpm db:migrate`
+3. Never use `pnpm db:push` — all changes must go through migrations
 
 **New Server Function**:
 1. Add to appropriate `functions.ts` file
