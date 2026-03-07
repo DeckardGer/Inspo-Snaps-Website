@@ -275,24 +275,26 @@ export function TeamSwitcher({
 					})}
 				</DropdownMenuGroup>
 				{canCreateTeam && (
-				<>
-					<DropdownMenuSeparator />
-					<DropdownMenuGroup>
-						<DropdownMenuItem
-							onClick={() => setTeamModalOpen(true)}
-							className="gap-2 p-2"
-						>
-							<div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
-								<HugeiconsIcon
-									icon={AddTeamIcon}
-									className="size-3.5 text-muted-foreground"
-								/>
-							</div>
-							<div className="text-muted-foreground font-medium">Add Team</div>
-						</DropdownMenuItem>
-					</DropdownMenuGroup>
-				</>
-			)}
+					<>
+						<DropdownMenuSeparator />
+						<DropdownMenuGroup>
+							<DropdownMenuItem
+								onClick={() => setTeamModalOpen(true)}
+								className="gap-2 p-2"
+							>
+								<div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
+									<HugeiconsIcon
+										icon={AddTeamIcon}
+										className="size-3.5 text-muted-foreground"
+									/>
+								</div>
+								<div className="text-muted-foreground font-medium">
+									Add Team
+								</div>
+							</DropdownMenuItem>
+						</DropdownMenuGroup>
+					</>
+				)}
 			</DropdownMenuContent>
 
 			<TeamModal open={teamModalOpen} onOpenChange={setTeamModalOpen} />

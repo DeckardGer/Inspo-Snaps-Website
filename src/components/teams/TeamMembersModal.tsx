@@ -44,8 +44,8 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { authQueryOptions } from "@/lib/auth/queries";
 import type { AssignableRole, Role } from "@/lib/auth/permissions";
+import { authQueryOptions } from "@/lib/auth/queries";
 import type {
 	OrganizationDetails,
 	OrganizationMember,

@@ -152,7 +152,9 @@ export const Route = createFileRoute("/api/extension/folders")({
 						await requireTeamWriteAccess(organizationId, ctx);
 					} catch (error) {
 						const message =
-							error instanceof Error ? error.message : "Insufficient permissions";
+							error instanceof Error
+								? error.message
+								: "Insufficient permissions";
 						const status = message.includes("not a member") ? 404 : 403;
 						return Response.json({ error: message }, { status });
 					}
@@ -259,7 +261,9 @@ export const Route = createFileRoute("/api/extension/folders")({
 						await requireTeamWriteAccess(organizationId, ctx);
 					} catch (error) {
 						const message =
-							error instanceof Error ? error.message : "Insufficient permissions";
+							error instanceof Error
+								? error.message
+								: "Insufficient permissions";
 						const status = message.includes("not a member") ? 404 : 403;
 						return Response.json({ error: message }, { status });
 					}

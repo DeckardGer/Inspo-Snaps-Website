@@ -85,9 +85,7 @@ export function TeamsEmptyState() {
 						}
 					/>
 				) : (
-					<PricingDialog
-						trigger={<Button size="lg">Upgrade to Team</Button>}
-					/>
+					<PricingDialog trigger={<Button size="lg">Upgrade to Team</Button>} />
 				)
 			}
 		/>

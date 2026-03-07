@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth/auth";
+import type { AppSession } from "@/lib/auth/types";
 import { db } from "@/lib/db";
 import { member } from "@/lib/db/schema";
 
@@ -15,6 +16,8 @@ export const Route = createFileRoute("/api/extension/organizations")({
 				if (!session?.user) {
 					return Response.json({ error: "Unauthorized" }, { status: 401 });
 				}
+
+				const appSession = session.session as AppSession;
 
 				const memberships = await db.query.member.findMany({
 					where: eq(member.userId, session.user.id),
@@ -32,7 +35,11 @@ export const Route = createFileRoute("/api/extension/organizations")({
 					role: m.role,
 				}));
 
-				return Response.json({ organizations });
+				return Response.json({
+					organizations,
+					plan: appSession.plan,
+					canWrite: appSession.canWrite,
+				});
 			},
 		},
 	},

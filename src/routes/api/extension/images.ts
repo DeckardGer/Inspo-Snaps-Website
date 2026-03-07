@@ -9,10 +9,8 @@ import {
 	ALLOWED_IMAGE_MIME_TYPES,
 	MAX_IMAGE_SIZE_BYTES,
 } from "@/lib/images/constants";
+import { requireTeamWriteAccess } from "@/lib/organizations/authorization";
 import { generateStorageKey } from "@/lib/storage/functions";
-import {
-	requireTeamWriteAccess,
-} from "@/lib/organizations/authorization";
 import {
 	createPresignedDownloadUrl,
 	createPresignedUploadUrl,

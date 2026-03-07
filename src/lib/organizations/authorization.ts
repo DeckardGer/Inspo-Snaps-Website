@@ -42,7 +42,9 @@ export async function requireTeamWriteAccess(
 	const membership = await requireTeamMembership(organizationId, context);
 
 	if (membership.role === "viewer") {
-		throw new Error("Viewers don't have permission to modify content in this team");
+		throw new Error(
+			"Viewers don't have permission to modify content in this team",
+		);
 	}
 
 	if (!context.session.canWrite || context.session.plan === "pro") {

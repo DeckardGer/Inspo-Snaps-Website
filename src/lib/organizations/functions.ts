@@ -74,9 +74,7 @@ export const createTeam = createServerFn({ method: "POST" })
 	.inputValidator(CreateTeamInput)
 	.handler(async ({ data, context }) => {
 		if (context.session.plan !== "team" && context.session.plan !== "trial") {
-			throw new Error(
-				"A Team subscription is required to create teams",
-			);
+			throw new Error("A Team subscription is required to create teams");
 		}
 
 		const headers = getRequest().headers;
