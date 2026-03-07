@@ -2,13 +2,17 @@ import { createFileRoute } from "@tanstack/react-router";
 import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { auth } from "@/lib/auth/auth";
+import type { AppSession, AppUser } from "@/lib/auth/types";
 import { db } from "@/lib/db";
-import { folder, folderImage, image, member } from "@/lib/db/schema";
+import { folder, folderImage, image } from "@/lib/db/schema";
 import {
 	ALLOWED_IMAGE_MIME_TYPES,
 	MAX_IMAGE_SIZE_BYTES,
 } from "@/lib/images/constants";
 import { generateStorageKey } from "@/lib/storage/functions";
+import {
+	requireTeamWriteAccess,
+} from "@/lib/organizations/authorization";
 import {
 	createPresignedDownloadUrl,
 	createPresignedUploadUrl,
@@ -58,6 +62,11 @@ export const Route = createFileRoute("/api/extension/images")({
 					return Response.json({ error: "Unauthorized" }, { status: 401 });
 				}
 
+				const ctx = {
+					user: session.user as AppUser,
+					session: session.session as AppSession,
+				};
+
 				const url = new URL(request.url);
 				const action = url.searchParams.get("action");
 
@@ -66,7 +75,7 @@ export const Route = createFileRoute("/api/extension/images")({
 				}
 
 				if (action === "save") {
-					return handleSaveImages(request, session.user.id);
+					return handleSaveImages(request, session.user.id, ctx);
 				}
 
 				return Response.json(
@@ -103,7 +112,11 @@ async function handleUploadUrls(request: Request, userId: string) {
 	return Response.json({ images: results });
 }
 
-async function handleSaveImages(request: Request, userId: string) {
+async function handleSaveImages(
+	request: Request,
+	userId: string,
+	ctx: { user: AppUser; session: AppSession },
+) {
 	const body = await request.json();
 	const parsed = SaveImagesSchema.safeParse(body);
 
@@ -121,26 +134,13 @@ async function handleSaveImages(request: Request, userId: string) {
 		null;
 
 	if (organizationId) {
-		// Verify membership
-		const membership = await db.query.member.findFirst({
-			where: and(
-				eq(member.organizationId, organizationId),
-				eq(member.userId, userId),
-			),
-		});
-
-		if (!membership) {
-			return Response.json(
-				{ error: "Organization not found" },
-				{ status: 404 },
-			);
-		}
-
-		if (membership.role === "viewer") {
-			return Response.json(
-				{ error: "Insufficient permissions" },
-				{ status: 403 },
-			);
+		try {
+			await requireTeamWriteAccess(organizationId, ctx);
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Insufficient permissions";
+			const status = message.includes("not a member") ? 404 : 403;
+			return Response.json({ error: message }, { status });
 		}
 
 		// Verify folder belongs to this organization

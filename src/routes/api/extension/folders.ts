@@ -2,13 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { and, eq, inArray, isNull, or, type SQL } from "drizzle-orm";
 import { z } from "zod";
 import { auth } from "@/lib/auth/auth";
+import type { AppSession, AppUser } from "@/lib/auth/types";
 import { db } from "@/lib/db";
 import {
 	favouriteFolder,
 	folder,
 	folderImage,
 	image,
-	member,
 	userShare,
 } from "@/lib/db/schema";
 import {
@@ -16,6 +16,10 @@ import {
 	FOLDER_NAME_MIN_LENGTH,
 } from "@/lib/folders/constants";
 import { createFolderAccessRevokedNotification } from "@/lib/notifications/create";
+import {
+	requireTeamMembership,
+	requireTeamWriteAccess,
+} from "@/lib/organizations/authorization";
 import { deleteStorageObjects } from "@/lib/storage/functions";
 
 interface StoredFolder {
@@ -57,15 +61,6 @@ const UpdateFolderSchema = z.object({
 	parentId: z.string().uuid().nullable().optional(),
 });
 
-async function verifyMembership(userId: string, organizationId: string) {
-	return db.query.member.findFirst({
-		where: and(
-			eq(member.organizationId, organizationId),
-			eq(member.userId, userId),
-		),
-	});
-}
-
 export const Route = createFileRoute("/api/extension/folders")({
 	server: {
 		handlers: {
@@ -79,15 +74,18 @@ export const Route = createFileRoute("/api/extension/folders")({
 					return Response.json({ error: "Unauthorized" }, { status: 401 });
 				}
 
+				const ctx = {
+					user: session.user as AppUser,
+					session: session.session as AppSession,
+				};
+
 				const url = new URL(request.url);
 				const organizationId = url.searchParams.get("organizationId");
 
 				if (organizationId) {
-					const membership = await verifyMembership(
-						session.user.id,
-						organizationId,
-					);
-					if (!membership) {
+					try {
+						await requireTeamMembership(organizationId, ctx);
+					} catch {
 						return Response.json(
 							{ error: "Organization not found" },
 							{ status: 404 },
@@ -128,6 +126,11 @@ export const Route = createFileRoute("/api/extension/folders")({
 					return Response.json({ error: "Unauthorized" }, { status: 401 });
 				}
 
+				const ctx = {
+					user: session.user as AppUser,
+					session: session.session as AppSession,
+				};
+
 				const body = await request.json();
 				const parsed = CreateFolderSchema.safeParse(body);
 
@@ -145,21 +148,13 @@ export const Route = createFileRoute("/api/extension/folders")({
 					null;
 
 				if (organizationId) {
-					const membership = await verifyMembership(
-						session.user.id,
-						organizationId,
-					);
-					if (!membership) {
-						return Response.json(
-							{ error: "Organization not found" },
-							{ status: 404 },
-						);
-					}
-					if (membership.role === "viewer") {
-						return Response.json(
-							{ error: "Insufficient permissions" },
-							{ status: 403 },
-						);
+					try {
+						await requireTeamWriteAccess(organizationId, ctx);
+					} catch (error) {
+						const message =
+							error instanceof Error ? error.message : "Insufficient permissions";
+						const status = message.includes("not a member") ? 404 : 403;
+						return Response.json({ error: message }, { status });
 					}
 
 					// Verify parent belongs to same organization
@@ -236,6 +231,11 @@ export const Route = createFileRoute("/api/extension/folders")({
 					return Response.json({ error: "Unauthorized" }, { status: 401 });
 				}
 
+				const ctx = {
+					user: session.user as AppUser,
+					session: session.session as AppSession,
+				};
+
 				const url = new URL(request.url);
 				const id = url.searchParams.get("id");
 				const organizationId = url.searchParams.get("organizationId");
@@ -255,40 +255,28 @@ export const Route = createFileRoute("/api/extension/folders")({
 				}
 
 				if (organizationId) {
-					const membership = await verifyMembership(
-						session.user.id,
-						organizationId,
-					);
-					if (!membership) {
-						return Response.json(
-							{ error: "Organization not found" },
-							{ status: 404 },
-						);
+					try {
+						await requireTeamWriteAccess(organizationId, ctx);
+					} catch (error) {
+						const message =
+							error instanceof Error ? error.message : "Insufficient permissions";
+						const status = message.includes("not a member") ? 404 : 403;
+						return Response.json({ error: message }, { status });
 					}
 
-					// Check existing folder for creator-based permission
+					// Verify folder exists in this organization
 					const existingFolder = await db.query.folder.findFirst({
 						where: and(
 							eq(folder.id, id),
 							eq(folder.organizationId, organizationId),
 						),
-						columns: { userId: true },
+						columns: { id: true },
 					});
 
 					if (!existingFolder) {
 						return Response.json(
 							{ error: "Folder not found" },
 							{ status: 404 },
-						);
-					}
-
-					const isCreator = existingFolder.userId === session.user.id;
-					const isAdminOrOwner = ["owner", "admin"].includes(membership.role);
-
-					if (!isCreator && !isAdminOrOwner) {
-						return Response.json(
-							{ error: "Insufficient permissions" },
-							{ status: 403 },
 						);
 					}
 
@@ -333,6 +321,11 @@ export const Route = createFileRoute("/api/extension/folders")({
 					return Response.json({ error: "Unauthorized" }, { status: 401 });
 				}
 
+				const ctx = {
+					user: session.user as AppUser,
+					session: session.session as AppSession,
+				};
+
 				const url = new URL(request.url);
 				const id = url.searchParams.get("id");
 				const organizationId = url.searchParams.get("organizationId");
@@ -342,7 +335,7 @@ export const Route = createFileRoute("/api/extension/folders")({
 				}
 
 				if (organizationId) {
-					return handleDeleteOrgFolder(id, organizationId, session.user.id);
+					return handleDeleteOrgFolder(id, organizationId, ctx);
 				}
 
 				return handleDeletePersonalFolder(id, session.user.id);
@@ -354,29 +347,24 @@ export const Route = createFileRoute("/api/extension/folders")({
 async function handleDeleteOrgFolder(
 	id: string,
 	organizationId: string,
-	userId: string,
+	ctx: { user: AppUser; session: AppSession },
 ) {
-	const membership = await verifyMembership(userId, organizationId);
-	if (!membership) {
-		return Response.json({ error: "Organization not found" }, { status: 404 });
+	try {
+		await requireTeamWriteAccess(organizationId, ctx);
+	} catch (error) {
+		const message =
+			error instanceof Error ? error.message : "Insufficient permissions";
+		const status = message.includes("not a member") ? 404 : 403;
+		return Response.json({ error: message }, { status });
 	}
 
 	const folderToDelete = await db.query.folder.findFirst({
 		where: and(eq(folder.id, id), eq(folder.organizationId, organizationId)),
-		columns: { id: true, name: true, userId: true },
+		columns: { id: true, name: true },
 	});
 
 	if (!folderToDelete) {
 		return Response.json({ error: "Folder not found" }, { status: 404 });
-	}
-
-	const isCreator = folderToDelete.userId === userId;
-	const isAdminOrOwner = ["owner", "admin"].includes(membership.role);
-	if (!isCreator && !isAdminOrOwner) {
-		return Response.json(
-			{ error: "Insufficient permissions" },
-			{ status: 403 },
-		);
 	}
 
 	const allFolderIds = await getDescendantIdsForOrg(id, organizationId);
