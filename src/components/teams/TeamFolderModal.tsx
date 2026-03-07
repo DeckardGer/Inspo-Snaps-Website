@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { toast } from "sonner";
 import {
 	BaseFolderModal,
@@ -31,6 +32,9 @@ export function TeamFolderModal({
 	onOpenChange,
 }: TeamFolderModalProps) {
 	const queryClient = useQueryClient();
+	const [internalOpen, setInternalOpen] = useState(false);
+	const dialogOpen = open ?? internalOpen;
+	const setDialogOpen = onOpenChange ?? setInternalOpen;
 	const isEditing = !!folder;
 
 	const createMutation = useMutation({
@@ -41,7 +45,7 @@ export function TeamFolderModal({
 				exact: true,
 			});
 			toast.success("Folder created successfully");
-			onOpenChange?.(false);
+			setDialogOpen(false);
 		},
 		onError: (error) => {
 			toast.error("Failed to create folder", {
@@ -68,7 +72,7 @@ export function TeamFolderModal({
 				queryKey: ["teamFolderPath"],
 			});
 			toast.success("Folder updated successfully");
-			onOpenChange?.(false);
+			setDialogOpen(false);
 		},
 		onError: (error) => {
 			toast.error("Failed to update folder", {
@@ -105,8 +109,8 @@ export function TeamFolderModal({
 		<BaseFolderModal
 			folder={folder}
 			trigger={trigger}
-			open={open}
-			onOpenChange={onOpenChange}
+			open={dialogOpen}
+			onOpenChange={setDialogOpen}
 			formId="team-folder-form"
 			createDescription="Add a new folder to this team."
 			onSubmit={handleSubmit}

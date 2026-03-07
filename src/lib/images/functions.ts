@@ -248,6 +248,15 @@ export const saveTeamImage = createServerFn({ method: "POST" })
 			throw new Error("You are not a member of this organization");
 		}
 
+		const hasTeamWriteAccess =
+			membership.role !== "viewer" &&
+			context.session.canWrite &&
+			context.session.plan !== "pro";
+
+		if (!hasTeamWriteAccess) {
+			throw new Error("You don't have permission to add images in this team");
+		}
+
 		// Verify folder belongs to the organization
 		const targetFolder = await db.query.folder.findFirst({
 			where: and(
@@ -339,6 +348,15 @@ export const removeTeamImageFromFolder = createServerFn({ method: "POST" })
 
 		if (!membership) {
 			throw new Error("You are not a member of this organization");
+		}
+
+		const hasTeamWriteAccess =
+			membership.role !== "viewer" &&
+			context.session.canWrite &&
+			context.session.plan !== "pro";
+
+		if (!hasTeamWriteAccess) {
+			throw new Error("You don't have permission to remove images in this team");
 		}
 
 		// Verify folder belongs to the organization

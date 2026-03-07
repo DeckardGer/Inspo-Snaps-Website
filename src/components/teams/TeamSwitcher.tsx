@@ -43,6 +43,7 @@ import {
 	userOrganizationsQueryOptions,
 	userOrganizationsWithActiveQueryOptions,
 } from "@/lib/organizations/queries";
+import { planStateQueryOptions } from "@/lib/subscriptions/queries";
 import { cn } from "@/lib/utils";
 import { TeamMembersModal } from "./TeamMembersModal";
 import { TeamModal } from "./TeamModal";
@@ -77,6 +78,9 @@ export function TeamSwitcher({
 	const { data: organizations = [] } = useQuery(
 		userOrganizationsQueryOptions(),
 	);
+	const { data: planState } = useQuery(planStateQueryOptions());
+	const canCreateTeam =
+		planState?.plan === "team" || planState?.plan === "trial";
 
 	const setActiveMutation = useMutation({
 		mutationFn: async (organizationId: string) => {
@@ -168,6 +172,7 @@ export function TeamSwitcher({
 						const isActive = org.id === currentOrgId;
 						const isSubMenuOpen = openSubMenuId === org.id;
 						const isOwner = org.role === "owner";
+						const isAdmin = org.role === "admin";
 						return (
 							<DropdownMenuSub
 								key={org.id}
@@ -218,64 +223,76 @@ export function TeamSwitcher({
 									/>
 								</DropdownMenuSubTrigger>
 								<DropdownMenuSubContent className="min-w-40">
-									{isOwner ? (
+									{isOwner && (
+										<DropdownMenuItem
+											onClick={() => {
+												setDropdownOpen(false);
+												setEditModalOrg({ id: org.id, name: org.name });
+											}}
+										>
+											<HugeiconsIcon icon={PencilEdit01Icon} />
+											Edit Team
+										</DropdownMenuItem>
+									)}
+									{(isOwner || isAdmin) && (
+										<DropdownMenuItem
+											onClick={() => {
+												setDropdownOpen(false);
+												setMembersModalOrg({ id: org.id, name: org.name });
+											}}
+										>
+											<HugeiconsIcon icon={UserGroupIcon} />
+											Manage Team
+										</DropdownMenuItem>
+									)}
+									{isOwner && (
 										<>
-											<DropdownMenuItem
-												onClick={() => {
-													setDropdownOpen(false);
-													setEditModalOrg({ id: org.id, name: org.name });
-												}}
-											>
-												<HugeiconsIcon icon={PencilEdit01Icon} />
-												Edit Team
-											</DropdownMenuItem>
-											<DropdownMenuItem
-												onClick={() => {
-													setDropdownOpen(false);
-													setMembersModalOrg({ id: org.id, name: org.name });
-												}}
-											>
-												<HugeiconsIcon icon={UserGroupIcon} />
-												Manage Team
-											</DropdownMenuItem>
 											<DropdownMenuSeparator />
 											<DropdownMenuItem variant="destructive">
 												<HugeiconsIcon icon={Delete02Icon} />
 												Delete Team
 											</DropdownMenuItem>
 										</>
-									) : (
-										<DropdownMenuItem
-											variant="destructive"
-											onClick={() => {
-												setDropdownOpen(false);
-												setLeaveDialogOrg({ id: org.id, name: org.name });
-											}}
-										>
-											<HugeiconsIcon icon={Logout01Icon} />
-											Leave Team
-										</DropdownMenuItem>
+									)}
+									{!isOwner && (
+										<>
+											{isAdmin && <DropdownMenuSeparator />}
+											<DropdownMenuItem
+												variant="destructive"
+												onClick={() => {
+													setDropdownOpen(false);
+													setLeaveDialogOrg({ id: org.id, name: org.name });
+												}}
+											>
+												<HugeiconsIcon icon={Logout01Icon} />
+												Leave Team
+											</DropdownMenuItem>
+										</>
 									)}
 								</DropdownMenuSubContent>
 							</DropdownMenuSub>
 						);
 					})}
 				</DropdownMenuGroup>
-				<DropdownMenuSeparator />
-				<DropdownMenuGroup>
-					<DropdownMenuItem
-						onClick={() => setTeamModalOpen(true)}
-						className="gap-2 p-2"
-					>
-						<div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
-							<HugeiconsIcon
-								icon={AddTeamIcon}
-								className="size-3.5 text-muted-foreground"
-							/>
-						</div>
-						<div className="text-muted-foreground font-medium">Add Team</div>
-					</DropdownMenuItem>
-				</DropdownMenuGroup>
+				{canCreateTeam && (
+				<>
+					<DropdownMenuSeparator />
+					<DropdownMenuGroup>
+						<DropdownMenuItem
+							onClick={() => setTeamModalOpen(true)}
+							className="gap-2 p-2"
+						>
+							<div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
+								<HugeiconsIcon
+									icon={AddTeamIcon}
+									className="size-3.5 text-muted-foreground"
+								/>
+							</div>
+							<div className="text-muted-foreground font-medium">Add Team</div>
+						</DropdownMenuItem>
+					</DropdownMenuGroup>
+				</>
+			)}
 			</DropdownMenuContent>
 
 			<TeamModal open={teamModalOpen} onOpenChange={setTeamModalOpen} />

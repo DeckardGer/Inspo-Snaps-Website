@@ -72,7 +72,13 @@ const UpdateTeamInput = z.object({
 export const createTeam = createServerFn({ method: "POST" })
 	.middleware([writeAccessMiddleware])
 	.inputValidator(CreateTeamInput)
-	.handler(async ({ data }) => {
+	.handler(async ({ data, context }) => {
+		if (context.session.plan !== "team" && context.session.plan !== "trial") {
+			throw new Error(
+				"A Team subscription is required to create teams",
+			);
+		}
+
 		const headers = getRequest().headers;
 
 		const result = await auth.api.createOrganization({

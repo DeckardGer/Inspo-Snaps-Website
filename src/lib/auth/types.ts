@@ -23,4 +23,5 @@ export interface AppSession {
 	updatedAt: Date;
 	activeOrganizationId?: string | null;
 	canWrite: boolean;
+	plan: string;
 }

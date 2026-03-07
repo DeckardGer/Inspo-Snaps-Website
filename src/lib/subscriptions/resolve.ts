@@ -28,7 +28,7 @@ export async function resolveUserPlanState(
 
 	if (!dbUser) {
 		return {
-			plan: "trial",
+			plan: "none",
 			status: "expired",
 			canWrite: false,
 			trialEndsAt: null,
@@ -105,7 +105,7 @@ export async function resolveUserPlanState(
 
 	// Trial expired, no active subscription
 	return {
-		plan: "trial",
+		plan: "none",
 		status: "expired",
 		canWrite: false,
 		trialEndsAt,

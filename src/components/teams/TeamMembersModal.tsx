@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { authQueryOptions } from "@/lib/auth/queries";
 import type { AssignableRole, Role } from "@/lib/auth/permissions";
 import type {
 	OrganizationDetails,
@@ -103,6 +104,7 @@ export function TeamMembersModal({
 	const setDialogOpen = onOpenChange ?? setInternalOpen;
 
 	const queryClient = useQueryClient();
+	const { data: currentUser } = useQuery(authQueryOptions());
 
 	// Fetch organization details (members + invitations)
 	const { data: orgDetails, isLoading } = useQuery({
@@ -218,6 +220,7 @@ export function TeamMembersModal({
 								members={members}
 								organizationId={organizationId}
 								currentUserRole={orgDetails?.currentUserRole ?? "member"}
+								currentUserId={currentUser?.id}
 							/>
 						)}
 					</TabsContent>
@@ -247,10 +250,12 @@ function MembersList({
 	members,
 	organizationId,
 	currentUserRole,
+	currentUserId,
 }: {
 	members: OrganizationMember[];
 	organizationId: string;
 	currentUserRole: string;
+	currentUserId?: string;
 }) {
 	return (
 		<div>
@@ -264,6 +269,7 @@ function MembersList({
 						member={member}
 						organizationId={organizationId}
 						currentUserRole={currentUserRole}
+						currentUserId={currentUserId}
 					/>
 				))}
 			</div>
@@ -275,14 +281,18 @@ function MemberRow({
 	member,
 	organizationId,
 	currentUserRole,
+	currentUserId,
 }: {
 	member: OrganizationMember;
 	organizationId: string;
 	currentUserRole: string;
+	currentUserId?: string;
 }) {
 	const queryClient = useQueryClient();
 	const isOwner = member.role === "owner";
-	const canManageMembers = currentUserRole === "owner";
+	const isSelf = member.user.id === currentUserId;
+	const canManageMembers =
+		(currentUserRole === "owner" || currentUserRole === "admin") && !isSelf;
 
 	const removeMemberMutation = useMutation({
 		mutationFn: () =>

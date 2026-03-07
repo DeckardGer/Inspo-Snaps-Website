@@ -669,6 +669,15 @@ export const createTeamFolder = createServerFn({ method: "POST" })
 			throw new Error("You are not a member of this organization");
 		}
 
+		const hasTeamWriteAccess =
+			membership.role !== "viewer" &&
+			context.session.canWrite &&
+			context.session.plan !== "pro";
+
+		if (!hasTeamWriteAccess) {
+			throw new Error("You don't have permission to create folders in this team");
+		}
+
 		// If creating in a subfolder, verify parent belongs to same org
 		if (data.parentId) {
 			const parent = await db.query.folder.findFirst({
@@ -762,7 +771,7 @@ export const updateTeamFolder = createServerFn({ method: "POST" })
 			throw new Error("Team folder not found");
 		}
 
-		// Check permissions: creator or org admin/owner
+		// Check permissions: must be a member with write access (not viewer)
 		const membership = await db.query.member.findFirst({
 			where: and(
 				eq(member.organizationId, organizationId),
@@ -774,13 +783,13 @@ export const updateTeamFolder = createServerFn({ method: "POST" })
 			throw new Error("You are not a member of this organization");
 		}
 
-		const isCreator = existingFolder.userId === context.user.id;
-		const isAdminOrOwner = ["owner", "admin"].includes(membership.role);
+		const hasTeamWriteAccess =
+			membership.role !== "viewer" &&
+			context.session.canWrite &&
+			context.session.plan !== "pro";
 
-		if (!isCreator && !isAdminOrOwner) {
-			throw new Error(
-				"Only the folder creator or organization admins can edit this folder",
-			);
+		if (!hasTeamWriteAccess) {
+			throw new Error("You don't have permission to edit folders in this team");
 		}
 
 		const result = await db
@@ -807,7 +816,7 @@ export const deleteTeamFolder = createServerFn({ method: "POST" })
 			throw new Error("Team folder not found");
 		}
 
-		// Check permissions
+		// Check permissions: must be a member with write access (not viewer)
 		const membership = await db.query.member.findFirst({
 			where: and(
 				eq(member.organizationId, data.organizationId),
@@ -819,13 +828,13 @@ export const deleteTeamFolder = createServerFn({ method: "POST" })
 			throw new Error("You are not a member of this organization");
 		}
 
-		const isCreator = existingFolder.userId === context.user.id;
-		const isAdminOrOwner = ["owner", "admin"].includes(membership.role);
+		const hasTeamWriteAccess =
+			membership.role !== "viewer" &&
+			context.session.canWrite &&
+			context.session.plan !== "pro";
 
-		if (!isCreator && !isAdminOrOwner) {
-			throw new Error(
-				"Only the folder creator or organization admins can delete this folder",
-			);
+		if (!hasTeamWriteAccess) {
+			throw new Error("You don't have permission to delete folders in this team");
 		}
 
 		// Get all descendant folders for cleanup

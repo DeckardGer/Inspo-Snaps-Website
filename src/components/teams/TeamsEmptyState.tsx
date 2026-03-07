@@ -1,11 +1,14 @@
 import { AddTeamIcon, UserGroupIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useQuery } from "@tanstack/react-query";
+import { PricingDialog } from "@/components/subscriptions/PricingDialog";
 import { Button } from "@/components/ui/button";
 import {
 	EmptyState,
 	FloatingIcon,
 	IllustrationContainer,
 } from "@/components/ui/empty-state";
+import { planStateQueryOptions } from "@/lib/subscriptions/queries";
 import { TeamModal } from "./TeamModal";
 
 function TeamsIllustration() {
@@ -58,20 +61,34 @@ function TeamsIllustration() {
 }
 
 export function TeamsEmptyState() {
+	const { data: planState } = useQuery(planStateQueryOptions());
+	const canCreateTeam =
+		planState?.plan === "team" || planState?.plan === "trial";
+
 	return (
 		<EmptyState
 			illustration={<TeamsIllustration />}
-			title="Create your first team"
-			description="Teams let you collaborate with others. Create a team to share folders and images with your colleagues, friends, or family."
+			title={canCreateTeam ? "Create your first team" : "Teams"}
+			description={
+				canCreateTeam
+					? "Teams let you collaborate with others. Create a team to share folders and images with your colleagues, friends, or family."
+					: "Teams let you collaborate with others. Upgrade to the Team plan to create and manage teams."
+			}
 			actions={
-				<TeamModal
-					trigger={
-						<Button size="lg">
-							<HugeiconsIcon icon={AddTeamIcon} className="size-5" />
-							Create Team
-						</Button>
-					}
-				/>
+				canCreateTeam ? (
+					<TeamModal
+						trigger={
+							<Button size="lg">
+								<HugeiconsIcon icon={AddTeamIcon} className="size-5" />
+								Create Team
+							</Button>
+						}
+					/>
+				) : (
+					<PricingDialog
+						trigger={<Button size="lg">Upgrade to Team</Button>}
+					/>
+				)
 			}
 		/>
 	);

@@ -1,4 +1,5 @@
 export const PLANS = {
+	none: { name: "Free", canWrite: false },
 	trial: { name: "Trial", canWrite: true },
 	pro: { name: "Pro", canWrite: true },
 	team: { name: "Team", canWrite: true },
