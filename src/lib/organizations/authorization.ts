@@ -41,13 +41,14 @@ export async function requireTeamWriteAccess(
 ) {
 	const membership = await requireTeamMembership(organizationId, context);
 
-	const hasWriteAccess =
-		membership.role !== "viewer" &&
-		context.session.canWrite &&
-		context.session.plan !== "pro";
+	if (membership.role === "viewer") {
+		throw new Error("Viewers don't have permission to modify content in this team");
+	}
 
-	if (!hasWriteAccess) {
-		throw new Error("You don't have permission to modify content in this team");
+	if (!context.session.canWrite || context.session.plan === "pro") {
+		throw new Error(
+			"A Team subscription is required to create and edit content in teams. Please upgrade to continue.",
+		);
 	}
 
 	return membership;
