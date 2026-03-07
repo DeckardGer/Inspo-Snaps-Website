@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { auth } from "@/lib/auth/auth";
 import { authMiddleware } from "@/lib/auth/middleware";
@@ -9,18 +9,23 @@ import { db } from "@/lib/db";
 import {
 	favouriteFolder,
 	folder,
+	folderImage,
+	image,
 	invitation,
 	member,
+	notification,
 	organization,
 	user,
 } from "@/lib/db/schema";
 import {
+	createTeamDeletedNotification,
 	createTeamInviteAcceptedNotification,
 	createTeamInviteDeclinedNotification,
 	createTeamInviteNotification,
 	createTeamMemberRemovedNotification,
 	createTeamRoleChangedNotification,
 } from "@/lib/notifications/create";
+import { deleteStorageObjects } from "@/lib/storage/functions";
 import { writeAccessMiddleware } from "@/lib/subscriptions/middleware";
 
 const OrganizationIdInput = z.object({
@@ -864,6 +869,142 @@ export const rejectTeamInvitation = createServerFn({ method: "POST" })
 			actorId: context.user.id,
 			organizationId: inv.organizationId,
 			organizationName: inv.organization.name,
+		});
+
+		return { success: true };
+	});
+
+export const deleteTeam = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(OrganizationIdInput)
+	.handler(async ({ data, context }) => {
+		const headers = getRequest().headers;
+
+		// Verify user is owner
+		const membership = await db.query.member.findFirst({
+			where: and(
+				eq(member.organizationId, data.organizationId),
+				eq(member.userId, context.user.id),
+			),
+		});
+
+		if (!membership || membership.role !== "owner") {
+			throw new Error("Only the team owner can delete a team");
+		}
+
+		// Get org details for notifications
+		const org = await db.query.organization.findFirst({
+			where: eq(organization.id, data.organizationId),
+			columns: { name: true },
+		});
+
+		if (!org) throw new Error("Organization not found");
+
+		// Get all members (excluding owner) for notifications
+		const members = await db.query.member.findMany({
+			where: and(
+				eq(member.organizationId, data.organizationId),
+				// We need all non-owner members
+			),
+			columns: { userId: true },
+		});
+
+		const otherMemberIds = members
+			.filter((m) => m.userId !== context.user.id)
+			.map((m) => m.userId);
+
+		// Send team_deleted notification to all non-owner members
+		await Promise.all(
+			otherMemberIds.map((userId) =>
+				createTeamDeletedNotification({
+					recipientId: userId,
+					actorId: context.user.id,
+					organizationName: org.name,
+				}),
+			),
+		);
+
+		// Clean up stale team notifications that reference this org
+		const teamNotificationTypes = [
+			"team_invite",
+			"team_invite_accepted",
+			"team_invite_declined",
+			"team_role_changed",
+		] as const;
+
+		await db
+			.delete(notification)
+			.where(
+				and(
+					inArray(notification.type, [...teamNotificationTypes]),
+					sql`${notification.data}->>'organizationId' = ${data.organizationId}`,
+				),
+			);
+
+		// Clean up team folders, images, and S3 objects
+		const orgFolders = await db.query.folder.findMany({
+			where: eq(folder.organizationId, data.organizationId),
+			columns: { id: true },
+		});
+
+		if (orgFolders.length > 0) {
+			const orgFolderIds = orgFolders.map((f) => f.id);
+
+			// Find all images linked to team folders
+			const affectedImages = await db.query.folderImage.findMany({
+				where: inArray(folderImage.folderId, orgFolderIds),
+				columns: { imageId: true },
+			});
+			const imageIds = [
+				...new Set(affectedImages.map((fi) => fi.imageId)),
+			];
+
+			// Clean up favourites for all members
+			await db
+				.delete(favouriteFolder)
+				.where(inArray(favouriteFolder.folderId, orgFolderIds));
+
+			// Delete all team folders (cascade handles folderImage junction)
+			await db
+				.delete(folder)
+				.where(eq(folder.organizationId, data.organizationId));
+
+			// Clean up orphaned images (no longer linked to any folder)
+			if (imageIds.length > 0) {
+				const remainingLinks = await db.query.folderImage.findMany({
+					where: inArray(folderImage.imageId, imageIds),
+					columns: { imageId: true },
+				});
+
+				const stillLinkedIds = new Set(
+					remainingLinks.map((r) => r.imageId),
+				);
+				const orphanedIds = imageIds.filter(
+					(id) => !stillLinkedIds.has(id),
+				);
+
+				if (orphanedIds.length > 0) {
+					const orphanedImages = await db.query.image.findMany({
+						where: inArray(image.id, orphanedIds),
+						columns: { id: true, storageKey: true },
+					});
+
+					await db
+						.delete(image)
+						.where(inArray(image.id, orphanedIds));
+					await deleteStorageObjects(
+						orphanedImages.map((i) => i.storageKey),
+					);
+				}
+			}
+		}
+
+		// Delete the organization (cascade deletes members + invitations)
+		await auth.api.deleteOrganization({
+			headers,
+			body: {
+				organizationId: data.organizationId,
+			},
 		});
 
 		return { success: true };

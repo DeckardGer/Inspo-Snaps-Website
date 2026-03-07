@@ -59,6 +59,11 @@ export type TeamRoleChangedData = {
 	newRole: string;
 };
 
+export type TeamDeletedData = {
+	type: "team_deleted";
+	organizationName: string;
+};
+
 // Union of all notification data types
 export type NotificationData =
 	| FolderInviteData
@@ -69,7 +74,8 @@ export type NotificationData =
 	| TeamInviteAcceptedData
 	| TeamInviteDeclinedData
 	| TeamMemberRemovedData
-	| TeamRoleChangedData;
+	| TeamRoleChangedData
+	| TeamDeletedData;
 
 // Infer notification type from data
 export type NotificationTypeFromData<T extends NotificationData> = T["type"];

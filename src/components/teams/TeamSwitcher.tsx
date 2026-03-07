@@ -37,8 +37,10 @@ import {
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import authClient from "@/lib/auth/auth-client";
-import { leaveOrganization } from "@/lib/organizations/functions";
+import { deleteTeam, leaveOrganization } from "@/lib/organizations/functions";
 import {
 	userOrganizationsQueryOptions,
 	userOrganizationsWithActiveQueryOptions,
@@ -68,6 +70,11 @@ export function TeamSwitcher({
 		id: string;
 		name: string;
 	} | null>(null);
+	const [deleteDialogOrg, setDeleteDialogOrg] = useState<{
+		id: string;
+		name: string;
+	} | null>(null);
+	const [deleteConfirmText, setDeleteConfirmText] = useState("");
 	const [editModalOrg, setEditModalOrg] = useState<{
 		id: string;
 		name: string;
@@ -116,6 +123,36 @@ export function TeamSwitcher({
 		},
 		onError: (error) => {
 			toast.error("Failed to leave team", {
+				description: error.message,
+			});
+		},
+	});
+
+	const deleteMutation = useMutation({
+		mutationFn: (organizationId: string) =>
+			deleteTeam({ data: { organizationId } }),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["organizations"],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["favouriteFolders"],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["notifications"],
+			});
+			toast.success("Team deleted", {
+				description: `"${deleteDialogOrg?.name}" has been permanently deleted.`,
+			});
+			setDeleteDialogOrg(null);
+			setDeleteConfirmText("");
+
+			if (deleteDialogOrg?.id === currentOrgId) {
+				navigate({ to: "/team-folders" });
+			}
+		},
+		onError: (error) => {
+			toast.error("Failed to delete team", {
 				description: error.message,
 			});
 		},
@@ -248,7 +285,13 @@ export function TeamSwitcher({
 									{isOwner && (
 										<>
 											<DropdownMenuSeparator />
-											<DropdownMenuItem variant="destructive">
+											<DropdownMenuItem
+												variant="destructive"
+												onClick={() => {
+													setDropdownOpen(false);
+													setDeleteDialogOrg({ id: org.id, name: org.name });
+												}}
+											>
 												<HugeiconsIcon icon={Delete02Icon} />
 												Delete Team
 											</DropdownMenuItem>
@@ -356,6 +399,68 @@ export function TeamSwitcher({
 								</>
 							) : (
 								"Leave Team"
+							)}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+			{/* Delete Team confirmation dialog */}
+			<AlertDialog
+				open={!!deleteDialogOrg}
+				onOpenChange={(open) => {
+					if (!open) {
+						setDeleteDialogOrg(null);
+						setDeleteConfirmText("");
+					}
+				}}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Delete team?</AlertDialogTitle>
+						<AlertDialogDescription>
+							This will permanently delete{" "}
+							<strong>{deleteDialogOrg?.name}</strong> and all its folders,
+							images, and member access. This action cannot be undone.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<div className="space-y-2">
+						<Label htmlFor="delete-team-confirm">
+							Type <strong>{deleteDialogOrg?.name}</strong> to confirm
+						</Label>
+						<Input
+							id="delete-team-confirm"
+							value={deleteConfirmText}
+							onChange={(e) => setDeleteConfirmText(e.target.value)}
+							placeholder={deleteDialogOrg?.name}
+							autoComplete="off"
+						/>
+					</div>
+					<AlertDialogFooter>
+						<AlertDialogCancel disabled={deleteMutation.isPending}>
+							Cancel
+						</AlertDialogCancel>
+						<AlertDialogAction
+							variant="destructive"
+							onClick={() => {
+								if (deleteDialogOrg) {
+									deleteMutation.mutate(deleteDialogOrg.id);
+								}
+							}}
+							disabled={
+								deleteMutation.isPending ||
+								deleteConfirmText !== deleteDialogOrg?.name
+							}
+						>
+							{deleteMutation.isPending ? (
+								<>
+									<HugeiconsIcon
+										icon={Loading03Icon}
+										className="animate-spin"
+									/>
+									Deleting...
+								</>
+							) : (
+								"Delete Team"
 							)}
 						</AlertDialogAction>
 					</AlertDialogFooter>

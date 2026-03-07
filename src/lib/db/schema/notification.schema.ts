@@ -21,6 +21,7 @@ export const NOTIFICATION_TYPES = [
 	"team_invite_declined",
 	"team_member_removed",
 	"team_role_changed",
+	"team_deleted",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];

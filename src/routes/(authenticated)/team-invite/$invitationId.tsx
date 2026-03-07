@@ -107,8 +107,8 @@ function RouteComponent() {
 						</div>
 						<h1 className="text-2xl font-semibold">Invitation not found</h1>
 						<p className="text-muted-foreground">
-							This invitation may have expired, been declined, or you may have
-							already joined this team.
+							This invitation may have expired, been declined, or the team may
+							no longer exist.
 						</p>
 						<Button onClick={() => navigate({ to: "/team-folders" })}>
 							Go to Team Folders

@@ -209,6 +209,25 @@ export async function createTeamMemberRemovedNotification(params: {
 }
 
 /**
+ * Create notification for team deleted
+ */
+export async function createTeamDeletedNotification(params: {
+	recipientId: string;
+	actorId: string;
+	organizationName: string;
+}): Promise<string> {
+	return createNotification({
+		userId: params.recipientId,
+		type: "team_deleted",
+		actorId: params.actorId,
+		data: {
+			type: "team_deleted",
+			organizationName: params.organizationName,
+		},
+	});
+}
+
+/**
  * Create notification for team role changed
  */
 export async function createTeamRoleChangedNotification(params: {
