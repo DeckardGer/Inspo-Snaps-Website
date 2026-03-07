@@ -23,33 +23,61 @@ const CHROME_EXTENSION_ID = "logjliapdhfaooaeanbjojildfhilaab";
 
 /**
  * Check if the InspoSnaps extension is installed.
- * Works on both Chromium and Firefox browsers.
- * The extension must have a content script that listens for the probe event.
+ * - Chromium: tries chrome.runtime.sendMessage first (externally_connectable)
+ * - Fallback: dispatches a probe event for content-script-based detection
  */
-export function checkExtensionInstalled(timeout = 300): Promise<ExtensionInfo> {
+export function checkExtensionInstalled(timeout = 500): Promise<ExtensionInfo> {
 	return new Promise((resolve) => {
 		if (typeof window === "undefined") {
 			resolve({ installed: false });
 			return;
 		}
 
-		const timeoutId = setTimeout(() => {
-			resolve({ installed: false });
-		}, timeout);
+		// Chromium: try direct messaging via externally_connectable
+		if (typeof chrome?.runtime?.sendMessage !== "undefined") {
+			try {
+				chrome.runtime.sendMessage(
+					CHROME_EXTENSION_ID,
+					{ type: "INSPO_SNAPS_PING" },
+					(response) => {
+						if (chrome.runtime.lastError || !response) {
+							// Extension not installed or didn't respond — try event fallback
+							resolveViaProbe();
+							return;
+						}
+						resolve({
+							installed: true,
+							version: response.version,
+						});
+					},
+				);
+				return;
+			} catch {
+				// chrome.runtime.sendMessage threw — fall through to probe
+			}
+		}
 
-		window.addEventListener(
-			"INSPO_SNAPS_INSTALLED",
-			((event: CustomEvent<{ version?: string }>) => {
-				clearTimeout(timeoutId);
-				resolve({
-					installed: true,
-					version: event.detail?.version,
-				});
-			}) as EventListener,
-			{ once: true },
-		);
+		resolveViaProbe();
 
-		window.dispatchEvent(new CustomEvent("INSPO_SNAPS_PROBE"));
+		function resolveViaProbe() {
+			const timeoutId = setTimeout(() => {
+				resolve({ installed: false });
+			}, timeout);
+
+			window.addEventListener(
+				"INSPO_SNAPS_INSTALLED",
+				((event: CustomEvent<{ version?: string }>) => {
+					clearTimeout(timeoutId);
+					resolve({
+						installed: true,
+						version: event.detail?.version,
+					});
+				}) as EventListener,
+				{ once: true },
+			);
+
+			window.dispatchEvent(new CustomEvent("INSPO_SNAPS_PROBE"));
+		}
 	});
 }
 

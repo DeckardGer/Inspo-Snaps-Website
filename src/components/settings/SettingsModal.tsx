@@ -17,7 +17,7 @@ import {
 	useQueryClient,
 	useSuspenseQuery,
 } from "@tanstack/react-query";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { ChangePasswordDialog } from "@/components/settings/ChangePasswordDialog";
@@ -40,6 +40,10 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import authClient from "@/lib/auth/auth-client";
+import {
+	checkExtensionInstalled,
+	type ExtensionInfo,
+} from "@/lib/auth/extension";
 import {
 	checkUsernameAvailability,
 	getAvatarUploadUrl,
@@ -202,8 +206,19 @@ export function SettingsModal({
 	// Track intended scroll position to prevent focus-induced scroll jumps
 	const intendedScrollRef = useRef<number>(0);
 
+	const [extensionInfo, setExtensionInfo] = useState<ExtensionInfo | null>(
+		null,
+	);
+
 	const dialogOpen = open ?? internalOpen;
 	const setDialogOpen = onOpenChange ?? setInternalOpen;
+
+	// Check extension status when dialog opens
+	useEffect(() => {
+		if (dialogOpen) {
+			checkExtensionInstalled().then(setExtensionInfo);
+		}
+	}, [dialogOpen]);
 
 	// ─────────────────────────────────────────────────────────────────────────
 	// Username Form & Mutation
@@ -1028,19 +1043,38 @@ export function SettingsModal({
 											Save images from any website
 										</p>
 									</div>
-									<Button
-										variant="outline"
-										size="sm"
-										className="gap-1.5"
-										disabled
-									>
-										Install
-										<HugeiconsIcon
-											icon={ArrowUpRight01Icon}
-											className="size-3"
-											strokeWidth={2}
-										/>
-									</Button>
+									{extensionInfo?.installed ? (
+										<div className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-sm shadow-xs dark:border-input dark:bg-input/30">
+											<span className="relative flex size-2">
+												<span className="absolute inline-flex size-full animate-ping rounded-full bg-green-400 opacity-75" />
+												<span className="relative inline-flex size-2 rounded-full bg-green-500" />
+											</span>
+											<span className="text-green-600 dark:text-green-400">
+												Connected
+											</span>
+										</div>
+									) : (
+										<Button
+											variant="outline"
+											size="sm"
+											className="gap-1.5"
+											render={
+												// biome-ignore lint/a11y/useAnchorContent: content provided by Button children
+												<a
+													href="https://chromewebstore.google.com/"
+													target="_blank"
+													rel="noopener noreferrer"
+												/>
+											}
+										>
+											Install
+											<HugeiconsIcon
+												icon={ArrowUpRight01Icon}
+												className="size-3"
+												strokeWidth={2}
+											/>
+										</Button>
+									)}
 								</div>
 							</div>
 						</section>
