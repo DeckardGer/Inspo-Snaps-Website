@@ -14,7 +14,7 @@ const TRIAL_TOTAL_DAYS = 14;
 
 export function SidebarUpgradeCard() {
 	const { data: planState } = useQuery(planStateQueryOptions());
-	const { state } = useSidebar();
+	const { state, isMobile } = useSidebar();
 
 	// Always render the SidebarGroup wrapper so the tree is stable for hydration
 	const hidden =
@@ -40,7 +40,8 @@ export function SidebarUpgradeCard() {
 	const daysText = daysRemaining === 1 ? "1 day" : `${daysRemaining} days`;
 
 	// Collapsed sidebar: show just a sparkle icon button
-	if (state === "collapsed") {
+	// On mobile, the sidebar opens as a full-width sheet, so always show the expanded card
+	if (state === "collapsed" && !isMobile) {
 		return (
 			<SidebarGroup className="mt-auto">
 				<SidebarGroupContent className="flex justify-center">
