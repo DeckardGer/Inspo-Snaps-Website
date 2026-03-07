@@ -3,8 +3,12 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { db } from "@/lib/db";
-import { folder, folderImage, image, member } from "@/lib/db/schema";
+import { folder, folderImage, image } from "@/lib/db/schema";
 import { MAX_IMAGE_SIZE_BYTES } from "@/lib/images/constants";
+import {
+	requireTeamMembership,
+	requireTeamWriteAccess,
+} from "@/lib/organizations/authorization";
 import { uploadRateLimitMiddleware } from "@/lib/rate-limit/middleware";
 import {
 	createPresignedDownloadUrl,
@@ -236,26 +240,7 @@ export const saveTeamImage = createServerFn({ method: "POST" })
 	.middleware([writeAccessMiddleware, uploadRateLimitMiddleware])
 	.inputValidator(SaveTeamImageInput)
 	.handler(async ({ data, context }) => {
-		// Verify user is member of organization
-		const membership = await db.query.member.findFirst({
-			where: and(
-				eq(member.organizationId, data.organizationId),
-				eq(member.userId, context.user.id),
-			),
-		});
-
-		if (!membership) {
-			throw new Error("You are not a member of this organization");
-		}
-
-		const hasTeamWriteAccess =
-			membership.role !== "viewer" &&
-			context.session.canWrite &&
-			context.session.plan !== "pro";
-
-		if (!hasTeamWriteAccess) {
-			throw new Error("You don't have permission to add images in this team");
-		}
+		await requireTeamWriteAccess(data.organizationId, context);
 
 		// Verify folder belongs to the organization
 		const targetFolder = await db.query.folder.findFirst({
@@ -294,17 +279,7 @@ export const getTeamFolderImages = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(TeamFolderImageInput)
 	.handler(async ({ data, context }) => {
-		// Verify user is member of organization
-		const membership = await db.query.member.findFirst({
-			where: and(
-				eq(member.organizationId, data.organizationId),
-				eq(member.userId, context.user.id),
-			),
-		});
-
-		if (!membership) {
-			throw new Error("You are not a member of this organization");
-		}
+		await requireTeamMembership(data.organizationId, context);
 
 		// Verify folder belongs to the organization
 		const f = await db.query.folder.findFirst({
@@ -338,26 +313,7 @@ export const removeTeamImageFromFolder = createServerFn({ method: "POST" })
 	.middleware([writeAccessMiddleware])
 	.inputValidator(RemoveTeamImageInput)
 	.handler(async ({ data, context }) => {
-		// Verify user is member of organization
-		const membership = await db.query.member.findFirst({
-			where: and(
-				eq(member.organizationId, data.organizationId),
-				eq(member.userId, context.user.id),
-			),
-		});
-
-		if (!membership) {
-			throw new Error("You are not a member of this organization");
-		}
-
-		const hasTeamWriteAccess =
-			membership.role !== "viewer" &&
-			context.session.canWrite &&
-			context.session.plan !== "pro";
-
-		if (!hasTeamWriteAccess) {
-			throw new Error("You don't have permission to remove images in this team");
-		}
+		await requireTeamWriteAccess(data.organizationId, context);
 
 		// Verify folder belongs to the organization
 		const targetFolder = await db.query.folder.findFirst({

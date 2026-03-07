@@ -8,7 +8,6 @@ import {
 	folder,
 	folderImage,
 	image,
-	member,
 	userShare,
 } from "@/lib/db/schema";
 import {
@@ -18,6 +17,10 @@ import {
 	type FolderColor,
 } from "@/lib/folders/constants";
 import { createFolderAccessRevokedNotification } from "@/lib/notifications/create";
+import {
+	requireTeamMembership,
+	requireTeamWriteAccess,
+} from "@/lib/organizations/authorization";
 import { deleteStorageObjects } from "@/lib/storage/functions";
 import { writeAccessMiddleware } from "@/lib/subscriptions/middleware";
 
@@ -657,26 +660,7 @@ export const createTeamFolder = createServerFn({ method: "POST" })
 	.middleware([writeAccessMiddleware])
 	.inputValidator(CreateTeamFolderInput)
 	.handler(async ({ data, context }) => {
-		// Verify user is member of organization
-		const membership = await db.query.member.findFirst({
-			where: and(
-				eq(member.organizationId, data.organizationId),
-				eq(member.userId, context.user.id),
-			),
-		});
-
-		if (!membership) {
-			throw new Error("You are not a member of this organization");
-		}
-
-		const hasTeamWriteAccess =
-			membership.role !== "viewer" &&
-			context.session.canWrite &&
-			context.session.plan !== "pro";
-
-		if (!hasTeamWriteAccess) {
-			throw new Error("You don't have permission to create folders in this team");
-		}
+		await requireTeamWriteAccess(data.organizationId, context);
 
 		// If creating in a subfolder, verify parent belongs to same org
 		if (data.parentId) {
@@ -714,17 +698,7 @@ export const getTeamFolders = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(GetTeamFoldersInput)
 	.handler(async ({ data, context }) => {
-		// Verify user is member
-		const membership = await db.query.member.findFirst({
-			where: and(
-				eq(member.organizationId, data.organizationId),
-				eq(member.userId, context.user.id),
-			),
-		});
-
-		if (!membership) {
-			throw new Error("You are not a member of this organization");
-		}
+		await requireTeamMembership(data.organizationId, context);
 
 		const parentCondition = data.parentId
 			? eq(folder.parentId, data.parentId)
@@ -771,26 +745,7 @@ export const updateTeamFolder = createServerFn({ method: "POST" })
 			throw new Error("Team folder not found");
 		}
 
-		// Check permissions: must be a member with write access (not viewer)
-		const membership = await db.query.member.findFirst({
-			where: and(
-				eq(member.organizationId, organizationId),
-				eq(member.userId, context.user.id),
-			),
-		});
-
-		if (!membership) {
-			throw new Error("You are not a member of this organization");
-		}
-
-		const hasTeamWriteAccess =
-			membership.role !== "viewer" &&
-			context.session.canWrite &&
-			context.session.plan !== "pro";
-
-		if (!hasTeamWriteAccess) {
-			throw new Error("You don't have permission to edit folders in this team");
-		}
+		await requireTeamWriteAccess(organizationId, context);
 
 		const result = await db
 			.update(folder)
@@ -816,26 +771,7 @@ export const deleteTeamFolder = createServerFn({ method: "POST" })
 			throw new Error("Team folder not found");
 		}
 
-		// Check permissions: must be a member with write access (not viewer)
-		const membership = await db.query.member.findFirst({
-			where: and(
-				eq(member.organizationId, data.organizationId),
-				eq(member.userId, context.user.id),
-			),
-		});
-
-		if (!membership) {
-			throw new Error("You are not a member of this organization");
-		}
-
-		const hasTeamWriteAccess =
-			membership.role !== "viewer" &&
-			context.session.canWrite &&
-			context.session.plan !== "pro";
-
-		if (!hasTeamWriteAccess) {
-			throw new Error("You don't have permission to delete folders in this team");
-		}
+		await requireTeamWriteAccess(data.organizationId, context);
 
 		// Get all descendant folders for cleanup
 		const allFolderIds = await getTeamDescendantIds(
@@ -909,15 +845,7 @@ export const getTeamFolderPath = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(TeamFolderIdInput)
 	.handler(async ({ data, context }) => {
-		// Verify membership
-		const membership = await db.query.member.findFirst({
-			where: and(
-				eq(member.organizationId, data.organizationId),
-				eq(member.userId, context.user.id),
-			),
-		});
-
-		if (!membership) throw new Error("Not a member of this organization");
+		await requireTeamMembership(data.organizationId, context);
 
 		const path: Array<{ id: string; name: string }> = [];
 		let currentId: string | null = data.id;
@@ -946,15 +874,7 @@ export const getTeamFolderStats = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
 	.inputValidator(TeamFolderIdInput)
 	.handler(async ({ data, context }): Promise<FolderStats> => {
-		// Verify membership
-		const membership = await db.query.member.findFirst({
-			where: and(
-				eq(member.organizationId, data.organizationId),
-				eq(member.userId, context.user.id),
-			),
-		});
-
-		if (!membership) throw new Error("Not a member of this organization");
+		await requireTeamMembership(data.organizationId, context);
 
 		// Verify folder belongs to organization
 		const f = await db.query.folder.findFirst({
