@@ -58,7 +58,7 @@ export function PricingDialog({
 								>
 									Annual
 									<span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-500">
-										Save 25%
+										Save 17%
 									</span>
 								</TabsTrigger>
 							</TabsList>
@@ -106,7 +106,7 @@ export function PricingDialog({
 										: `Billed $${tier.annualPrice * 12}/year`}
 									{billing === "annual" && (
 										<span className="absolute top-1/2 ml-1.5 -translate-y-1/2 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-500">
-											25% off
+											17% off
 										</span>
 									)}
 								</p>
