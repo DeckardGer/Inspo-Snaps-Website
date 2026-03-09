@@ -21,8 +21,8 @@ const getS3Client = createServerOnlyFn(() => {
 			endpoint: serverEnv.S3_ENDPOINT || undefined,
 			forcePathStyle: serverEnv.S3_FORCE_PATH_STYLE,
 			credentials: {
-				accessKeyId: serverEnv.S3_ACCESS_KEY_ID || "",
-				secretAccessKey: serverEnv.S3_SECRET_ACCESS_KEY || "",
+				accessKeyId: serverEnv.S3_ACCESS_KEY_ID,
+				secretAccessKey: serverEnv.S3_SECRET_ACCESS_KEY,
 			},
 		});
 	}
@@ -31,7 +31,7 @@ const getS3Client = createServerOnlyFn(() => {
 
 const getBucketName = createServerOnlyFn(() => {
 	if (_bucketName === null) {
-		_bucketName = serverEnv.S3_BUCKET_NAME || "";
+		_bucketName = serverEnv.S3_BUCKET_NAME;
 	}
 	return _bucketName;
 });
