@@ -5,14 +5,17 @@ User-agent: *
 Allow: /
 Allow: /login
 Allow: /signup
+Allow: /privacy
+Allow: /terms
 
 # Disallow authenticated/private routes
-Disallow: /overview
 Disallow: /my-folders
 Disallow: /shared-folders
 Disallow: /team-folders
 Disallow: /settings
 Disallow: /share/
+Disallow: /invite/
+Disallow: /team-invite/
 
 # Disallow utility pages
 Disallow: /forgot-password
