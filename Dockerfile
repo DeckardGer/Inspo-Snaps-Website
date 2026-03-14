@@ -15,7 +15,7 @@ RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY --link . .
-RUN pnpm build
+RUN rm -rf .output node_modules/.cache node_modules/.vite && pnpm build
 
 # --- Migration dependencies ---
 FROM node:22-alpine AS migrate-deps
