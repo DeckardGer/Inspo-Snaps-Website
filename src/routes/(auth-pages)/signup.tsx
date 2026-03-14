@@ -166,13 +166,16 @@ function RouteComponent() {
 						provider="google"
 						logo={<Google />}
 						callbackURL={redirectUrl}
+						onClick={() =>
+							toast.info("InspoSnaps hasn't launched yet — stay tuned!")
+						}
 					/>
 				</div>
 				<form
 					id="signup-form"
 					onSubmit={(e) => {
 						e.preventDefault();
-						form.handleSubmit();
+						toast.info("InspoSnaps hasn't launched yet — stay tuned!");
 					}}
 					className="w-full mt-6"
 				>

@@ -8,6 +8,7 @@ interface SocialSignInButtonProps {
 	logo: React.ReactNode;
 	disabled?: boolean;
 	callbackURL: string;
+	onClick?: () => void;
 }
 
 export function SocialSignInButton(props: SocialSignInButtonProps) {
@@ -38,8 +39,14 @@ export function SocialSignInButton(props: SocialSignInButtonProps) {
 		<Button
 			variant="outline"
 			className="flex-1"
-			disabled={mutation.isSuccess || mutation.isPending || props.disabled}
-			onClick={() => mutation.mutate()}
+			disabled={mutation.isSuccess || mutation.isPending}
+			onClick={() => {
+				if (props.onClick) {
+					props.onClick();
+					return;
+				}
+				mutation.mutate();
+			}}
 		>
 			{props.logo}
 			Login with {providerLabel}

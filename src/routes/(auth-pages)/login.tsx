@@ -127,6 +127,9 @@ function RouteComponent() {
 						provider="google"
 						logo={<Google />}
 						callbackURL={redirectUrl}
+						onClick={() =>
+							toast.info("InspoSnaps hasn't launched yet — stay tuned!")
+						}
 					/>
 				</div>
 				<form
