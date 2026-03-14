@@ -19,6 +19,7 @@ export const shareLink = pgTable(
 	(table) => [
 		index("shareLink_folderId_idx").on(table.folderId),
 		index("shareLink_createdBy_idx").on(table.createdBy),
+		index("shareLink_expiresAt_idx").on(table.expiresAt),
 	],
 );
 

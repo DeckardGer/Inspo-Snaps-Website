@@ -29,6 +29,7 @@ export const subscription = pgTable(
 		index("subscription_userId_idx").on(table.userId),
 		index("subscription_status_idx").on(table.status),
 		index("subscription_userId_status_idx").on(table.userId, table.status),
+		index("subscription_polarCustomerId_idx").on(table.polarCustomerId),
 	],
 );
 
