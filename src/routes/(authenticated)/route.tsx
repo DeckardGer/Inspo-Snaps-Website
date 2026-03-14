@@ -33,18 +33,22 @@ export const Route = createFileRoute("/(authenticated)")({
 
 		// Check for fresh login param and redirect without it
 		const searchParams = new URLSearchParams(location.search);
-		if (searchParams.has(FRESH_LOGIN_KEY)) {
-			sessionStorage.setItem(FRESH_LOGIN_KEY, "true");
-			throw redirect({ to: location.pathname });
+		if (typeof window !== "undefined") {
+			if (searchParams.has(FRESH_LOGIN_KEY)) {
+				sessionStorage.setItem(FRESH_LOGIN_KEY, "true");
+				throw redirect({ to: location.pathname });
+			}
+
+			// Check sessionStorage for fresh login flag (set before redirect)
+			const freshLogin = sessionStorage.getItem(FRESH_LOGIN_KEY) === "true";
+			if (freshLogin) {
+				sessionStorage.removeItem(FRESH_LOGIN_KEY);
+			}
+
+			return { user, freshLogin };
 		}
 
-		// Check sessionStorage for fresh login flag (set before redirect)
-		const freshLogin = sessionStorage.getItem(FRESH_LOGIN_KEY) === "true";
-		if (freshLogin) {
-			sessionStorage.removeItem(FRESH_LOGIN_KEY);
-		}
-
-		return { user, freshLogin };
+		return { user, freshLogin: false };
 	},
 });
 
