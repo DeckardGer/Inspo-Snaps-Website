@@ -21,7 +21,8 @@ RUN pnpm build
 FROM node:22-alpine AS production
 WORKDIR /app
 
-RUN addgroup -g 1001 -S appgroup && \
+RUN apk add --no-cache wget && \
+    addgroup -g 1001 -S appgroup && \
     adduser -S appuser -u 1001 -G appgroup
 
 COPY --from=build --chown=appuser:appgroup /app/.output ./.output
