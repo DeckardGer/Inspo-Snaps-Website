@@ -17,6 +17,11 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --link . .
 RUN pnpm build
 
+# --- Migration dependencies ---
+FROM node:22-alpine AS migrate-deps
+WORKDIR /deps
+RUN npm install drizzle-orm pg
+
 # --- Production ---
 FROM node:22-alpine AS production
 WORKDIR /app
@@ -26,6 +31,11 @@ RUN apk add --no-cache wget && \
     adduser -S appuser -u 1001 -G appgroup
 
 COPY --from=build --chown=appuser:appgroup /app/.output ./.output
+COPY --from=build --chown=appuser:appgroup /app/drizzle ./drizzle
+COPY --from=migrate-deps --chown=appuser:appgroup /deps/node_modules ./node_modules
+COPY --chown=appuser:appgroup scripts/migrate.mjs ./scripts/migrate.mjs
+COPY --chown=appuser:appgroup scripts/entrypoint.sh ./scripts/entrypoint.sh
+RUN chmod +x ./scripts/entrypoint.sh
 
 USER appuser
 
@@ -35,4 +45,4 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["node", ".output/server/index.mjs"]
+CMD ["sh", "./scripts/entrypoint.sh"]
