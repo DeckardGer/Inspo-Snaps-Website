@@ -22,6 +22,7 @@ import {
 	requireTeamWriteAccess,
 } from "@/lib/organizations/authorization";
 import { deleteStorageObjects } from "@/lib/storage/functions";
+import { resolveAvatarUrl } from "@/lib/storage/s3";
 import { writeAccessMiddleware } from "@/lib/subscriptions/middleware";
 
 const CreateFolderInput = z.object({
@@ -717,18 +718,25 @@ export const getTeamFolders = createServerFn({ method: "GET" })
 			},
 		});
 
-		return folders.map((f) => ({
-			id: f.id,
-			parentId: f.parentId,
-			name: f.name,
-			color: f.color,
-			emoji: f.emoji,
-			createdAt: f.createdAt,
-			updatedAt: f.updatedAt,
-			imageCount: f.images.length,
-			createdBy: f.owner,
-			isFavourited: f.favourites.some((fav) => fav.userId === context.user.id),
-		})) satisfies TeamFolder[];
+		return Promise.all(
+			folders.map(async (f) => ({
+				id: f.id,
+				parentId: f.parentId,
+				name: f.name,
+				color: f.color,
+				emoji: f.emoji,
+				createdAt: f.createdAt,
+				updatedAt: f.updatedAt,
+				imageCount: f.images.length,
+				createdBy: {
+					...f.owner,
+					image: await resolveAvatarUrl(f.owner.image),
+				},
+				isFavourited: f.favourites.some(
+					(fav) => fav.userId === context.user.id,
+				),
+			})),
+		) satisfies Promise<TeamFolder[]>;
 	});
 
 export const updateTeamFolder = createServerFn({ method: "POST" })

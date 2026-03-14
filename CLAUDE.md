@@ -248,7 +248,7 @@ src/
 ### Storage (`lib/storage/s3.ts`)
 - `getUploadUrl()` - Generate S3 presigned upload URL
 - `getDownloadUrl()` - Generate S3 presigned download URL
-- `getPublicObjectUrl()` - Construct public S3 URL (used for avatars)
+- `resolveAvatarUrl()` - Resolve avatar storage key/URL to presigned download URL
 
 ### Sharing (`lib/sharing/functions.ts`)
 - `createShareLink()` - Create public share link

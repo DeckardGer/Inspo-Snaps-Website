@@ -37,20 +37,34 @@ const getBucketName = createServerOnlyFn(() => {
 });
 
 /**
- * Returns a public URL for an S3 object.
- * Uses S3_PUBLIC_URL if set, otherwise constructs from endpoint/bucket config.
- * Used for content that doesn't need presigned URLs (e.g. avatars).
+ * Resolves a user.image value to a displayable URL.
+ *
+ * The field can contain:
+ * - null → no avatar → returns null
+ * - "avatars/..." → S3 storage key (new format) → presigned URL
+ * - "https://..." containing "/avatars/" → legacy S3 public URL → extract key, presigned URL
+ * - "https://..." without "/avatars/" → external URL (Google OAuth) → pass through
  */
-export function getPublicObjectUrl(storageKey: string): string {
-	const bucket = getBucketName();
-	const endpoint = serverEnv.S3_ENDPOINT;
-	if (endpoint && serverEnv.S3_FORCE_PATH_STYLE) {
-		// Path-style (MinIO local dev): http://localhost:9000/bucket/key
-		return `${endpoint.replace(/\/$/, "")}/${bucket}/${storageKey}`;
+export async function resolveAvatarUrl(
+	image: string | null,
+): Promise<string | null> {
+	if (!image) return null;
+
+	// New format: stored as a bare storage key
+	if (image.startsWith("avatars/")) {
+		return createPresignedDownloadUrl(image);
 	}
 
-	// Virtual-hosted style (AWS S3): https://bucket.s3.region.amazonaws.com/key
-	return `https://${bucket}.s3.${serverEnv.S3_REGION}.amazonaws.com/${storageKey}`;
+	// Legacy format: full public URL pointing to our bucket
+	if (image.startsWith("https://") && image.includes("/avatars/")) {
+		const match = image.match(/(avatars\/.+)/);
+		if (match?.[1]) {
+			return createPresignedDownloadUrl(match[1]);
+		}
+	}
+
+	// External URL (e.g. Google OAuth profile pic) — pass through as-is
+	return image;
 }
 
 // Cache durations

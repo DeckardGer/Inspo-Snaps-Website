@@ -26,6 +26,7 @@ import {
 	createTeamRoleChangedNotification,
 } from "@/lib/notifications/create";
 import { deleteStorageObjects } from "@/lib/storage/functions";
+import { resolveAvatarUrl } from "@/lib/storage/s3";
 import { writeAccessMiddleware } from "@/lib/subscriptions/middleware";
 
 const OrganizationIdInput = z.object({
@@ -252,18 +253,25 @@ export const getOrganizationDetails = createServerFn({ method: "GET" })
 
 		if (!org) throw new Error("Organization not found");
 
+		const membersWithAvatars = await Promise.all(
+			org.members.map(async (m) => ({
+				id: m.id,
+				role: m.role,
+				createdAt: m.createdAt,
+				user: {
+					...m.user,
+					image: await resolveAvatarUrl(m.user.image),
+				},
+			})),
+		);
+
 		return {
 			id: org.id,
 			name: org.name,
 			slug: org.slug,
 			logo: org.logo,
 			createdAt: org.createdAt,
-			members: org.members.map((m) => ({
-				id: m.id,
-				role: m.role,
-				createdAt: m.createdAt,
-				user: m.user,
-			})),
+			members: membersWithAvatars,
 			pendingInvitations: org.invitations
 				.filter((inv) => !inv.email.startsWith("invite-link-"))
 				.map((inv) => ({
@@ -383,7 +391,10 @@ export const getInviteDetails = createServerFn({ method: "GET" })
 			organizationName: inv.organization.name,
 			organizationLogo: inv.organization.logo,
 			role: inv.role ?? "member",
-			invitedBy: inv.user,
+			invitedBy: {
+				...inv.user,
+				image: await resolveAvatarUrl(inv.user.image),
+			},
 			expiresAt: inv.expiresAt,
 			alreadyMember: !!existingMember,
 		};
@@ -769,7 +780,10 @@ export const getTeamInvitationDetails = createServerFn({ method: "GET" })
 			id: inv.id,
 			organization: inv.organization,
 			role: inv.role ?? "member",
-			invitedBy: inv.user,
+			invitedBy: {
+				...inv.user,
+				image: await resolveAvatarUrl(inv.user.image),
+			},
 			expiresAt: inv.expiresAt,
 			createdAt: inv.createdAt,
 		};
@@ -955,9 +969,7 @@ export const deleteTeam = createServerFn({ method: "POST" })
 				where: inArray(folderImage.folderId, orgFolderIds),
 				columns: { imageId: true },
 			});
-			const imageIds = [
-				...new Set(affectedImages.map((fi) => fi.imageId)),
-			];
+			const imageIds = [...new Set(affectedImages.map((fi) => fi.imageId))];
 
 			// Clean up favourites for all members
 			await db
@@ -976,12 +988,8 @@ export const deleteTeam = createServerFn({ method: "POST" })
 					columns: { imageId: true },
 				});
 
-				const stillLinkedIds = new Set(
-					remainingLinks.map((r) => r.imageId),
-				);
-				const orphanedIds = imageIds.filter(
-					(id) => !stillLinkedIds.has(id),
-				);
+				const stillLinkedIds = new Set(remainingLinks.map((r) => r.imageId));
+				const orphanedIds = imageIds.filter((id) => !stillLinkedIds.has(id));
 
 				if (orphanedIds.length > 0) {
 					const orphanedImages = await db.query.image.findMany({
@@ -989,12 +997,8 @@ export const deleteTeam = createServerFn({ method: "POST" })
 						columns: { id: true, storageKey: true },
 					});
 
-					await db
-						.delete(image)
-						.where(inArray(image.id, orphanedIds));
-					await deleteStorageObjects(
-						orphanedImages.map((i) => i.storageKey),
-					);
+					await db.delete(image).where(inArray(image.id, orphanedIds));
+					await deleteStorageObjects(orphanedImages.map((i) => i.storageKey));
 				}
 			}
 		}

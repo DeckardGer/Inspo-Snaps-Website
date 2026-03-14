@@ -14,11 +14,14 @@ import {
 	uploadRateLimitMiddleware,
 	usernameCheckRateLimitMiddleware,
 } from "@/lib/rate-limit/middleware";
-import { deleteStorageObject, getPublicObjectUrl } from "@/lib/storage/s3";
+import { deleteStorageObject, resolveAvatarUrl } from "@/lib/storage/s3";
 
-/** Extracts the S3 storage key from a public avatar URL (e.g. "avatars/userId/uuid.jpg") */
-function extractStorageKey(url: string): string | null {
-	const match = url.match(/(avatars\/.+)/);
+/** Extracts the S3 storage key from an avatar value (storage key or legacy public URL) */
+function extractStorageKey(image: string): string | null {
+	// New format: image IS the storage key
+	if (image.startsWith("avatars/")) return image;
+	// Legacy format: full URL containing the key
+	const match = image.match(/(avatars\/.+)/);
 	return match?.[1] ?? null;
 }
 
@@ -34,7 +37,11 @@ export const getUser = createServerFn({ method: "GET" }).handler(async () => {
 		setResponseHeader("Set-Cookie", cookies);
 	}
 
-	return (session.response?.user as AppUser | undefined) ?? null;
+	const appUser = (session.response?.user as AppUser | undefined) ?? null;
+	if (appUser) {
+		appUser.image = await resolveAvatarUrl(appUser.image ?? null);
+	}
+	return appUser;
 });
 
 const UsernameInputSchema = z.object({
@@ -178,18 +185,16 @@ export const updateAvatar = createServerFn({ method: "POST" })
 	.handler(async ({ data, context }) => {
 		const oldImage = context.user.image;
 
-		// Store a permanent public URL — no presigned URLs needed for avatars
-		const imageUrl = getPublicObjectUrl(data.storageKey);
-
+		// Store the bare storage key — presigned URLs are generated on read
 		await auth.api.updateUser({
 			headers: getRequest().headers,
 			body: {
-				image: imageUrl,
+				image: data.storageKey,
 			},
 		});
 
 		// Delete old avatar from S3 if it was stored in our bucket
-		if (oldImage?.includes("/avatars/")) {
+		if (oldImage) {
 			try {
 				const key = extractStorageKey(oldImage);
 				if (key) await deleteStorageObject(key);
@@ -198,6 +203,8 @@ export const updateAvatar = createServerFn({ method: "POST" })
 			}
 		}
 
+		// Return a presigned URL so the client can display the new avatar immediately
+		const imageUrl = await resolveAvatarUrl(data.storageKey);
 		return { success: true, imageUrl };
 	});
 
@@ -215,7 +222,7 @@ export const removeAvatar = createServerFn({ method: "POST" })
 		});
 
 		// Delete avatar from S3 if it was stored in our bucket
-		if (oldImage?.includes("/avatars/")) {
+		if (oldImage) {
 			try {
 				const key = extractStorageKey(oldImage);
 				if (key) await deleteStorageObject(key);

@@ -19,7 +19,15 @@ import {
 } from "@/lib/notifications/create";
 import { shareRateLimitMiddleware } from "@/lib/rate-limit/middleware";
 import { createPresignedDownloadUrl } from "@/lib/storage/functions";
+import { resolveAvatarUrl } from "@/lib/storage/s3";
 import { writeAccessMiddleware } from "@/lib/subscriptions/middleware";
+
+/** Resolves avatar URLs in an object with an `image` field */
+async function withResolvedAvatar<T extends { image: string | null }>(
+	obj: T,
+): Promise<T> {
+	return { ...obj, image: await resolveAvatarUrl(obj.image) };
+}
 
 const CreateShareLinkInput = z.object({
 	folderId: z.uuid(),
@@ -222,7 +230,7 @@ export const getSharedUsers = createServerFn({ method: "GET" })
 		if (!f) throw new Error("Folder not found");
 
 		// Only return pending and accepted shares (not cancelled/declined)
-		return db.query.userShare.findMany({
+		const shares = await db.query.userShare.findMany({
 			where: and(
 				eq(userShare.folderId, data.folderId),
 				or(eq(userShare.status, "pending"), eq(userShare.status, "accepted")),
@@ -236,6 +244,13 @@ export const getSharedUsers = createServerFn({ method: "GET" })
 				},
 			},
 		});
+
+		return Promise.all(
+			shares.map(async (s) => ({
+				...s,
+				sharedWith: await withResolvedAvatar(s.sharedWith),
+			})),
+		);
 	});
 
 export const revokeUserShare = createServerFn({ method: "POST" })
@@ -351,10 +366,11 @@ export const getSharedByMe = createServerFn({ method: "GET" })
 		>();
 
 		for (const share of personalShares) {
+			const resolvedUser = await withResolvedAvatar(share.sharedWith);
 			const existing = folderMap.get(share.folderId);
 			if (existing) {
 				existing.sharedWith.push({
-					...share.sharedWith,
+					...resolvedUser,
 					status: share.status,
 				});
 			} else {
@@ -365,7 +381,7 @@ export const getSharedByMe = createServerFn({ method: "GET" })
 						isShared: true,
 						isFavourited: favouriteSet.has(share.folderId),
 					},
-					sharedWith: [{ ...share.sharedWith, status: share.status }],
+					sharedWith: [{ ...resolvedUser, status: share.status }],
 				});
 			}
 		}
@@ -425,15 +441,18 @@ export const getSharedWithMe = createServerFn({ method: "GET" })
 		const countMap = new Map(imageCounts.map((ic) => [ic.folderId, ic.count]));
 		const favouriteSet = new Set(favourites.map((f) => f.folderId));
 
-		return personalShares.map((s) => ({
-			folder: {
-				...s.folder,
-				imageCount: countMap.get(s.folderId) ?? 0,
-				isFavourited: favouriteSet.has(s.folderId),
-			},
-			sharedBy: s.sharedBy,
-			sharedAt: s.createdAt,
-		}));
+		return Promise.all(
+			personalShares.map(async (s) => ({
+				folder: {
+					...s.folder,
+					owner: await withResolvedAvatar(s.folder.owner),
+					imageCount: countMap.get(s.folderId) ?? 0,
+					isFavourited: favouriteSet.has(s.folderId),
+				},
+				sharedBy: s.sharedBy,
+				sharedAt: s.createdAt,
+			})),
+		);
 	});
 
 export const accessSharedLink = createServerFn({ method: "GET" })
@@ -457,7 +476,10 @@ export const accessSharedLink = createServerFn({ method: "GET" })
 		if (!link) throw new Error("Share link not found or expired");
 
 		return {
-			folder: link.folder,
+			folder: {
+				...link.folder,
+				owner: await withResolvedAvatar(link.folder.owner),
+			},
 			expiresAt: link.expiresAt,
 		};
 	});
@@ -625,6 +647,7 @@ export const getSharedFolderContentsAuth = createServerFn({ method: "GET" })
 
 		return {
 			...f,
+			owner: await withResolvedAvatar(f.owner),
 			children: f.children.map((child) => ({
 				...child,
 				isFavourited: favouriteSet.has(child.id),
@@ -839,8 +862,11 @@ export const getInvitationDetails = createServerFn({ method: "GET" })
 		}
 
 		return {
-			folder: invitation.folder,
-			sharedBy: invitation.sharedBy,
+			folder: {
+				...invitation.folder,
+				owner: await withResolvedAvatar(invitation.folder.owner),
+			},
+			sharedBy: await withResolvedAvatar(invitation.sharedBy),
 			invitedAt: invitation.createdAt,
 		};
 	});
@@ -866,11 +892,16 @@ export const getPendingInvitations = createServerFn({ method: "GET" })
 			orderBy: (us, { desc }) => [desc(us.createdAt)],
 		});
 
-		return invitations.map((inv) => ({
-			folder: inv.folder,
-			sharedBy: inv.sharedBy,
-			invitedAt: inv.createdAt,
-		}));
+		return Promise.all(
+			invitations.map(async (inv) => ({
+				folder: {
+					...inv.folder,
+					owner: await withResolvedAvatar(inv.folder.owner),
+				},
+				sharedBy: await withResolvedAvatar(inv.sharedBy),
+				invitedAt: inv.createdAt,
+			})),
+		);
 	});
 
 // Accept a pending invitation

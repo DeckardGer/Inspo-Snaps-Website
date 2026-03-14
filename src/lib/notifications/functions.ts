@@ -4,6 +4,7 @@ import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { db } from "@/lib/db";
 import { notification } from "@/lib/db/schema/notification.schema";
+import { resolveAvatarUrl } from "@/lib/storage/s3";
 import type { NotificationData, NotificationWithActor } from "./types";
 
 const GetNotificationsInput = z.object({
@@ -42,17 +43,21 @@ export const getNotifications = createServerFn({ method: "GET" })
 			},
 		});
 
-		return notifications.map((n) => ({
-			id: n.id,
-			userId: n.userId,
-			type: n.type as NotificationData["type"],
-			data: n.data,
-			actorId: n.actorId,
-			actor: n.actor,
-			read: n.read,
-			readAt: n.readAt,
-			createdAt: n.createdAt,
-		}));
+		return Promise.all(
+			notifications.map(async (n) => ({
+				id: n.id,
+				userId: n.userId,
+				type: n.type as NotificationData["type"],
+				data: n.data,
+				actorId: n.actorId,
+				actor: n.actor
+					? { ...n.actor, image: await resolveAvatarUrl(n.actor.image) }
+					: n.actor,
+				read: n.read,
+				readAt: n.readAt,
+				createdAt: n.createdAt,
+			})),
+		);
 	});
 
 /**
