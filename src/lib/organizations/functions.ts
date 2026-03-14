@@ -337,7 +337,7 @@ export const createInviteLink = createServerFn({ method: "POST" })
 		await db.insert(invitation).values({
 			id: invitationId,
 			organizationId: data.organizationId,
-			email: `invite-link-${invitationId}@placeholder.local`,
+			email: `invite-link-${invitationId}@insposnaps.com`,
 			role: data.role,
 			status: "pending",
 			expiresAt,
