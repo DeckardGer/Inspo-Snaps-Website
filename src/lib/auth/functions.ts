@@ -305,9 +305,14 @@ export const changePassword = createServerFn({ method: "POST" })
 		return { success: true, message: "Password changed successfully." };
 	});
 
+const SendVerificationEmailInput = z.object({
+	callbackURL: z.string().optional(),
+});
+
 export const sendVerificationEmail = createServerFn({ method: "POST" })
 	.middleware([authMiddleware, accountRateLimitMiddleware])
-	.handler(async ({ context }) => {
+	.inputValidator(SendVerificationEmailInput)
+	.handler(async ({ data, context }) => {
 		if (context.user.emailVerified) {
 			return { success: true, message: "Email is already verified." };
 		}
@@ -316,7 +321,7 @@ export const sendVerificationEmail = createServerFn({ method: "POST" })
 			headers: getRequest().headers,
 			body: {
 				email: context.user.email,
-				callbackURL: "/my-folders",
+				callbackURL: data.callbackURL || "/my-folders",
 			},
 		});
 

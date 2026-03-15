@@ -8,6 +8,7 @@ import authClient from "@/lib/auth/auth-client";
 import { notifyInspoSnapsExtension } from "@/lib/auth/extension";
 import { authQueryOptions } from "@/lib/auth/queries";
 import { favouriteFoldersQueryOptions } from "@/lib/folders/queries";
+import { TIERS } from "@/lib/subscriptions/pricing";
 import { planStateQueryOptions } from "@/lib/subscriptions/queries";
 
 const FRESH_LOGIN_KEY = "freshLogin";
@@ -117,6 +118,28 @@ function RouteComponent() {
 			window.history.replaceState({}, "", url.pathname);
 		}
 	}, [queryClient]);
+
+	// Handle checkout-slug param (from email verification redirect)
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		const slug = params.get("checkout-slug");
+		if (!slug) return;
+
+		// Validate it's a known slug
+		const validSlugs = TIERS.flatMap((tier) => [
+			`${tier.slug}-monthly`,
+			`${tier.slug}-annual`,
+		]);
+		if (!validSlugs.includes(slug)) return;
+
+		// Clean up the URL param
+		const url = new URL(window.location.href);
+		url.searchParams.delete("checkout-slug");
+		window.history.replaceState({}, "", url.pathname + url.search);
+
+		// Trigger checkout
+		authClient.checkout({ slug });
+	}, []);
 
 	return (
 		<SidebarProvider>

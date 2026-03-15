@@ -392,6 +392,7 @@ describe("Auth Functions", () => {
 			const { sendVerificationEmail } = await import("@/lib/auth/functions");
 
 			const result = await sendVerificationEmail({
+				data: {},
 				context: { user },
 			});
 
@@ -410,6 +411,7 @@ describe("Auth Functions", () => {
 			const { sendVerificationEmail } = await import("@/lib/auth/functions");
 
 			const result = await sendVerificationEmail({
+				data: {},
 				context: { user },
 			});
 
@@ -427,6 +429,33 @@ describe("Auth Functions", () => {
 			);
 		});
 
+		it("sends verification email with custom callbackURL", async () => {
+			const auth = await getMockAuth();
+			mockSendVerificationEmail(auth, true);
+
+			const user = createUnverifiedUser({ email: "unverified@example.com" });
+
+			const { sendVerificationEmail } = await import("@/lib/auth/functions");
+
+			const result = await sendVerificationEmail({
+				data: { callbackURL: "/my-folders?checkout-slug=pro-monthly" },
+				context: { user },
+			});
+
+			expect(result).toEqual({
+				success: true,
+				message: "Verification email sent.",
+			});
+			expect(auth.api.sendVerificationEmail).toHaveBeenCalledWith(
+				expect.objectContaining({
+					body: {
+						email: "unverified@example.com",
+						callbackURL: "/my-folders?checkout-slug=pro-monthly",
+					},
+				}),
+			);
+		});
+
 		it("propagates error from auth API", async () => {
 			const auth = await getMockAuth();
 			mockSendVerificationEmail(auth, false, new Error("Email service error"));
@@ -437,6 +466,7 @@ describe("Auth Functions", () => {
 
 			await expect(
 				sendVerificationEmail({
+					data: {},
 					context: { user },
 				}),
 			).rejects.toThrow("Email service error");

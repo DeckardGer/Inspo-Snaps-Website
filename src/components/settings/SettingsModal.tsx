@@ -290,9 +290,20 @@ export function SettingsModal({
 	// Email Verification Mutation
 	// ─────────────────────────────────────────────────────────────────────────
 
+	const [verifyCooldown, setVerifyCooldown] = useState(0);
+
+	useEffect(() => {
+		if (verifyCooldown <= 0) return;
+		const timer = setInterval(() => {
+			setVerifyCooldown((prev) => prev - 1);
+		}, 1000);
+		return () => clearInterval(timer);
+	}, [verifyCooldown]);
+
 	const verificationMutation = useMutation({
-		mutationFn: sendVerificationEmail,
+		mutationFn: () => sendVerificationEmail({ data: {} }),
 		onSuccess: (result) => {
+			setVerifyCooldown(60);
 			toast.success(result.message, {
 				description: "Check your inbox for the verification link.",
 			});
@@ -762,7 +773,9 @@ export function SettingsModal({
 												variant="outline"
 												size="sm"
 												onClick={() => verificationMutation.mutate({})}
-												disabled={verificationMutation.isPending}
+												disabled={
+													verificationMutation.isPending || verifyCooldown > 0
+												}
 											>
 												{verificationMutation.isPending ? (
 													<>
@@ -773,6 +786,8 @@ export function SettingsModal({
 														/>
 														Sending...
 													</>
+												) : verifyCooldown > 0 ? (
+													`Resend in ${verifyCooldown}s`
 												) : (
 													"Verify"
 												)}
