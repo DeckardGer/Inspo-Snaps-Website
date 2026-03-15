@@ -145,8 +145,7 @@ export const NOTIFICATION_CONFIG: Record<
 
 	team_deleted: {
 		icon: Delete02Icon,
-		getTitle: (_data, actor) =>
-			`${actor?.name ?? "Someone"} deleted a team`,
+		getTitle: (_data, actor) => `${actor?.name ?? "Someone"} deleted a team`,
 		getMessage: (data) => {
 			if (data.type !== "team_deleted") return "";
 			return `The team "${data.organizationName}" has been deleted`;
