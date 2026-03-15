@@ -9,7 +9,7 @@ export function initPostHog() {
 	if (!clientEnv.VITE_PUBLIC_POSTHOG_KEY) return;
 
 	posthog.init(clientEnv.VITE_PUBLIC_POSTHOG_KEY, {
-		api_host: "https://us.i.posthog.com",
+		api_host: "https://t.insposnaps.com",
 		autocapture: false,
 		capture_pageview: true,
 		capture_pageleave: true,
