@@ -6,9 +6,9 @@ let initialized = false;
 export function initPostHog() {
 	if (typeof window === "undefined" || initialized) return;
 	if (import.meta.env.DEV) return;
-	if (!clientEnv.VITE_POSTHOG_KEY) return;
+	if (!clientEnv.VITE_PUBLIC_POSTHOG_KEY) return;
 
-	posthog.init(clientEnv.VITE_POSTHOG_KEY, {
+	posthog.init(clientEnv.VITE_PUBLIC_POSTHOG_KEY, {
 		api_host: "https://us.i.posthog.com",
 		autocapture: false,
 		capture_pageview: true,
