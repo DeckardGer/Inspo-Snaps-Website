@@ -40,6 +40,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { clientEnv } from "@/config/env/client";
+import { trackSignupCompleted } from "@/lib/analytics/events";
 import authClient from "@/lib/auth/auth-client";
 import {
 	checkUsernameAvailability,
@@ -113,6 +114,7 @@ function RouteComponent() {
 						toast.error(error.message || "An error occurred while signing up.");
 					},
 					onSuccess: () => {
+						trackSignupCompleted("email");
 						// Clear all cached data when switching accounts to prevent
 						// stale user-specific data (folders, favorites, etc.) from persisting
 						queryClient.clear();

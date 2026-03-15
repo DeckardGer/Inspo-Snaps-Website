@@ -28,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { clientEnv } from "@/config/env/client";
+import { trackFirstShare, trackShareModalOpened } from "@/lib/analytics/events";
 import {
 	createShareLink,
 	deleteShareLink,
@@ -75,6 +76,7 @@ export function ShareModal({ folder, open, onOpenChange }: ShareModalProps) {
 	const createLinkMutation = useMutation({
 		mutationFn: createShareLink,
 		onSuccess: async (data) => {
+			trackFirstShare("link");
 			queryClient.invalidateQueries({
 				queryKey: ["shareLinks", folder.id],
 			});
@@ -123,6 +125,7 @@ export function ShareModal({ folder, open, onOpenChange }: ShareModalProps) {
 	const shareWithUserMutation = useMutation({
 		mutationFn: shareWithUser,
 		onSuccess: (data) => {
+			trackFirstShare("user");
 			queryClient.invalidateQueries({
 				queryKey: ["sharedUsers", folder.id],
 			});
@@ -210,7 +213,13 @@ export function ShareModal({ folder, open, onOpenChange }: ShareModalProps) {
 	const hasSharedUsers = sharedUsers && sharedUsers.length > 0;
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog
+			open={open}
+			onOpenChange={(isOpen) => {
+				if (isOpen) trackShareModalOpened();
+				onOpenChange(isOpen);
+			}}
+		>
 			<DialogContent className="sm:max-w-md">
 				<DialogHeader>
 					<DialogTitle>Share "{folder.name}"</DialogTitle>

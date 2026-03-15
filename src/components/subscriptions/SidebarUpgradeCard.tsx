@@ -1,6 +1,7 @@
 import { SparklesIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import { PricingDialog } from "@/components/subscriptions/PricingDialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,6 +9,7 @@ import {
 	SidebarGroupContent,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { trackTrialExpired } from "@/lib/analytics/events";
 import { planStateQueryOptions } from "@/lib/subscriptions/queries";
 
 const TRIAL_TOTAL_DAYS = 14;
@@ -15,6 +17,16 @@ const TRIAL_TOTAL_DAYS = 14;
 export function SidebarUpgradeCard() {
 	const { data: planState } = useQuery(planStateQueryOptions());
 	const { state, isMobile } = useSidebar();
+
+	// Track trial expiration once (hooks must be before early return)
+	const isExpired = !!planState && !planState.canWrite;
+	const expiredTrackedRef = useRef(false);
+	useEffect(() => {
+		if (isExpired && !expiredTrackedRef.current) {
+			expiredTrackedRef.current = true;
+			trackTrialExpired();
+		}
+	}, [isExpired]);
 
 	// Always render the SidebarGroup wrapper so the tree is stable for hydration
 	const hidden =
@@ -26,7 +38,6 @@ export function SidebarUpgradeCard() {
 		return <SidebarGroup className="mt-auto !p-0" />;
 	}
 
-	const isExpired = !planState.canWrite;
 	const isTrialing = planState.status === "trialing";
 
 	// Calculate progress for trial
@@ -46,6 +57,7 @@ export function SidebarUpgradeCard() {
 			<SidebarGroup className="mt-auto">
 				<SidebarGroupContent className="flex justify-center">
 					<PricingDialog
+						source="sidebar"
 						trigger={
 							<button
 								type="button"
@@ -122,6 +134,7 @@ export function SidebarUpgradeCard() {
 						</p>
 
 						<PricingDialog
+							source="sidebar"
 							trigger={
 								<Button
 									size="sm"

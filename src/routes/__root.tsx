@@ -9,6 +9,7 @@ import {
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { Toaster } from "@/components/ui/sonner";
 import { clientEnv } from "@/config/env/client";
+import { PostHogProvider } from "@/lib/analytics/PostHogProvider";
 import { type AuthQueryResult, authQueryOptions } from "@/lib/auth/queries";
 import { ThemeProvider } from "@/lib/ThemeProvider";
 import appCss from "@/styles.css?url";
@@ -72,8 +73,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			</head>
 			<body>
 				<ThemeProvider>
-					{children}
-					<Toaster />
+					<PostHogProvider>
+						{children}
+						<Toaster />
+					</PostHogProvider>
 				</ThemeProvider>
 
 				<TanStackDevtools

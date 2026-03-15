@@ -121,6 +121,7 @@ export function SharedFolderError() {
 			description="You don't have permission to view this folder, or it no longer exists."
 			backLink="/shared-folders"
 			backLabel="Back to Shared Folders"
+			errorType="shared_folder_access_denied"
 		/>
 	);
 }

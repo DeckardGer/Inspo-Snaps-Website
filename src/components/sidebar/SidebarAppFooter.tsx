@@ -30,6 +30,7 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { resetUser } from "@/lib/analytics/events";
 import authClient from "@/lib/auth/auth-client";
 import { notifyInspoSnapsExtension } from "@/lib/auth/extension";
 import { authQueryOptions } from "@/lib/auth/queries";
@@ -133,6 +134,8 @@ export function SidebarAppFooter({
 								await authClient.signOut({
 									fetchOptions: {
 										onResponse: async () => {
+											// Reset PostHog identity on logout
+											resetUser();
 											// Notify Chrome extension about logout
 											notifyInspoSnapsExtension(null);
 											// Clear all cached data to prevent stale user-specific

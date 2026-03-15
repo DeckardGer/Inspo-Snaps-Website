@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCheckout } from "@/hooks/use-checkout";
+import { trackPricingModalOpened } from "@/lib/analytics/events";
 import { type BillingCycle, TIERS } from "@/lib/subscriptions/pricing";
 import { cn } from "@/lib/utils";
 
@@ -20,12 +21,14 @@ interface PricingDialogProps {
 	trigger?: ReactElement;
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
+	source?: string;
 }
 
 export function PricingDialog({
 	trigger,
 	open,
 	onOpenChange,
+	source,
 }: PricingDialogProps) {
 	const [billing, setBilling] = useState<BillingCycle>("monthly");
 	const { checkout, verificationOpen, setVerificationOpen, pendingSlug } =
@@ -38,7 +41,13 @@ export function PricingDialog({
 				onOpenChange={setVerificationOpen}
 				checkoutSlug={pendingSlug}
 			/>
-			<Dialog open={open} onOpenChange={onOpenChange}>
+			<Dialog
+				open={open}
+				onOpenChange={(isOpen) => {
+					if (isOpen) trackPricingModalOpened(source);
+					onOpenChange?.(isOpen);
+				}}
+			>
 				{trigger && <DialogTrigger render={trigger} />}
 				<DialogContent className="flex max-h-[85vh] w-[calc(100%-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
 					<div className="overflow-y-auto">

@@ -2,6 +2,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import {
+	trackFirstImageUploaded,
+	trackImageUploadFailed,
+	trackWriteAccessBlocked,
+} from "@/lib/analytics/events";
+import {
 	ALLOWED_IMAGE_MIME_TYPES,
 	type AllowedImageMimeType,
 	MAX_IMAGE_SIZE_BYTES,
@@ -81,7 +86,14 @@ export function useImageUpload(folderId: string) {
 				return true;
 			} catch (error) {
 				// Return server error message (e.g. trial expired) to show to user
-				if (error instanceof Error) return error.message;
+				if (error instanceof Error) {
+					trackImageUploadFailed(error.message, file.size, file.type);
+					if (error.message.includes("trial has expired")) {
+						trackWriteAccessBlocked();
+					}
+					return error.message;
+				}
+				trackImageUploadFailed("Unknown error", file.size, file.type);
 				return false;
 			}
 		},
@@ -106,8 +118,9 @@ export function useImageUpload(folderId: string) {
 					| string
 					| undefined;
 
-				// Invalidate queries once after all uploads complete
+				// Track first image upload and invalidate queries
 				if (successCount > 0) {
+					trackFirstImageUploaded();
 					await queryClient.invalidateQueries({
 						queryKey: ["folderImages", folderId],
 						exact: true,

@@ -1,7 +1,9 @@
 import type { Folder01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { trackErrorPageShown } from "@/lib/analytics/events";
 import { cn } from "@/lib/utils";
 
 // Use the type of any HugeIcon
@@ -20,6 +22,8 @@ interface ErrorStateProps {
 	backLabel: string;
 	/** Additional class names for the container */
 	className?: string;
+	/** Error type for analytics tracking */
+	errorType?: string;
 }
 
 /**
@@ -33,7 +37,12 @@ export function ErrorState({
 	backLink,
 	backLabel,
 	className,
+	errorType,
 }: ErrorStateProps) {
+	useEffect(() => {
+		if (errorType) trackErrorPageShown(errorType);
+	}, [errorType]);
+
 	return (
 		<div
 			className={cn(

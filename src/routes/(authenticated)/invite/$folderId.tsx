@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { NavBar } from "@/components/navbar/NavBar";
 import { InvitationError } from "@/components/sharing/InvitationError";
 import { Button } from "@/components/ui/button";
+import { trackInvitationResponded } from "@/lib/analytics/events";
 import { FOLDER_CLASSES } from "@/lib/folders/constants";
 import { acceptInvitation, cancelInvitation } from "@/lib/sharing/functions";
 import { invitationDetailsQueryOptions } from "@/lib/sharing/queries";
@@ -44,6 +45,7 @@ function RouteComponent() {
 	const acceptMutation = useMutation({
 		mutationFn: () => acceptInvitation({ data: { folderId } }),
 		onSuccess: () => {
+			trackInvitationResponded("accepted");
 			queryClient.invalidateQueries({ queryKey: ["pendingInvitations"] });
 			queryClient.invalidateQueries({ queryKey: ["sharedWithMe"] });
 			queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -65,6 +67,7 @@ function RouteComponent() {
 	const declineMutation = useMutation({
 		mutationFn: () => cancelInvitation({ data: { folderId } }),
 		onSuccess: () => {
+			trackInvitationResponded("declined");
 			queryClient.invalidateQueries({ queryKey: ["pendingInvitations"] });
 			queryClient.invalidateQueries({ queryKey: ["notifications"] });
 			// Remove from cache instead of invalidating - refetching would fail since status is no longer "pending"

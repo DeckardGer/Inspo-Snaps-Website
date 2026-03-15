@@ -1,9 +1,15 @@
 import { Link04Icon, Time04Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { trackErrorPageShown } from "@/lib/analytics/events";
 
 export function ShareLinkError() {
+	useEffect(() => {
+		trackErrorPageShown("share_link_invalid");
+	}, []);
+
 	return (
 		<div className="flex flex-col items-center justify-center gap-8 py-20">
 			{/* Broken chain illustration */}

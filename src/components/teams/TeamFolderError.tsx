@@ -121,6 +121,7 @@ export function TeamFolderError() {
 			description="This team doesn't exist or you don't have permission to access it."
 			backLink="/team-folders"
 			backLabel="Back to Team Folders"
+			errorType="team_not_found"
 		/>
 	);
 }

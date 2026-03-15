@@ -1,6 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import {
+	trackFirstFolderCreated,
+	trackWriteAccessBlocked,
+} from "@/lib/analytics/events";
 import type { FolderColor } from "@/lib/folders/constants";
 import { createFolder, updateFolder } from "@/lib/folders/functions";
 import { BaseFolderModal, type FolderFormValues } from "./BaseFolderModal";
@@ -37,6 +41,7 @@ export function FolderModal({
 	const createMutation = useMutation({
 		mutationFn: createFolder,
 		onSuccess: () => {
+			trackFirstFolderCreated();
 			queryClient.invalidateQueries({
 				queryKey: ["folders", parentId ?? "root"],
 				exact: true,
@@ -45,6 +50,9 @@ export function FolderModal({
 			setDialogOpen(false);
 		},
 		onError: (error) => {
+			if (error.message.includes("trial has expired")) {
+				trackWriteAccessBlocked();
+			}
 			toast.error("Failed to create folder", {
 				description: error.message,
 			});

@@ -79,6 +79,7 @@ export function FolderNotFound() {
 			description="This folder doesn't exist or you don't have permission to view it."
 			backLink="/my-folders/{-$folderId}"
 			backLabel="Back to My Folders"
+			errorType="folder_not_found"
 		/>
 	);
 }

@@ -1,9 +1,15 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { AppSidebar } from "@/components/sidebar/AppSidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import {
+	identifyUser,
+	trackCheckoutCompleted,
+	trackSignupCompleted,
+	trackSubscriptionCancelled,
+} from "@/lib/analytics/events";
 import authClient from "@/lib/auth/auth-client";
 import { notifyInspoSnapsExtension } from "@/lib/auth/extension";
 import { authQueryOptions } from "@/lib/auth/queries";
@@ -77,6 +83,27 @@ function RouteComponent() {
 						canWrite: session.canWrite,
 					},
 				});
+
+				// Identify user in PostHog
+				const account = data.user as typeof data.user & {
+					createdAt: string | Date;
+				};
+				const createdAt =
+					account.createdAt instanceof Date
+						? account.createdAt
+						: new Date(account.createdAt);
+				identifyUser({
+					id: data.user.id,
+					email: data.user.email,
+					plan: session.plan,
+					createdAt: createdAt.toISOString(),
+				});
+
+				// Detect Google OAuth signup (created within last 2 minutes)
+				const ageMs = Date.now() - createdAt.getTime();
+				if (ageMs < 2 * 60 * 1000) {
+					trackSignupCompleted("google");
+				}
 			}
 		});
 	}, [freshLogin]);
@@ -107,6 +134,7 @@ function RouteComponent() {
 								canWrite: session.canWrite,
 							},
 						});
+						trackCheckoutCompleted(session.plan);
 					}
 				});
 			toast.success("Welcome to Pro!", {
@@ -117,6 +145,22 @@ function RouteComponent() {
 			url.searchParams.delete("checkout");
 			window.history.replaceState({}, "", url.pathname);
 		}
+	}, [queryClient]);
+
+	// Track subscription cancellation (once per session)
+	const cancelTrackedRef = useRef(false);
+	useEffect(() => {
+		if (cancelTrackedRef.current) return;
+		queryClient.fetchQuery(planStateQueryOptions()).then((planState) => {
+			if (planState?.status === "canceled" && planState.plan) {
+				cancelTrackedRef.current = true;
+				const key = "ph_cancel_tracked";
+				if (!sessionStorage.getItem(key)) {
+					sessionStorage.setItem(key, "1");
+					trackSubscriptionCancelled(planState.plan);
+				}
+			}
+		});
 	}, [queryClient]);
 
 	// Handle checkout-slug param (from email verification redirect)
