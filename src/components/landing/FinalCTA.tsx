@@ -2,6 +2,7 @@ import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { trackLandingCtaClicked } from "@/lib/analytics/events";
 import { FadeIn, GABARITO } from "./shared";
 
 export function FinalCTA() {
@@ -50,6 +51,7 @@ export function FinalCTA() {
 								className="bg-white text-gray-900 shadow-md hover:bg-white/90 hover:shadow-lg focus-visible:border-white/50 focus-visible:ring-white/30"
 								render={<Link to="/signup" />}
 								nativeButton={false}
+								onClick={() => trackLandingCtaClicked("start_free_trial", "final_cta")}
 							>
 								Start Free Trial
 								<HugeiconsIcon

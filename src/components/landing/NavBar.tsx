@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Portal, PortalBackdrop } from "@/components/ui/portal";
 import { BrandLogo } from "@/components/ui/svgs/BrandLogo";
 import { useScroll } from "@/hooks/use-scroll";
+import { trackLandingCtaClicked } from "@/lib/analytics/events";
 import { authQueryOptions } from "@/lib/auth/queries";
 import { cn } from "@/lib/utils";
 
@@ -86,6 +87,7 @@ export function LandingNav() {
 								size="sm"
 								render={<Link to="/signup" />}
 								nativeButton={false}
+								onClick={() => trackLandingCtaClicked("get_started", "navbar")}
 							>
 								Get Started
 							</Button>
@@ -178,6 +180,7 @@ function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
 										className="w-full"
 										render={<Link to="/signup" />}
 										nativeButton={false}
+										onClick={() => trackLandingCtaClicked("get_started", "mobile_nav")}
 									>
 										Get Started
 									</Button>

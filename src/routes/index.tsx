@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { BenefitsSection } from "@/components/landing/BenefitsSection";
@@ -12,6 +13,8 @@ import { PricingSection } from "@/components/landing/PricingSection";
 import { SocialProof } from "@/components/landing/SocialProof";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { clientEnv } from "@/config/env/client";
+import { useLandingAnalytics } from "@/hooks/use-landing-analytics";
+import { authQueryOptions } from "@/lib/auth/queries";
 
 const CANONICAL_URL = clientEnv.VITE_BASE_URL;
 
@@ -41,6 +44,9 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingPage() {
+	const { data: user } = useQuery(authQueryOptions());
+	useLandingAnalytics({ enabled: !user });
+
 	useEffect(() => {
 		document.documentElement.style.scrollBehavior = "smooth";
 		return () => {
@@ -51,15 +57,33 @@ function LandingPage() {
 	return (
 		<div className="min-h-svh bg-background text-foreground">
 			<LandingNav />
-			<HeroSection />
-			<SocialProof />
-			<FeatureShowcase />
-			<HowItWorks />
-			<BenefitsSection />
-			<PricingSection />
-			<TestimonialsSection />
-			<FAQSection />
-			<FinalCTA />
+			<div data-track-section="hero">
+				<HeroSection />
+			</div>
+			<div data-track-section="social-proof">
+				<SocialProof />
+			</div>
+			<div data-track-section="features">
+				<FeatureShowcase />
+			</div>
+			<div data-track-section="how-it-works">
+				<HowItWorks />
+			</div>
+			<div data-track-section="benefits">
+				<BenefitsSection />
+			</div>
+			<div data-track-section="pricing">
+				<PricingSection />
+			</div>
+			<div data-track-section="testimonials">
+				<TestimonialsSection />
+			</div>
+			<div data-track-section="faq">
+				<FAQSection />
+			</div>
+			<div data-track-section="final-cta">
+				<FinalCTA />
+			</div>
 			<LandingFooter />
 		</div>
 	);

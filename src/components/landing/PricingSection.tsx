@@ -7,6 +7,10 @@ import { EmailVerificationModal } from "@/components/subscriptions/EmailVerifica
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCheckout } from "@/hooks/use-checkout";
+import {
+	trackLandingCtaClicked,
+	trackLandingPricingToggled,
+} from "@/lib/analytics/events";
 import { authQueryOptions } from "@/lib/auth/queries";
 import { type BillingCycle, TIERS } from "@/lib/subscriptions/pricing";
 import { cn } from "@/lib/utils";
@@ -57,7 +61,11 @@ export function PricingSection() {
 						<div className="mt-8 flex items-center justify-center">
 							<Tabs
 								value={billing}
-								onValueChange={(val) => setBilling(val as BillingCycle)}
+								onValueChange={(val) => {
+									const cycle = val as BillingCycle;
+									setBilling(cycle);
+									trackLandingPricingToggled(cycle);
+								}}
 								className="gap-0"
 							>
 								<TabsList className="!h-auto rounded-full border border-border/50 bg-muted/50 p-1">
@@ -122,6 +130,10 @@ export function PricingSection() {
 													render: <Link to="/signup" />,
 													nativeButton: false,
 												})}
+										onClick={() => {
+											if (!isLoggedIn)
+												trackLandingCtaClicked("start_free_trial", "pricing_trial");
+										}}
 									>
 										{isLoggedIn ? "Already signed up" : "Start free trial"}
 										{!isLoggedIn && (
@@ -229,11 +241,16 @@ export function PricingSection() {
 											size="default"
 											{...(isLoggedIn
 												? {
-														onClick: () => checkout(`${tier.slug}-${billing}`),
+														onClick: () => {
+															trackLandingCtaClicked(tier.slug, `pricing_${tier.slug}`);
+															checkout(`${tier.slug}-${billing}`);
+														},
 													}
 												: {
 														render: <Link to="/signup" />,
 														nativeButton: false,
+														onClick: () =>
+															trackLandingCtaClicked("get_started", `pricing_${tier.slug}`),
 													})}
 										>
 											{tier.cta}

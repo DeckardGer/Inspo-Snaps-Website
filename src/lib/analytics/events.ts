@@ -105,3 +105,28 @@ export function trackInvitationResponded(action: "accepted" | "declined") {
 export function trackErrorPageShown(type: string) {
 	capture("error_page_shown", { type });
 }
+
+// --- Landing Page ---
+
+export function trackLandingSectionViewed(section: string) {
+	captureOnce(`landing_section_viewed_${section}`, { section });
+}
+
+export function trackLandingScrollDepth(depth: number) {
+	capture("landing_scroll_depth", { depth });
+}
+
+export function trackLandingCtaClicked(
+	cta: string,
+	location: string,
+) {
+	capture("landing_cta_clicked", { cta, location });
+}
+
+export function trackLandingPricingToggled(billing: "monthly" | "annual") {
+	capture("landing_pricing_toggled", { billing });
+}
+
+export function trackLandingTimeOnPage(seconds: number) {
+	capture("landing_time_on_page", { seconds });
+}
