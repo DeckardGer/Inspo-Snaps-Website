@@ -3,7 +3,7 @@ import {
 	trackLandingScrollDepth,
 	trackLandingSectionViewed,
 	trackLandingTimeOnPage,
-} from "@/lib/analytics/events";
+} from "@/lib/analytics/capture";
 
 const SCROLL_THRESHOLDS = [25, 50, 75, 100];
 

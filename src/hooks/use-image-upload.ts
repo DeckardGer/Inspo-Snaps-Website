@@ -5,7 +5,7 @@ import {
 	trackFirstImageUploaded,
 	trackImageUploadFailed,
 	trackWriteAccessBlocked,
-} from "@/lib/analytics/events";
+} from "@/lib/analytics/capture";
 import {
 	ALLOWED_IMAGE_MIME_TYPES,
 	type AllowedImageMimeType,

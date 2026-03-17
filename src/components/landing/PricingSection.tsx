@@ -10,7 +10,7 @@ import { useCheckout } from "@/hooks/use-checkout";
 import {
 	trackLandingCtaClicked,
 	trackLandingPricingToggled,
-} from "@/lib/analytics/events";
+} from "@/lib/analytics/capture";
 import { authQueryOptions } from "@/lib/auth/queries";
 import { type BillingCycle, TIERS } from "@/lib/subscriptions/pricing";
 import { cn } from "@/lib/utils";

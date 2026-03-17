@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { NavBar } from "@/components/navbar/NavBar";
 import { InvitationError } from "@/components/sharing/InvitationError";
 import { Button } from "@/components/ui/button";
-import { trackInvitationResponded } from "@/lib/analytics/events";
+import { trackInvitationResponded } from "@/lib/analytics/capture";
 import { FOLDER_CLASSES } from "@/lib/folders/constants";
 import { acceptInvitation, cancelInvitation } from "@/lib/sharing/functions";
 import { invitationDetailsQueryOptions } from "@/lib/sharing/queries";

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCheckout } from "@/hooks/use-checkout";
-import { trackPricingModalOpened } from "@/lib/analytics/events";
+import { trackPricingModalOpened } from "@/lib/analytics/capture";
 import { type BillingCycle, TIERS } from "@/lib/subscriptions/pricing";
 import { cn } from "@/lib/utils";
 

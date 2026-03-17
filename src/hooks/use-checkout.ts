@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { trackUpgradeInitiated } from "@/lib/analytics/events";
+import { trackUpgradeInitiated } from "@/lib/analytics/capture";
 import authClient from "@/lib/auth/auth-client";
 import { authQueryOptions } from "@/lib/auth/queries";
 

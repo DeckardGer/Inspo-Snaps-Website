@@ -9,7 +9,7 @@ import {
 	SidebarGroupContent,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { trackTrialExpired } from "@/lib/analytics/events";
+import { trackTrialExpired } from "@/lib/analytics/capture";
 import { planStateQueryOptions } from "@/lib/subscriptions/queries";
 
 const TRIAL_TOTAL_DAYS = 14;

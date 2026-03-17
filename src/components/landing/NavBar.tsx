@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Portal, PortalBackdrop } from "@/components/ui/portal";
 import { BrandLogo } from "@/components/ui/svgs/BrandLogo";
 import { useScroll } from "@/hooks/use-scroll";
-import { trackLandingCtaClicked } from "@/lib/analytics/events";
+import { trackLandingCtaClicked } from "@/lib/analytics/capture";
 import { authQueryOptions } from "@/lib/auth/queries";
 import { cn } from "@/lib/utils";
 

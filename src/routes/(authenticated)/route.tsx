@@ -9,7 +9,7 @@ import {
 	trackCheckoutCompleted,
 	trackSignupCompleted,
 	trackSubscriptionCancelled,
-} from "@/lib/analytics/events";
+} from "@/lib/analytics/capture";
 import authClient from "@/lib/auth/auth-client";
 import { notifyInspoSnapsExtension } from "@/lib/auth/extension";
 import { authQueryOptions } from "@/lib/auth/queries";

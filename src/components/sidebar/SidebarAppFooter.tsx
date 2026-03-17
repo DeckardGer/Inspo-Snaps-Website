@@ -30,7 +30,7 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { resetUser } from "@/lib/analytics/events";
+import { resetUser } from "@/lib/analytics/capture";
 import authClient from "@/lib/auth/auth-client";
 import { notifyInspoSnapsExtension } from "@/lib/auth/extension";
 import { authQueryOptions } from "@/lib/auth/queries";

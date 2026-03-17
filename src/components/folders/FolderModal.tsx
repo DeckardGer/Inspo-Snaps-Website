@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import {
 	trackFirstFolderCreated,
 	trackWriteAccessBlocked,
-} from "@/lib/analytics/events";
+} from "@/lib/analytics/capture";
 import type { FolderColor } from "@/lib/folders/constants";
 import { createFolder, updateFolder } from "@/lib/folders/functions";
 import { BaseFolderModal, type FolderFormValues } from "./BaseFolderModal";

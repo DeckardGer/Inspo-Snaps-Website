@@ -12,7 +12,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Link } from "@tanstack/react-router";
 import { BrandLogo } from "@/components/ui/svgs/BrandLogo";
-import { trackLandingCtaClicked } from "@/lib/analytics/events";
+import { trackLandingCtaClicked } from "@/lib/analytics/capture";
 import { cn } from "@/lib/utils";
 import { FadeIn, GABARITO } from "./shared";
 

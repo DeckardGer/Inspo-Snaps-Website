@@ -3,7 +3,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { trackErrorPageShown } from "@/lib/analytics/events";
+import { trackErrorPageShown } from "@/lib/analytics/capture";
 
 export function ShareLinkError() {
 	useEffect(() => {

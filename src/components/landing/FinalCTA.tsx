@@ -2,7 +2,7 @@ import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { trackLandingCtaClicked } from "@/lib/analytics/events";
+import { trackLandingCtaClicked } from "@/lib/analytics/capture";
 import { FadeIn, GABARITO } from "./shared";
 
 export function FinalCTA() {
