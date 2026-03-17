@@ -12,10 +12,11 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
+import { PendingReviewDialog } from "@/components/auth/PendingReviewDialog";
 import { SocialSignInButton } from "@/components/SocialSignInButton";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,7 +41,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { clientEnv } from "@/config/env/client";
-import { trackSignupCompleted } from "@/lib/analytics/events";
+import { trackSignupCompleted } from "@/lib/analytics/capture";
 import authClient from "@/lib/auth/auth-client";
 import {
 	checkUsernameAvailability,
@@ -96,6 +97,13 @@ function RouteComponent() {
 	const navigate = useNavigate();
 	const { queryClient, redirectUrl } = Route.useRouteContext();
 	const [showPassword, setShowPassword] = useState(false);
+	const [showPendingDialog, setShowPendingDialog] = useState(false);
+	const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+
+	const showConfirmation = useCallback((action: () => void) => {
+		setPendingAction(() => action);
+		setShowPendingDialog(true);
+	}, []);
 
 	const { mutate: signupMutate, isPending } = useMutation({
 		mutationFn: async (data: {
@@ -169,7 +177,12 @@ function RouteComponent() {
 						logo={<Google />}
 						callbackURL={redirectUrl}
 						onClick={() =>
-							toast.info("InspoSnaps hasn't launched yet — stay tuned!")
+							showConfirmation(() =>
+								authClient.signIn.social({
+									provider: "google",
+									callbackURL: redirectUrl,
+								}),
+							)
 						}
 					/>
 				</div>
@@ -177,7 +190,7 @@ function RouteComponent() {
 					id="signup-form"
 					onSubmit={(e) => {
 						e.preventDefault();
-						toast.info("InspoSnaps hasn't launched yet — stay tuned!");
+						showConfirmation(() => form.handleSubmit());
 					}}
 					className="w-full mt-6"
 				>
@@ -393,6 +406,14 @@ function RouteComponent() {
 					</Field>
 				</form>
 			</div>
+			<PendingReviewDialog
+				open={showPendingDialog}
+				onOpenChange={setShowPendingDialog}
+				onContinue={() => {
+					setShowPendingDialog(false);
+					pendingAction?.();
+				}}
+			/>
 		</AuthPageLayout>
 	);
 }

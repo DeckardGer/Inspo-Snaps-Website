@@ -9,10 +9,11 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
+import { PendingReviewDialog } from "@/components/auth/PendingReviewDialog";
 import { SocialSignInButton } from "@/components/SocialSignInButton";
 import { Button } from "@/components/ui/button";
 import {
@@ -67,6 +68,13 @@ const loginFormSchema = z.object({
 function RouteComponent() {
 	const { redirectUrl, queryClient } = Route.useRouteContext();
 	const [showPassword, setShowPassword] = useState(false);
+	const [showPendingDialog, setShowPendingDialog] = useState(false);
+	const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+
+	const showConfirmation = useCallback((action: () => void) => {
+		setPendingAction(() => action);
+		setShowPendingDialog(true);
+	}, []);
 
 	const { mutate: emailLoginMutate, isPending } = useMutation({
 		mutationFn: async (data: { email: string; password: string }) =>
@@ -100,7 +108,9 @@ function RouteComponent() {
 		onSubmit: async ({ value }) => {
 			if (isPending) return;
 
-			emailLoginMutate({ email: value.email, password: value.password });
+			showConfirmation(() =>
+				emailLoginMutate({ email: value.email, password: value.password }),
+			);
 		},
 	});
 
@@ -128,7 +138,12 @@ function RouteComponent() {
 						logo={<Google />}
 						callbackURL={redirectUrl}
 						onClick={() =>
-							toast.info("InspoSnaps hasn't launched yet — stay tuned!")
+							showConfirmation(() =>
+								authClient.signIn.social({
+									provider: "google",
+									callbackURL: redirectUrl,
+								}),
+							)
 						}
 					/>
 				</div>
@@ -265,6 +280,14 @@ function RouteComponent() {
 					</Field>
 				</form>
 			</div>
+			<PendingReviewDialog
+				open={showPendingDialog}
+				onOpenChange={setShowPendingDialog}
+				onContinue={() => {
+					setShowPendingDialog(false);
+					pendingAction?.();
+				}}
+			/>
 		</AuthPageLayout>
 	);
 }
