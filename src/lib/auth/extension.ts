@@ -19,7 +19,7 @@ export interface ExtensionInfo {
 	version?: string;
 }
 
-const CHROME_EXTENSION_ID = "logjliapdhfaooaeanbjojildfhilaab";
+const CHROME_EXTENSION_ID = "ohbhjbpbdoddddokobagmhfcpadhklef";
 
 /**
  * Check if the InspoSnaps extension is installed.

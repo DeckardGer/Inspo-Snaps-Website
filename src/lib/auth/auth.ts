@@ -178,7 +178,7 @@ const getAuthConfig = createServerOnlyFn(() =>
 			joins: true,
 		},
 
-		trustedOrigins: ["chrome-extension://logjliapdhfaooaeanbjojildfhilaab"],
+		trustedOrigins: ["chrome-extension://ohbhjbpbdoddddokobagmhfcpadhklef"],
 	}),
 );
 
