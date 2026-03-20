@@ -129,9 +129,7 @@ function CatchBoundaryIllustration() {
 	);
 }
 
-export function DefaultCatchBoundary({
-	error,
-}: Readonly<ErrorComponentProps>) {
+export function DefaultCatchBoundary({ error }: Readonly<ErrorComponentProps>) {
 	const router = useRouter();
 	const isRoot = useMatch({
 		strict: false,
@@ -167,8 +165,8 @@ export function DefaultCatchBoundary({
 						Something went wrong
 					</h3>
 					<p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-						An unexpected error occurred. Please try again or go
-						back to the previous page.
+						An unexpected error occurred. Please try again or go back to the
+						previous page.
 					</p>
 				</div>
 
@@ -179,10 +177,7 @@ export function DefaultCatchBoundary({
 						type="button"
 						onClick={() => router.invalidate()}
 					>
-						<HugeiconsIcon
-							icon={RefreshIcon}
-							className="size-4"
-						/>
+						<HugeiconsIcon icon={RefreshIcon} className="size-4" />
 						Try Again
 					</Button>
 					{isRoot ? (

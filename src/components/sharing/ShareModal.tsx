@@ -28,7 +28,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { clientEnv } from "@/config/env/client";
-import { trackFirstShare, trackShareModalOpened } from "@/lib/analytics/capture";
+import {
+	trackFirstShare,
+	trackShareModalOpened,
+} from "@/lib/analytics/capture";
 import {
 	createShareLink,
 	deleteShareLink,

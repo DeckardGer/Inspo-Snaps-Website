@@ -116,10 +116,7 @@ export function trackLandingScrollDepth(depth: number) {
 	capture("landing_scroll_depth", { depth });
 }
 
-export function trackLandingCtaClicked(
-	cta: string,
-	location: string,
-) {
+export function trackLandingCtaClicked(cta: string, location: string) {
 	capture("landing_cta_clicked", { cta, location });
 }
 

@@ -132,7 +132,10 @@ export function PricingSection() {
 												})}
 										onClick={() => {
 											if (!isLoggedIn)
-												trackLandingCtaClicked("start_free_trial", "pricing_trial");
+												trackLandingCtaClicked(
+													"start_free_trial",
+													"pricing_trial",
+												);
 										}}
 									>
 										{isLoggedIn ? "Already signed up" : "Start free trial"}
@@ -242,7 +245,10 @@ export function PricingSection() {
 											{...(isLoggedIn
 												? {
 														onClick: () => {
-															trackLandingCtaClicked(tier.slug, `pricing_${tier.slug}`);
+															trackLandingCtaClicked(
+																tier.slug,
+																`pricing_${tier.slug}`,
+															);
 															checkout(`${tier.slug}-${billing}`);
 														},
 													}
@@ -250,7 +256,10 @@ export function PricingSection() {
 														render: <Link to="/signup" />,
 														nativeButton: false,
 														onClick: () =>
-															trackLandingCtaClicked("get_started", `pricing_${tier.slug}`),
+															trackLandingCtaClicked(
+																"get_started",
+																`pricing_${tier.slug}`,
+															),
 													})}
 										>
 											{tier.cta}

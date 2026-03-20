@@ -25,9 +25,7 @@ function NotFoundIllustration() {
 						/>
 						{/* Question mark badge */}
 						<div className="absolute -bottom-1 -right-1 flex size-6 items-center justify-center rounded-full bg-muted-foreground/20 shadow-md ring-2 ring-background">
-							<span className="text-xs font-bold text-muted-foreground">
-								?
-							</span>
+							<span className="text-xs font-bold text-muted-foreground">?</span>
 						</div>
 					</div>
 				</div>
@@ -136,8 +134,7 @@ export function DefaultNotFound() {
 						Page not found
 					</h3>
 					<p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-						The page you're looking for doesn't exist or may have
-						been moved.
+						The page you're looking for doesn't exist or may have been moved.
 					</p>
 				</div>
 

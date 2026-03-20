@@ -180,7 +180,9 @@ function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
 										className="w-full"
 										render={<Link to="/signup" />}
 										nativeButton={false}
-										onClick={() => trackLandingCtaClicked("get_started", "mobile_nav")}
+										onClick={() =>
+											trackLandingCtaClicked("get_started", "mobile_nav")
+										}
 									>
 										Get Started
 									</Button>
