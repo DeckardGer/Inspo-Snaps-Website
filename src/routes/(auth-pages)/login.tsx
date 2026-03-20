@@ -52,6 +52,7 @@ export const Route = createFileRoute("/(auth-pages)/login")({
 				content:
 					"Sign in to your InspoSnaps account to access your folders, images, and shared collections.",
 			},
+			{ name: "robots", content: "noindex, nofollow" },
 		],
 		links: [{ rel: "canonical", href: CANONICAL_URL }],
 	}),

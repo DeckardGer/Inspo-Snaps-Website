@@ -72,6 +72,7 @@ export const Route = createFileRoute("/(auth-pages)/signup")({
 				content:
 					"Create a free InspoSnaps account to start organizing and sharing your visual inspiration.",
 			},
+			{ name: "robots", content: "noindex, nofollow" },
 		],
 		links: [{ rel: "canonical", href: CANONICAL_URL }],
 	}),
