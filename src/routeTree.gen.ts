@@ -161,8 +161,8 @@ export interface FileRoutesByFullPath {
   '/api/extension/folders': typeof ApiExtensionFoldersRoute
   '/api/extension/images': typeof ApiExtensionImagesRoute
   '/api/extension/organizations': typeof ApiExtensionOrganizationsRoute
-  '/shared-folders': typeof authenticatedSharedFoldersIndexRoute
-  '/team-folders': typeof authenticatedTeamFoldersIndexRoute
+  '/shared-folders/': typeof authenticatedSharedFoldersIndexRoute
+  '/team-folders/': typeof authenticatedTeamFoldersIndexRoute
   '/team-folders/$orgId/{-$folderId}': typeof authenticatedTeamFoldersOrgIdChar123FolderIdChar125Route
 }
 export interface FileRoutesByTo {
@@ -229,8 +229,8 @@ export interface FileRouteTypes {
     | '/api/extension/folders'
     | '/api/extension/images'
     | '/api/extension/organizations'
-    | '/shared-folders'
-    | '/team-folders'
+    | '/shared-folders/'
+    | '/team-folders/'
     | '/team-folders/$orgId/{-$folderId}'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -358,14 +358,14 @@ declare module '@tanstack/react-router' {
     '/(authenticated)/team-folders/': {
       id: '/(authenticated)/team-folders/'
       path: '/team-folders'
-      fullPath: '/team-folders'
+      fullPath: '/team-folders/'
       preLoaderRoute: typeof authenticatedTeamFoldersIndexRouteImport
       parentRoute: typeof authenticatedRouteRoute
     }
     '/(authenticated)/shared-folders/': {
       id: '/(authenticated)/shared-folders/'
       path: '/shared-folders'
-      fullPath: '/shared-folders'
+      fullPath: '/shared-folders/'
       preLoaderRoute: typeof authenticatedSharedFoldersIndexRouteImport
       parentRoute: typeof authenticatedRouteRoute
     }
