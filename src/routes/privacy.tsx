@@ -5,7 +5,14 @@ import { LandingNav } from "@/components/landing/NavBar";
 export const Route = createFileRoute("/privacy")({
 	component: PrivacyPage,
 	head: () => ({
-		meta: [{ title: "Privacy Policy — InspoSnaps" }],
+		meta: [
+			{ title: "Privacy Policy — InspoSnaps" },
+			{
+				name: "description",
+				content:
+					"Learn how InspoSnaps collects, uses, and protects your personal information. We never sell your data or use it for advertising.",
+			},
+		],
 	}),
 });
 

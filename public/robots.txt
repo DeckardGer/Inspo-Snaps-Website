@@ -3,10 +3,12 @@ User-agent: *
 
 # Allow public pages
 Allow: /
-Allow: /login
-Allow: /signup
 Allow: /privacy
 Allow: /terms
+
+# Disallow auth pages (should appear as sitelinks, not standalone results)
+Disallow: /login
+Disallow: /signup
 
 # Disallow authenticated/private routes
 Disallow: /my-folders
@@ -22,6 +24,72 @@ Disallow: /forgot-password
 Disallow: /reset-password
 
 # Disallow API routes
+Disallow: /api/
+
+# AI Search Bots — allow public pages for AI search results
+User-agent: OAI-SearchBot
+User-agent: PerplexityBot
+User-agent: Claude-SearchBot
+Allow: /
+Allow: /privacy
+Allow: /terms
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /login
+Disallow: /signup
+Disallow: /my-folders
+Disallow: /shared-folders
+Disallow: /team-folders
+Disallow: /settings
+Disallow: /share/
+Disallow: /invite/
+Disallow: /team-invite/
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /api/
+
+# AI User-Initiated Retrieval — when users ask AI about InspoSnaps
+User-agent: ChatGPT-User
+User-agent: Claude-User
+User-agent: Perplexity-User
+Allow: /
+Allow: /privacy
+Allow: /terms
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /login
+Disallow: /signup
+Disallow: /my-folders
+Disallow: /shared-folders
+Disallow: /team-folders
+Disallow: /settings
+Disallow: /share/
+Disallow: /invite/
+Disallow: /team-invite/
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /api/
+
+# AI Training Crawlers — allow to improve product knowledge in AI models
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+Allow: /
+Allow: /privacy
+Allow: /terms
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /login
+Disallow: /signup
+Disallow: /my-folders
+Disallow: /shared-folders
+Disallow: /team-folders
+Disallow: /settings
+Disallow: /share/
+Disallow: /invite/
+Disallow: /team-invite/
+Disallow: /forgot-password
+Disallow: /reset-password
 Disallow: /api/
 
 Sitemap: https://insposnaps.com/sitemap.xml

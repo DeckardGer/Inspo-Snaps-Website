@@ -1,0 +1,32 @@
+# InspoSnaps
+
+> A web application for saving, organizing, and sharing visual inspiration through smart folder collections.
+
+InspoSnaps is a private workspace for collecting and organizing visual inspiration. Users can create nested folder hierarchies with colors and emojis, upload images, share collections via links or direct invites, and collaborate on visual projects — without the noise of a social platform.
+
+## Key Features
+
+- Unlimited nested folders with color coding and emoji tagging
+- Image uploads with drag-and-drop and a browser extension for saving from the web
+- Share folders via links or invite specific users with granular permissions
+- Team folders for collaborative workspaces
+- Cross-device access with real-time sync
+- Light and dark theme support
+
+## Pricing
+
+- 14-day free trial on all plans, no credit card required
+- Free, Pro, and Team tiers available
+- Cancel anytime with no questions asked
+
+## Key Pages
+
+- [Home](https://insposnaps.com/): Landing page with features, pricing, and FAQ
+- [Privacy Policy](https://insposnaps.com/privacy): How we handle your data
+- [Terms of Service](https://insposnaps.com/terms): Terms and conditions
+
+## Optional
+
+- [Pricing](https://insposnaps.com/#pricing): Detailed plan comparison
+- [FAQ](https://insposnaps.com/#faq): Frequently asked questions
+- [How It Works](https://insposnaps.com/#how-it-works): Getting started guide

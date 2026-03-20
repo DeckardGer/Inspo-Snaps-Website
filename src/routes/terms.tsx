@@ -5,7 +5,14 @@ import { LandingNav } from "@/components/landing/NavBar";
 export const Route = createFileRoute("/terms")({
 	component: TermsPage,
 	head: () => ({
-		meta: [{ title: "Terms of Service — InspoSnaps" }],
+		meta: [
+			{ title: "Terms of Service — InspoSnaps" },
+			{
+				name: "description",
+				content:
+					"Read the InspoSnaps terms of service. Understand your rights, content ownership, sharing rules, and how we operate the platform.",
+			},
+		],
 	}),
 });
 

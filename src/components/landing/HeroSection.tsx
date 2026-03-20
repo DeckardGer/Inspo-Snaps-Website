@@ -131,7 +131,9 @@ export function HeroSection() {
 						<div className="mt-9 flex flex-wrap items-center justify-center gap-3">
 							<Link
 								to="/signup"
-								onClick={() => trackLandingCtaClicked("start_free_trial", "hero")}
+								onClick={() =>
+									trackLandingCtaClicked("start_free_trial", "hero")
+								}
 								className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-md outline-none transition-all hover:bg-primary/90 hover:shadow-lg focus-visible:ring-[3px] focus-visible:ring-ring/50"
 							>
 								Start free trial
@@ -347,7 +349,7 @@ export function HeroSection() {
 												>
 													<img
 														src={src}
-														alt=""
+														alt="Visual inspiration example in gallery"
 														loading="lazy"
 														className="h-full w-full object-cover brightness-[0.92] saturate-[1.15]"
 													/>

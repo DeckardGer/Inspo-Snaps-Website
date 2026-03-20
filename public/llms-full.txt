@@ -1,0 +1,88 @@
+# InspoSnaps
+
+> A web application for saving, organizing, and sharing visual inspiration through smart folder collections.
+
+InspoSnaps is a private workspace for collecting and organizing visual inspiration. Unlike social platforms like Pinterest, InspoSnaps gives you full ownership of your collections with no algorithms, no ads, and no distractions. Organize images into nested folders, tag them with colors and emojis, share with anyone, and access your inspiration from any device.
+
+## Key Features
+
+### Folder Organization
+- Create unlimited nested folders to mirror the way you think
+- Assign one of 9 colors to folders for quick visual recognition
+- Add emoji tags to folders for instant identification
+- Navigate folder hierarchies with breadcrumb navigation
+- Favourite folders for quick access from the sidebar
+
+### Image Management
+- Upload images via drag-and-drop
+- Save images from anywhere on the web using the browser extension
+- Images can exist in multiple folders simultaneously
+- View image metadata (filename, dimensions, file type)
+- Secure cloud storage with presigned URLs
+
+### Sharing & Collaboration
+- Share folders with other InspoSnaps users via direct invites
+- Generate view-only share links for anyone, with optional expiration
+- Team folders for collaborative workspaces with organization management
+- Your content stays private and only visible to people you choose
+
+### Cross-Device Access
+- Access collections from any device with a web browser
+- Real-time sync across all devices
+- Responsive design optimized for desktop and mobile
+
+### User Experience
+- Light, dark, and system theme support
+- Responsive sidebar with collapsible navigation
+- Skeleton loading states for smooth interactions
+- Toast notifications for user feedback
+- Command palette for power users
+
+## Authentication
+
+- Email and password sign-up
+- Google OAuth login
+- Username system with availability checking
+- Password reset via email
+- Email verification flow
+
+## Pricing
+
+- 14-day free trial on all plans, no credit card required
+- Free tier with basic features
+- Pro tier with expanded storage and features
+- Team tier for collaborative workspaces
+- Cancel anytime with no questions asked
+
+## Frequently Asked Questions
+
+### What is InspoSnaps?
+InspoSnaps is a private workspace for collecting and organizing visual inspiration. Save images into nested folders, tag them with colors and emojis, and access your collections from any device — without the noise of a social platform.
+
+### How is InspoSnaps different from Pinterest?
+Pinterest is a social discovery platform — InspoSnaps is your private workspace. You own your collections, organize them your way with nested folders, and share only what you choose. No algorithms, no ads, no distractions.
+
+### How does folder organization work?
+Create unlimited nested folders to mirror the way you think. Assign colors and emojis for quick recognition, drag images between folders, and use the browser extension to save inspiration from anywhere on the web.
+
+### How does sharing work?
+Share folders with other InspoSnaps users or generate view-only links for anyone. Your content stays secure and only visible to the people you choose.
+
+### Can I try InspoSnaps before committing?
+Every plan comes with a 14-day free trial — no credit card required. You get full access to all features so you can see if InspoSnaps is right for you.
+
+### Can I cancel my subscription anytime?
+Yes, cancel anytime with no questions asked. If you cancel during your trial, you won't be charged. We believe in earning your business every month.
+
+## Key Pages
+
+- [Home](https://insposnaps.com/): Landing page with features, pricing, and FAQ
+- [Privacy Policy](https://insposnaps.com/privacy): How we collect, use, and protect your data
+- [Terms of Service](https://insposnaps.com/terms): Terms, content ownership, and platform rules
+
+## Optional
+
+- [Pricing](https://insposnaps.com/#pricing): Detailed plan comparison and pricing
+- [FAQ](https://insposnaps.com/#faq): Common questions and answers
+- [How It Works](https://insposnaps.com/#how-it-works): Three-step getting started guide
+- [Features](https://insposnaps.com/#features): Full feature overview
