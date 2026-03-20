@@ -11,6 +11,7 @@ import {
 	sendPasswordResetEmail,
 	sendTeamInvitationEmail,
 	sendVerificationEmail,
+	sendWelcomeVerificationEmail,
 } from "@/lib/email/send";
 import { resolveUserPlanState } from "@/lib/subscriptions/resolve";
 import { upsertSubscription } from "@/lib/subscriptions/sync";
@@ -160,9 +161,15 @@ const getAuthConfig = createServerOnlyFn(() =>
 		// https://www.better-auth.com/docs/authentication/email-verification
 		emailVerification: {
 			sendVerificationEmail: async ({ user, url }) => {
-				await sendVerificationEmail(user.email, url);
+				if (!user.emailVerified) {
+					// First verification (signup) — send welcome email
+					void sendWelcomeVerificationEmail(user.email, url, user.name);
+				} else {
+					// Re-verification (manual request) — send plain verification email
+					void sendVerificationEmail(user.email, url);
+				}
 			},
-			sendOnSignUp: false,
+			sendOnSignUp: true,
 			autoSignInAfterVerification: true,
 		},
 

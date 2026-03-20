@@ -4,6 +4,7 @@ import {
 	emailVerificationTemplate,
 	passwordResetTemplate,
 	teamInvitationTemplate,
+	welcomeVerificationTemplate,
 } from "./templates";
 
 export async function sendPasswordResetEmail(
@@ -22,6 +23,29 @@ export async function sendPasswordResetEmail(
 
 	if (error) {
 		console.error("[Email Error] Password reset:", error);
+		return { success: false, error: error.message };
+	}
+
+	return { success: true };
+}
+
+export async function sendWelcomeVerificationEmail(
+	to: string,
+	verificationUrl: string,
+	userName?: string,
+): Promise<{ success: boolean; error?: string }> {
+	const template = welcomeVerificationTemplate(verificationUrl, userName);
+
+	const { error } = await resend.emails.send({
+		from: serverEnv.EMAIL_FROM,
+		to,
+		subject: template.subject,
+		html: template.html,
+		text: template.text,
+	});
+
+	if (error) {
+		console.error("[Email Error] Welcome verification:", error);
 		return { success: false, error: error.message };
 	}
 
