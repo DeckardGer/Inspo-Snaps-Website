@@ -66,9 +66,6 @@ export function useTeamImageUpload(organizationId: string, folderId: string) {
 			if (files.length === 0) return;
 
 			setIsUploading(true);
-			const loadingToastId = toast.loading(
-				`Uploading ${files.length} image${files.length > 1 ? "s" : ""}...`,
-			);
 
 			try {
 				const results = await Promise.all(files.map(uploadFile));
@@ -93,21 +90,17 @@ export function useTeamImageUpload(organizationId: string, folderId: string) {
 				if (serverError) {
 					toast.error(
 						`Failed to upload ${failCount} image${failCount > 1 ? "s" : ""}`,
-						{ id: loadingToastId, description: serverError },
+						{ description: serverError },
 					);
 				} else if (successCount > 0 && failCount === 0) {
 					toast.success(
 						`${successCount} image${successCount > 1 ? "s" : ""} uploaded`,
-						{ id: loadingToastId },
 					);
 				} else if (successCount > 0 && failCount > 0) {
-					toast.warning(`${successCount} uploaded, ${failCount} failed`, {
-						id: loadingToastId,
-					});
+					toast.warning(`${successCount} uploaded, ${failCount} failed`);
 				} else if (failCount > 0) {
 					toast.error(
 						`Failed to upload ${failCount} image${failCount > 1 ? "s" : ""}`,
-						{ id: loadingToastId },
 					);
 				}
 			} finally {
