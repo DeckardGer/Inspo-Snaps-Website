@@ -15,6 +15,7 @@ RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY --link . .
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 RUN pnpm build
 
 # --- Migration dependencies ---
