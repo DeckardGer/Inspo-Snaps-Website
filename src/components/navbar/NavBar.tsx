@@ -35,10 +35,19 @@ export function NavBar({ breadrumbs }: NavBarProps) {
 			<div className="flex items-center gap-2 shrink-0">
 				<NotificationsDropdown />
 				<ThemeToggle />
-				<Button>
-					<HugeiconsIcon icon={LinkSquare02Icon} strokeWidth={2} />
-					Download
-				</Button>
+				<Button
+					render={
+						<a
+							href="https://chromewebstore.google.com/detail/insposnaps/ohbhjbpbdoddddokobagmhfcpadhklef"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<HugeiconsIcon icon={LinkSquare02Icon} strokeWidth={2} />
+							Download
+						</a>
+					}
+					nativeButton={false}
+				/>
 			</div>
 		</header>
 	);
