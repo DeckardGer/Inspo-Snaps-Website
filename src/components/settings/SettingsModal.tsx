@@ -1076,7 +1076,7 @@ export function SettingsModal({
 											render={
 												// biome-ignore lint/a11y/useAnchorContent: content provided by Button children
 												<a
-													href="https://chromewebstore.google.com/"
+													href="https://chromewebstore.google.com/detail/insposnaps/ohbhjbpbdoddddokobagmhfcpadhklef"
 													target="_blank"
 													rel="noopener noreferrer"
 												/>
