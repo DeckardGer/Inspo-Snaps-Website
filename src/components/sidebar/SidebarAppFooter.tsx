@@ -44,7 +44,7 @@ export function SidebarAppFooter({
 }) {
 	const queryClient = useQueryClient();
 	const router = useRouter();
-	const { isMobile, state } = useSidebar();
+	const { isMobile, state, setOpenMobile } = useSidebar();
 	const [pricingOpen, setPricingOpen] = useState(false);
 
 	// Use query directly for reactive updates when user data changes
@@ -131,6 +131,7 @@ export function SidebarAppFooter({
 						<DropdownMenuItem
 							variant="destructive"
 							onClick={async () => {
+								if (isMobile) setOpenMobile(false);
 								await authClient.signOut({
 									fetchOptions: {
 										onResponse: async () => {
