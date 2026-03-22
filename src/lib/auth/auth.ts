@@ -5,8 +5,10 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { customSession, organization, username } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
+import { eq, sql } from "drizzle-orm";
 import { serverEnv } from "@/config/env/server";
 import { db } from "@/lib/db";
+import { user as userTable } from "@/lib/db/schema/auth.schema";
 import {
 	sendPasswordResetEmail,
 	sendTeamInvitationEmail,
@@ -16,6 +18,53 @@ import {
 import { resolveUserPlanState } from "@/lib/subscriptions/resolve";
 import { upsertSubscription } from "@/lib/subscriptions/sync";
 import { ac, roles } from "./permissions";
+
+/**
+ * Generate a unique username for OAuth users who don't provide one.
+ * Derives a base from the user's name or email, then appends random digits if taken.
+ */
+async function generateUniqueUsername(
+	name: string | null | undefined,
+	email: string,
+): Promise<string> {
+	// Derive base from name (e.g. "John Doe" → "john.doe") or email prefix
+	const raw = name?.trim()
+		? name.trim().toLowerCase().replace(/\s+/g, ".")
+		: email.split("@")[0].toLowerCase();
+
+	// Strip invalid characters, ensure min length
+	let base = raw.replace(/[^a-z0-9._]/g, "").replace(/\.{2,}/g, ".");
+	if (base.length < 3) base = base.padEnd(3, "0");
+	if (base.length > 24) base = base.slice(0, 24);
+
+	// Check if base username is available
+	const [existing] = await db
+		.select({ id: userTable.id })
+		.from(userTable)
+		.where(eq(sql`lower(${userTable.username})`, base))
+		.limit(1);
+
+	if (!existing) return base;
+
+	// Append random digits until we find a unique one
+	for (let i = 0; i < 10; i++) {
+		const suffix = Math.floor(Math.random() * 10000)
+			.toString()
+			.padStart(4, "0");
+		const candidate = `${base.slice(0, 25)}.${suffix}`;
+
+		const [taken] = await db
+			.select({ id: userTable.id })
+			.from(userTable)
+			.where(eq(sql`lower(${userTable.username})`, candidate))
+			.limit(1);
+
+		if (!taken) return candidate;
+	}
+
+	// Final fallback: use a UUID fragment
+	return `user.${crypto.randomUUID().slice(0, 8)}`;
+}
 
 const getAuthConfig = createServerOnlyFn(() =>
 	betterAuth({
@@ -186,6 +235,30 @@ const getAuthConfig = createServerOnlyFn(() =>
 		},
 
 		trustedOrigins: ["chrome-extension://ohbhjbpbdoddddokobagmhfcpadhklef"],
+
+		databaseHooks: {
+			user: {
+				create: {
+					before: async (user) => {
+						// Only generate username for OAuth users (email signup already provides one)
+						if (user.username) return;
+
+						const generatedUsername = await generateUniqueUsername(
+							user.name,
+							user.email,
+						);
+
+						return {
+							data: {
+								...user,
+								username: generatedUsername,
+								displayUsername: generatedUsername,
+							},
+						};
+					},
+				},
+			},
+		},
 	}),
 );
 

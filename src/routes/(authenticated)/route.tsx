@@ -63,9 +63,13 @@ function RouteComponent() {
 	const { freshLogin } = Route.useRouteContext();
 	const queryClient = useQueryClient();
 
-	// Notify Chrome extension about auth state on fresh login only
+	// Refresh user data and notify Chrome extension on fresh login
 	useEffect(() => {
 		if (!freshLogin) return;
+
+		// Force refetch user data to pick up Google profile image and any
+		// fields that may not have been in the initial cookie cache
+		queryClient.invalidateQueries({ queryKey: ["user"] });
 
 		authClient.getSession().then(({ data }) => {
 			if (data?.user && data?.session) {
@@ -106,7 +110,7 @@ function RouteComponent() {
 				}
 			}
 		});
-	}, [freshLogin]);
+	}, [freshLogin, queryClient]);
 
 	// Handle checkout success redirect from Polar
 	useEffect(() => {
