@@ -130,7 +130,7 @@ const getAuthConfig = createServerOnlyFn(() =>
 								slug: "pro-monthly",
 							},
 							{
-								productId: "de0403ed-7a62-4c1b-b9d8-be38426ee31c",
+								productId: "977ee817-e8d4-429d-a642-d1a17a1f36f4",
 								slug: "pro-annual",
 							},
 							{
@@ -138,7 +138,7 @@ const getAuthConfig = createServerOnlyFn(() =>
 								slug: "team-monthly",
 							},
 							{
-								productId: "9c95c073-dd34-4011-b7d5-d2d50063b386",
+								productId: "e390003c-3c71-4354-83d8-235a451a34fb",
 								slug: "team-annual",
 							},
 						],
