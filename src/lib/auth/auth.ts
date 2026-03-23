@@ -126,19 +126,19 @@ const getAuthConfig = createServerOnlyFn(() =>
 					checkout({
 						products: [
 							{
-								productId: "6b7dc528-6d34-48b0-af3a-6b62c72d374f",
+								productId: "877b71d7-29d4-458f-a41b-228d60b9198b",
 								slug: "pro-monthly",
 							},
 							{
-								productId: "8ab63a02-f7b5-46a7-ab21-884030c820f1",
+								productId: "de0403ed-7a62-4c1b-b9d8-be38426ee31c",
 								slug: "pro-annual",
 							},
 							{
-								productId: "ac1ff4bf-5edd-46ab-9e4e-52ce9d78de09",
+								productId: "def0cf2c-9aff-45bd-b989-ed65dfee982b",
 								slug: "team-monthly",
 							},
 							{
-								productId: "d153bd52-c282-404a-b55a-28a4fc4093cd",
+								productId: "9c95c073-dd34-4011-b7d5-d2d50063b386",
 								slug: "team-annual",
 							},
 						],
