@@ -108,21 +108,36 @@ export function LandingFooter() {
 					</nav>
 				</div>
 
-				<div className="flex flex-col items-center gap-2 border-t border-border/40 py-4">
+				<div className="flex flex-col items-center gap-3 border-t border-border/40 py-4">
 					<span className="text-muted-foreground text-xs tracking-wide uppercase">Featured on</span>
-					<a
-						href="https://twelve.tools"
-						target="_blank"
-						rel="noreferrer"
-						className="rounded-lg opacity-70 transition-opacity hover:opacity-100"
-					>
-						<img
-							src={appTheme === "dark" ? "https://twelve.tools/badge0-dark.svg" : "https://twelve.tools/badge0-white.svg"}
-							alt="Featured on Twelve Tools"
-							width={140}
-							height={38}
-						/>
-					</a>
+					<div className="flex items-center gap-4">
+						<a
+							href="https://twelve.tools"
+							target="_blank"
+							rel="noreferrer"
+							className="rounded-lg opacity-70 transition-opacity hover:opacity-100"
+						>
+							<img
+								src={appTheme === "dark" ? "https://twelve.tools/badge0-dark.svg" : "https://twelve.tools/badge0-white.svg"}
+								alt="Featured on Twelve Tools"
+								width={140}
+								height={38}
+							/>
+						</a>
+						<a
+							href="https://tinylaunch.com"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="rounded-lg opacity-70 transition-opacity hover:opacity-100"
+						>
+							<img
+								src="https://tinylaunch.com/tinylaunch_badge_launching_soon.svg"
+								alt="TinyLaunch Badge"
+								width={140}
+								height={38}
+							/>
+						</a>
+					</div>
 				</div>
 
 				<div className="flex items-center justify-between gap-4 border-t border-border/40 py-4 text-muted-foreground text-sm">
