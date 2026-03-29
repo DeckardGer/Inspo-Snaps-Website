@@ -19,11 +19,9 @@ import { invitationDetailsQueryOptions } from "@/lib/sharing/queries";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/(authenticated)/invite/$folderId")({
-	beforeLoad: async ({ context, params }) => {
+	beforeLoad: ({ context, params }) => {
 		const folderId = params.folderId;
-		await context.queryClient.prefetchQuery(
-			invitationDetailsQueryOptions(folderId),
-		);
+		context.queryClient.prefetchQuery(invitationDetailsQueryOptions(folderId));
 	},
 	component: RouteComponent,
 	errorComponent: InvitationError,

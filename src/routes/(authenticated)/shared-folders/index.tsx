@@ -12,11 +12,9 @@ import {
 } from "@/lib/sharing/queries";
 
 export const Route = createFileRoute("/(authenticated)/shared-folders/")({
-	beforeLoad: async ({ context }) => {
-		await Promise.all([
-			context.queryClient.prefetchQuery(sharedWithMeQueryOptions()),
-			context.queryClient.prefetchQuery(sharedByMeQueryOptions()),
-		]);
+	beforeLoad: ({ context }) => {
+		context.queryClient.prefetchQuery(sharedWithMeQueryOptions());
+		context.queryClient.prefetchQuery(sharedByMeQueryOptions());
 	},
 	component: RouteComponent,
 });

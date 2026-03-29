@@ -42,7 +42,7 @@ export const Route = createFileRoute(
 			);
 
 			if (folderId) {
-				await Promise.all([
+				Promise.all([
 					context.queryClient.prefetchQuery(
 						teamFoldersQueryOptions(org.id, folderId),
 					),
@@ -54,9 +54,7 @@ export const Route = createFileRoute(
 					),
 				]);
 			} else {
-				await context.queryClient.prefetchQuery(
-					teamFoldersQueryOptions(org.id),
-				);
+				context.queryClient.prefetchQuery(teamFoldersQueryOptions(org.id));
 			}
 
 			return { organization: org, hasError: false as const };

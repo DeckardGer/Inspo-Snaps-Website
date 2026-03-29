@@ -26,7 +26,7 @@ export const Route = createFileRoute(
 		const { folderId } = params;
 
 		if (folderId) {
-			await Promise.all([
+			Promise.all([
 				context.queryClient.prefetchQuery(foldersQueryOptions(folderId)),
 				context.queryClient.prefetchQuery(folderPathQueryOptions(folderId)),
 				context.queryClient.prefetchQuery(folderImagesQueryOptions(folderId)),

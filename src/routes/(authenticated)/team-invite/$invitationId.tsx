@@ -20,9 +20,9 @@ import { teamInvitationDetailsQueryOptions } from "@/lib/organizations/queries";
 export const Route = createFileRoute(
 	"/(authenticated)/team-invite/$invitationId",
 )({
-	beforeLoad: async ({ context, params }) => {
+	beforeLoad: ({ context, params }) => {
 		const invitationId = params.invitationId;
-		await context.queryClient.prefetchQuery(
+		context.queryClient.prefetchQuery(
 			teamInvitationDetailsQueryOptions(invitationId),
 		);
 	},

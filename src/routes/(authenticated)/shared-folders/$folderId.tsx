@@ -21,17 +21,13 @@ import {
 export const Route = createFileRoute(
 	"/(authenticated)/shared-folders/$folderId",
 )({
-	beforeLoad: async ({ context, params }) => {
+	beforeLoad: ({ context, params }) => {
 		const folderId = params.folderId;
-		await Promise.all([
-			context.queryClient.prefetchQuery(
-				sharedFolderContentsQueryOptions(folderId),
-			),
-			context.queryClient.prefetchQuery(
-				sharedFolderImagesQueryOptions(folderId),
-			),
-			context.queryClient.prefetchQuery(sharedFolderPathQueryOptions(folderId)),
-		]);
+		context.queryClient.prefetchQuery(
+			sharedFolderContentsQueryOptions(folderId),
+		);
+		context.queryClient.prefetchQuery(sharedFolderImagesQueryOptions(folderId));
+		context.queryClient.prefetchQuery(sharedFolderPathQueryOptions(folderId));
 	},
 	component: RouteComponent,
 	errorComponent: SharedFolderError,
