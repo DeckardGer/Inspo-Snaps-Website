@@ -137,6 +137,7 @@ function SaveFromWebIllustration() {
 								<img
 									src={`/landing/mock/${String(n).padStart(2, "0")}.jpg`}
 									alt="Saved inspiration in folder"
+									loading="lazy"
 									className="h-full w-full object-cover"
 								/>
 								{/* Cursor on selected image */}
@@ -457,6 +458,7 @@ function DeviceSyncIllustration() {
 								<img
 									src={`/landing/mock/${String(n).padStart(2, "0")}.jpg`}
 									alt="Synced inspiration across devices"
+									loading="lazy"
 									className="h-full w-full object-cover"
 								/>
 							</div>
@@ -510,6 +512,7 @@ function DeviceSyncIllustration() {
 							<img
 								src={`/landing/mock/${String(n).padStart(2, "0")}.jpg`}
 								alt="Synced inspiration across devices"
+								loading="lazy"
 								className="h-full w-full object-cover"
 							/>
 						</div>

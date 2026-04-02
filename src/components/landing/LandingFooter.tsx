@@ -120,6 +120,7 @@ export function LandingFooter() {
 							<img
 								src={appTheme === "dark" ? "https://twelve.tools/badge0-dark.svg" : "https://twelve.tools/badge0-white.svg"}
 								alt="Featured on Twelve Tools"
+								loading="lazy"
 								width={140}
 								height={38}
 							/>
@@ -133,6 +134,7 @@ export function LandingFooter() {
 							<img
 								src="https://tinylaunch.com/tinylaunch_badge_launching_soon.svg"
 								alt="TinyLaunch Badge"
+								loading="lazy"
 								width={140}
 								height={38}
 							/>
@@ -158,6 +160,7 @@ export function LandingFooter() {
 								alt="Deckard"
 								className="size-4 rounded-full"
 								src="/images/about/deckard.png"
+								loading="lazy"
 							/>
 							Deckard
 						</a>
