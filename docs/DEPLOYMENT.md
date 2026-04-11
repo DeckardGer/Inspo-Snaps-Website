@@ -22,7 +22,7 @@ Set these in Coolify under **Environment Variables**:
 | `S3_BUCKET_NAME` | S3 bucket name |
 | `S3_ENDPOINT` | Optional — only needed for S3-compatible providers |
 | `S3_FORCE_PATH_STYLE` | Optional — `true` for MinIO/S3-compatible, `false` for AWS |
-| `RESEND_API_KEY` | Resend API key for transactional emails |
+| `UNOSEND_API_KEY` | Unosend API key for transactional emails |
 | `EMAIL_FROM` | Sender address (e.g. `InspoSnaps <noreply@insposnaps.com>`) |
 | `POLAR_ACCESS_TOKEN` | Polar access token for subscriptions |
 | `POLAR_WEBHOOK_SECRET` | Polar webhook signing secret |

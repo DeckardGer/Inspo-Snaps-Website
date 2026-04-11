@@ -1,11 +1,11 @@
 import { serverEnv } from "@/config/env/server";
-import { resend } from "./resend";
 import {
 	emailVerificationTemplate,
 	passwordResetTemplate,
 	teamInvitationTemplate,
 	welcomeVerificationTemplate,
 } from "./templates";
+import { unosend } from "./unosend";
 
 export async function sendPasswordResetEmail(
 	to: string,
@@ -13,7 +13,7 @@ export async function sendPasswordResetEmail(
 ): Promise<{ success: boolean; error?: string }> {
 	const template = passwordResetTemplate(resetUrl);
 
-	const { error } = await resend.emails.send({
+	const { error } = await unosend.emails.send({
 		from: serverEnv.EMAIL_FROM,
 		to,
 		subject: template.subject,
@@ -36,7 +36,7 @@ export async function sendWelcomeVerificationEmail(
 ): Promise<{ success: boolean; error?: string }> {
 	const template = welcomeVerificationTemplate(verificationUrl, userName);
 
-	const { error } = await resend.emails.send({
+	const { error } = await unosend.emails.send({
 		from: serverEnv.EMAIL_FROM,
 		to,
 		subject: template.subject,
@@ -58,7 +58,7 @@ export async function sendVerificationEmail(
 ): Promise<{ success: boolean; error?: string }> {
 	const template = emailVerificationTemplate(verificationUrl);
 
-	const { error } = await resend.emails.send({
+	const { error } = await unosend.emails.send({
 		from: serverEnv.EMAIL_FROM,
 		to,
 		subject: template.subject,
@@ -85,7 +85,7 @@ export async function sendTeamInvitationEmail(
 ): Promise<{ success: boolean; error?: string }> {
 	const template = teamInvitationTemplate(params);
 
-	const { error } = await resend.emails.send({
+	const { error } = await unosend.emails.send({
 		from: serverEnv.EMAIL_FROM,
 		to,
 		subject: template.subject,
