@@ -30,8 +30,13 @@ export const PLAN_SLUGS: Record<string, PlanKey> = {
 };
 
 // Map Polar product IDs to plan slugs
-// Replace these with your actual Polar product IDs
 export const PRODUCT_ID_TO_SLUG: Record<string, string> = {
+	// Production
+	"debd60d1-df39-4cd7-b719-b17ca8c41232": "pro-monthly",
+	"f08ffdf1-4bea-48e6-ba30-d960ccce14f1": "pro-annual",
+	"4c6a4694-4e51-4d1e-8864-df1d3362e60a": "team-monthly",
+	"9782b2a0-5e2c-4bc8-8d32-d489696d1fb4": "team-annual",
+	// Sandbox
 	"6b7dc528-6d34-48b0-af3a-6b62c72d374f": "pro-monthly",
 	"8ab63a02-f7b5-46a7-ab21-884030c820f1": "pro-annual",
 	"ac1ff4bf-5edd-46ab-9e4e-52ce9d78de09": "team-monthly",
