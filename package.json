@@ -2,6 +2,7 @@
   "name": "inspo-snaps-website",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.24.0",
   "scripts": {
     "dev": "vite dev --port 3000",
     "build": "vite build",
@@ -84,5 +85,17 @@
     "vite": "^7.1.7",
     "vitest": "^3.0.5",
     "web-vitals": "^5.1.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ],
+    "ignoredBuiltDependencies": [
+      "@prisma/engines",
+      "core-js",
+      "msw",
+      "prisma",
+      "protobufjs"
+    ]
   }
 }
