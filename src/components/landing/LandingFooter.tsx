@@ -28,7 +28,7 @@ const navLinks = [
 
 const socialLinks = [
 	{
-		href: "https://x.com/deckard_the_dev",
+		href: "https://x.com/DeckardBuilds",
 		label: "X",
 		icon: <HugeiconsIcon icon={NewTwitterIcon} strokeWidth={2} />,
 	},
@@ -152,7 +152,7 @@ export function LandingFooter() {
 						<a
 							aria-label="x/twitter"
 							className="inline-flex items-center gap-1 rounded-md text-foreground/80 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-							href={"https://x.com/deckard_the_dev"}
+							href={"https://x.com/DeckardBuilds"}
 							rel="noreferrer"
 							target="_blank"
 						>

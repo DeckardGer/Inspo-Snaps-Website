@@ -36,7 +36,7 @@ function emailLayout(content: string): string {
             <td align="center" style="padding: 24px 40px; font-size: 12px; line-height: 1.5; color: #a1a1aa;">
               <a href="${BASE_URL}" style="color: #71717a; text-decoration: none; font-weight: 500;">InspoSnaps</a> &mdash; Organize, save, and share your visual inspiration
               <br />
-              <a href="${BASE_URL}" style="color: #a1a1aa; text-decoration: underline;">insposnaps.com</a> &middot; <a href="https://x.com/deckard_the_dev" style="color: #a1a1aa; text-decoration: underline;">@deckard_the_dev</a>
+              <a href="${BASE_URL}" style="color: #a1a1aa; text-decoration: underline;">insposnaps.com</a> &middot; <a href="https://x.com/DeckardBuilds" style="color: #a1a1aa; text-decoration: underline;">@DeckardBuilds</a>
             </td>
           </tr>
         </table>
